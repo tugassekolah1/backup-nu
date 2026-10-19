@@ -410,6 +410,77 @@
             .form-actions { flex-direction: column; }
             .btn { width: 100%; }
         }
+
+        /* Popup konfirmasi — selalu menutupi form (di atasnya) */
+        .confirm-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            background: rgba(9, 40, 26, 0.55);
+            backdrop-filter: blur(3px);
+        }
+        .confirm-overlay.show { display: flex; }
+        .confirm-box {
+            width: min(520px, 100%);
+            max-height: calc(100vh - 32px);
+            overflow-y: auto;
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            animation: confirm-pop 180ms ease-out;
+        }
+        @keyframes confirm-pop {
+            from { opacity: 0; transform: translateY(14px); }
+            to { opacity: 1; transform: none; }
+        }
+        .confirm-head {
+            background: linear-gradient(135deg, #093820 0%, #0f522c 100%);
+            color: #fff;
+            padding: 24px;
+        }
+        .confirm-head h2 { margin: 0 0 6px; font-size: 19px; }
+        .confirm-head p { margin: 0; font-size: 13px; line-height: 1.6; color: #cfe8d9; }
+        .confirm-list { margin: 0; padding: 10px 24px; }
+        .confirm-list > div {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 16px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--line);
+        }
+        .confirm-list > div:last-child { border-bottom: none; }
+        .confirm-list dt {
+            flex-shrink: 0;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--ink-muted);
+        }
+        .confirm-list dd {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--ink-primary);
+            text-align: right;
+            word-break: break-word;
+        }
+        .confirm-note {
+            margin: 0;
+            padding: 0 24px 4px;
+            font-size: 12px;
+            color: var(--ink-muted);
+            text-align: center;
+        }
+        .confirm-actions { display: flex; gap: 12px; padding: 16px 24px 24px; }
+        @media (max-width: 640px) {
+            .confirm-actions { flex-direction: column; }
+        }
     </style>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -429,7 +500,7 @@
         </div>
     </header>
 
-    <div class="alert-wrapper">
+    <div class="alert-wrapper" id="alertWrapper">
         @if (session('success'))
             <div class="alert alert-success">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
@@ -630,6 +701,33 @@
         </div>
     </footer>
 
+    {{-- Popup konfirmasi: muncul di atas form saat tombol "Daftar" diklik --}}
+    <div class="confirm-overlay" id="confirmRegister" role="dialog" aria-modal="true" aria-labelledby="confirmRegisterTitle">
+        <div class="confirm-box">
+            <div class="confirm-head">
+                <h2 id="confirmRegisterTitle">Periksa Data Anda Dulu</h2>
+                <p>Ini data yang akan dikirim ke admin. Kalau sudah benar, tekan tombol <strong>Kirim Pendaftaran</strong>. Kalau masih ada yang salah, tekan <strong>Kembali Perbaiki</strong>.</p>
+            </div>
+
+            <dl class="confirm-list">
+                <div><dt>NIK</dt><dd id="cfNik">—</dd></div>
+                <div><dt>Nama Lengkap</dt><dd id="cfNama">—</dd></div>
+                <div><dt>Jenis Kelamin</dt><dd id="cfGender">—</dd></div>
+                <div><dt>No. HP</dt><dd id="cfPhone">—</dd></div>
+                <div><dt>Organisasi</dt><dd id="cfOrganisasi">—</dd></div>
+                <div><dt>Alamat</dt><dd id="cfAddress">—</dd></div>
+                <div><dt>Foto</dt><dd id="cfPhoto">—</dd></div>
+            </dl>
+
+            <p class="confirm-note">Data Anda hanya dipakai untuk administrasi keanggotaan NU Ranting Banjaranyar.</p>
+
+            <div class="confirm-actions">
+                <button type="button" class="btn btn-secondary" id="confirmBack">Kembali Perbaiki</button>
+                <button type="button" class="btn btn-primary" id="confirmSend">Kirim Pendaftaran</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Filter angka-only untuk NIK & No. HP, plus counter digit NIK
         const nikInput = document.getElementById('nik');
@@ -682,11 +780,111 @@
             wrap.classList.add('show');
         }
 
-        // Loading state saat submit
-        document.getElementById('registerForm').addEventListener('submit', function () {
-            const btn = document.getElementById('submitBtn');
-            btn.classList.add('loading');
-            btn.disabled = true;
+        // Loading state, cek isian wajib, lalu popup konfirmasi sebelum form dikirim
+        const registerForm = document.getElementById('registerForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const confirmPopup = document.getElementById('confirmRegister');
+        const alertWrapper = document.getElementById('alertWrapper');
+        const requiredFields = [
+            { id: 'nik', label: 'NIK 16 digit' },
+            { id: 'full_name', label: 'Nama Lengkap' },
+            { id: 'gender', label: 'Jenis Kelamin' },
+            { id: 'phone', label: 'No. HP' },
+            { id: 'address', label: 'Alamat Lengkap' },
+        ];
+
+        function closeConfirmPopup() {
+            confirmPopup.classList.remove('show');
+        }
+
+        function showFormHint(message) {
+            alertWrapper.innerHTML =
+                '<div class="alert alert-error">' +
+                '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' +
+                '<span>' + message + '</span>' +
+                '</div>';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function fillConfirmPopup() {
+            const valueOf = function (id) {
+                const el = document.getElementById(id);
+                return el && el.value.trim() ? el.value.trim() : '—';
+            };
+
+            document.getElementById('cfNik').textContent = valueOf('nik');
+            document.getElementById('cfNama').textContent = valueOf('full_name');
+            document.getElementById('cfGender').textContent =
+                genderSelect.value === 'L' ? 'Laki-laki' : (genderSelect.value === 'P' ? 'Perempuan' : '—');
+            document.getElementById('cfPhone').textContent = valueOf('phone');
+
+            const organisasiSelect = document.getElementById('organisasi');
+            document.getElementById('cfOrganisasi').textContent =
+                organisasiSelect && organisasiSelect.value
+                    ? organisasiSelect.options[organisasiSelect.selectedIndex].text
+                    : 'Belum dipilih';
+
+            document.getElementById('cfAddress').textContent = valueOf('address');
+
+            const photoInput = document.getElementById('photo');
+            document.getElementById('cfPhoto').textContent =
+                photoInput && photoInput.files.length
+                    ? 'Siap diunggah (' + photoInput.files[0].name + ')'
+                    : 'Tidak ada (boleh dikosongkan)';
+        }
+
+        registerForm.addEventListener('submit', function (event) {
+            // Jangan langsung kirim: pengguna diajak memeriksa data lewat popup dulu.
+            event.preventDefault();
+
+            const missingLabels = [];
+            let firstMissingField = null;
+
+            requiredFields.forEach(function (item) {
+                const field = document.getElementById(item.id);
+                if (!field) return;
+
+                const isEmpty = !field.value || !String(field.value).trim();
+                const badNik = item.id === 'nik' && field.value.replace(/[^0-9]/g, '').length !== 16;
+
+                if (isEmpty || badNik) {
+                    missingLabels.push(item.label);
+                    if (!firstMissingField) firstMissingField = field;
+                }
+            });
+
+            if (missingLabels.length) {
+                showFormHint('Mohon lengkapi dulu: ' + missingLabels.join(', ') + '. Isi kolom tersebut, lalu tekan tombol Daftar lagi.');
+                if (firstMissingField) {
+                    firstMissingField.focus();
+                    firstMissingField.scrollIntoView({ block: 'center' });
+                }
+                return;
+            }
+
+            alertWrapper.innerHTML = '';
+            fillConfirmPopup();
+            confirmPopup.classList.add('show');
+        });
+
+        document.getElementById('confirmBack').addEventListener('click', function () {
+            closeConfirmPopup();
+        });
+
+        document.getElementById('confirmSend').addEventListener('click', function () {
+            closeConfirmPopup();
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+            // submit() asli tidak memicu event submit lagi, jadi tidak terjadi loop.
+            registerForm.submit();
+        });
+
+        confirmPopup.addEventListener('click', function (event) {
+            if (event.target === confirmPopup) closeConfirmPopup();
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') closeConfirmPopup();
         });
     </script>
 </body>

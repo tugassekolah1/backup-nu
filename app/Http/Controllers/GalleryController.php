@@ -6,21 +6,65 @@ use App\Models\Gallery;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 
 class GalleryController extends Controller
 {
-    public function publicIndex()
+    /**
+     * Halaman galeri publik, dengan filter organisasi.
+     */
+    public function publicIndex(Request $request): View
     {
-        $galleries = Gallery::orderBy('urutan', 'asc')->orderBy('created_at', 'desc')->get();
+        $daftarOrganisasi = Gallery::daftarOrganisasi();
 
-        return view('galeri', compact('galleries'));
+        // Slug yang tidak dikenal dianggap "semua" agar tidak memunculkan
+        // 404 ketika pengunjung mengutak-atik URL.
+        $organisasiAktif = (string) $request->query('organisasi', '');
+        if (! in_array($organisasiAktif, array_column($daftarOrganisasi, 'slug'), true)) {
+            $organisasiAktif = '';
+        }
+
+        $galleries = Gallery::query()
+            ->when($organisasiAktif !== '', fn (Builder $query) => $query->where('organisasi', $organisasiAktif))
+            ->orderBy('urutan', 'asc')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Satu agregat untuk jumlah foto tiap organisasi (tanpa N+1).
+        $jumlahPerOrganisasi = Gallery::query()
+            ->selectRaw('organisasi, count(*) as jumlah')
+            ->groupBy('organisasi')
+            ->pluck('jumlah', 'organisasi');
+
+        $organisasiTerpilih = collect($daftarOrganisasi)->firstWhere('slug', $organisasiAktif);
+
+        return view('galeri', [
+            'galleries' => $galleries,
+            'daftarOrganisasi' => $daftarOrganisasi,
+            'organisasiAktif' => $organisasiAktif,
+            'namaOrganisasiAktif' => $organisasiTerpilih['singkatan'] ?? '',
+            'jumlahPerOrganisasi' => $jumlahPerOrganisasi,
+            'jumlahSemua' => (int) $jumlahPerOrganisasi->sum(),
+        ]);
     }
 
-    public function index(Request $request)
+    /**
+     * Daftar foto galeri di panel admin, dengan pencarian dan filter organisasi.
+     */
+    public function index(Request $request): View
     {
         $q = trim((string) $request->query('q', ''));
 
+        $daftarOrganisasi = Gallery::daftarOrganisasi();
+
+        $organisasiAktif = (string) $request->query('organisasi', '');
+        if (! in_array($organisasiAktif, array_column($daftarOrganisasi, 'slug'), true)) {
+            $organisasiAktif = '';
+        }
+
         $galleries = Gallery::query()
+            ->when($organisasiAktif !== '', fn (Builder $query) => $query->where('organisasi', $organisasiAktif))
             ->when($q !== '', function (Builder $query) use ($q) {
                 $like = '%'.$q.'%';
                 $query->where(function (Builder $query) use ($like) {
@@ -32,18 +76,21 @@ class GalleryController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('gallery.index', compact('galleries', 'q'));
+        return view('gallery.index', compact('galleries', 'q', 'daftarOrganisasi', 'organisasiAktif'));
     }
 
-    public function create()
+    public function create(): View
     {
-        return view('gallery.create');
+        return view('gallery.create', [
+            'opsiOrganisasi' => Gallery::opsiOrganisasiPerKategori(),
+        ]);
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'judul' => 'required|string|max:255',
+            'organisasi' => ['nullable', 'string', Rule::in(array_column(Gallery::daftarOrganisasi(), 'slug'))],
             'deskripsi' => 'nullable|string',
             'foto' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
             'urutan' => 'nullable|integer',
@@ -53,6 +100,7 @@ class GalleryController extends Controller
 
         Gallery::create([
             'judul' => $request->judul,
+            'organisasi' => $request->organisasi ?: null,
             'deskripsi' => $request->deskripsi,
             'foto' => $fotoPath,
             'urutan' => $request->urutan ?? 0,
@@ -61,15 +109,19 @@ class GalleryController extends Controller
         return redirect()->route('gallery.index')->with('success', 'Foto galeri berhasil ditambahkan.');
     }
 
-    public function edit(Gallery $gallery)
+    public function edit(Gallery $gallery): View
     {
-        return view('gallery.edit', compact('gallery'));
+        return view('gallery.edit', [
+            'gallery' => $gallery,
+            'opsiOrganisasi' => Gallery::opsiOrganisasiPerKategori(),
+        ]);
     }
 
     public function update(Request $request, Gallery $gallery)
     {
         $request->validate([
             'judul' => 'required|string|max:255',
+            'organisasi' => ['nullable', 'string', Rule::in(array_column(Gallery::daftarOrganisasi(), 'slug'))],
             'deskripsi' => 'nullable|string',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'urutan' => 'nullable|integer',
@@ -86,6 +138,7 @@ class GalleryController extends Controller
 
         $gallery->update([
             'judul' => $request->judul,
+            'organisasi' => $request->organisasi ?: null,
             'deskripsi' => $request->deskripsi,
             'foto' => $fotoPath,
             'urutan' => $request->urutan ?? 0,

@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\NuMember;
-use App\Models\Payment;
 
 test('kartu anggota page renders the public search form', function () {
     $this->get('/kartu-anggota')
@@ -31,111 +30,116 @@ test('unknown nik shows the not submitted state with a registration cta', functi
         ->assertDontSee('id="mcStage"', false);
 });
 
+test('the card page requires the registered phone as a second factor', function () {
+    $member = NuMember::create([
+        'nik' => '3300000000000009',
+        'full_name' => 'Siti Maemunah',
+        'phone' => '081234567899',
+        'gender' => 'P',
+        'address' => 'Banjaranyar',
+        'status' => 'active',
+        'member_card_no' => 'NU-2026-999',
+    ]);
+
+    // NIK saja: identitas tidak boleh bocor.
+    $this->get('/kartu-anggota?nik='.$member->nik)
+        ->assertOk()
+        ->assertDontSee('Siti Maemunah')
+        ->assertDontSee('081234567899')
+        ->assertDontSee('NU-2026-999')
+        ->assertDontSee('id="mcStage"', false);
+
+    // NIK + nomor HP yang salah: tetap tidak boleh bocor.
+    $this->get('/kartu-anggota?nik='.$member->nik.'&phone=081299999999')
+        ->assertOk()
+        ->assertDontSee('Siti Maemunah')
+        ->assertDontSee('NU-2026-999');
+
+    // NIK + nomor HP yang benar: data tampil.
+    $this->get('/kartu-anggota?nik='.$member->nik.'&phone='.$member->phone)
+        ->assertOk()
+        ->assertSee('Siti Maemunah')
+        ->assertSee('NU-2026-999');
+});
+
+test('the phone second factor tolerates the 62 country code prefix', function () {
+    $member = NuMember::create([
+        'nik' => '3300000000000008',
+        'full_name' => 'Abdul Karim',
+        'phone' => '081234567898',
+        'gender' => 'L',
+        'address' => 'Banjaranyar',
+        'status' => 'active',
+        'member_card_no' => 'NU-2026-998',
+    ]);
+
+    // 6281234567898 == 081234567898
+    $this->get('/kartu-anggota?nik='.$member->nik.'&phone=6281234567898')
+        ->assertOk()
+        ->assertSee('Abdul Karim')
+        ->assertSee('NU-2026-998');
+});
+
 test('a pending registration shows the waiting state without print buttons', function () {
     $member = NuMember::create([
-        'nik'            => '3300000000000001',
-        'full_name'      => 'Budi Santoso',
-        'phone'          => '081234567890',
-        'gender'         => 'L',
-        'address'        => 'Banjaranyar',
-        'status'         => 'pending_payment',
-        'payment_status' => 'unpaid',
+        'nik' => '3300000000000001',
+        'full_name' => 'Budi Santoso',
+        'phone' => '081234567890',
+        'gender' => 'L',
+        'address' => 'Banjaranyar',
+        'status' => 'pending_payment',
+        'registration_status' => 'pending',
     ]);
 
-    Payment::create([
-        'nu_member_id'     => $member->id,
-        'transaction_code' => 'TRX-CHECKSTATUS',
-        'amount'           => 5000,
-        'payment_status'   => 'unpaid',
-    ]);
-
-    $this->get('/kartu-anggota?nik=3300000000000001')
+    $this->get('/kartu-anggota?nik=3300000000000001&phone=081234567890')
         ->assertOk()
         ->assertSee('Budi Santoso')
         ->assertSee('Menunggu Persetujuan')
         ->assertSee('Tanggal pengajuan')
-        ->assertSee('Menunggu Pembayaran')
-        ->assertSee('Belum Bayar')
-        ->assertSee('TRX-CHECKSTATUS')
-        ->assertSee(route('members.payment-page', $member), false)
+        ->assertSee('Menunggu Verifikasi')
         ->assertDontSee('id="mcStage"', false)
-        ->assertDontSee("printMemberCard(", false);
-});
-
-test('a proof waiting for admin verification stays pending without print buttons', function () {
-    $member = NuMember::create([
-        'nik'            => '3300000000000002',
-        'full_name'      => 'Siti Aminah',
-        'phone'          => '081234567891',
-        'gender'         => 'P',
-        'address'        => 'Banjaranyar',
-        'status'         => 'pending_payment',
-        'payment_status' => 'unpaid',
-    ]);
-
-    Payment::create([
-        'nu_member_id'     => $member->id,
-        'transaction_code' => 'TRX-PROOF01',
-        'amount'           => 5000,
-        'payment_proof'    => 'payment-proofs/proof.jpg',
-        'payment_status'   => 'unpaid',
-    ]);
-
-    $this->get('/kartu-anggota?nik=3300000000000002')
-        ->assertOk()
-        ->assertSee('Menunggu Persetujuan')
-        ->assertSee('Bukti Diterima')
-        ->assertDontSee('id="mcStage"', false)
-        ->assertDontSee("printMemberCard(", false);
+        ->assertDontSee('printMemberCard(', false);
 });
 
 test('a rejected application shows the reason and a reapply cta without print', function () {
     $member = NuMember::create([
-        'nik'                => '3300000000000005',
-        'full_name'          => 'Zainul Arifin',
-        'phone'              => '081234567893',
-        'gender'             => 'L',
-        'address'            => 'Banjaranyar',
-        'status'             => 'pending_payment',
-        'payment_status'     => 'unpaid',
-        'registration_status'=> 'rejected',
-        'rejection_reason'   => 'Berkas identitas belum lengkap.',
+        'nik' => '3300000000000005',
+        'full_name' => 'Zainul Arifin',
+        'phone' => '081234567893',
+        'gender' => 'L',
+        'address' => 'Banjaranyar',
+        'status' => 'pending_payment',
+        'registration_status' => 'rejected',
+        'rejection_reason' => 'Berkas identitas belum lengkap.',
     ]);
 
-    $this->get('/kartu-anggota?nik=' . $member->nik)
+    $this->get('/kartu-anggota?nik='.$member->nik.'&phone='.$member->phone)
         ->assertOk()
         ->assertSee('Pengajuan Ditolak')
         ->assertSee('Berkas identitas belum lengkap.')
         ->assertSee('Ajukan Kembali')
         ->assertSee(route('members.register-form'), false)
         ->assertDontSee('id="mcStage"', false)
-        ->assertDontSee("printMemberCard(", false);
+        ->assertDontSee('printMemberCard(', false);
 });
 
 test('an approved member sees the card right on the page with print and download', function () {
     $member = NuMember::create([
-        'nik'            => '3300000000000003',
-        'full_name'      => 'Ahmad Fauzi',
-        'phone'          => '081234567892',
-        'gender'         => 'L',
-        'address'        => 'Banjaranyar',
-        'status'         => 'active',
-        'payment_status' => 'paid',
+        'nik' => '3300000000000003',
+        'full_name' => 'Ahmad Fauzi',
+        'phone' => '081234567892',
+        'gender' => 'L',
+        'address' => 'Banjaranyar',
+        'status' => 'active',
+        'registration_status' => 'accepted',
         'member_card_no' => 'NU-2026-001',
     ]);
 
-    Payment::create([
-        'nu_member_id'     => $member->id,
-        'transaction_code' => 'TRX-PAID001',
-        'amount'           => 5000,
-        'payment_status'   => 'paid',
-    ]);
-
-    $this->get('/kartu-anggota?nik=3300000000000003')
+    $this->get('/kartu-anggota?nik=3300000000000003&phone=081234567892')
         ->assertOk()
         ->assertSee('Disetujui / Aktif')
         ->assertSee('Pengajuan Disetujui — Kartu Siap Digunakan')
-        ->assertSee('Lunas')
+        ->assertSee('Aktif')
         ->assertSee('NU-2026-001')
         ->assertSee('id="mcStage"', false)
         ->assertSee('Cetak Kartu')

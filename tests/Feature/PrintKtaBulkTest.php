@@ -14,7 +14,7 @@ function bulkPrintMember(array $overrides = []): NuMember
         'gender' => 'L',
         'address' => 'Banjaranyar',
         'status' => 'active',
-        'payment_status' => 'paid',
+        'registration_status' => 'accepted',
         'member_card_no' => 'NU-2026-'.$seq,
     ], $overrides));
 }
@@ -33,7 +33,7 @@ test('guest hitting cetak-kta-bulk is redirected to login', function () {
         ->assertRedirect(route('login'));
 });
 
-test('get without ids prints every paid member', function () {
+test('get without ids prints every active member', function () {
     $member = bulkPrintMember();
 
     $this->actingAs(User::factory()->admin()->create())
@@ -42,10 +42,10 @@ test('get without ids prints every paid member', function () {
         ->assertSee($member->full_name, false);
 });
 
-test('printing by banom only includes paid members of that banom', function () {
+test('printing by banom only includes active members of that banom', function () {
     $ansorMember = bulkPrintMember(['organisasi' => 'pac_ansor']);
     bulkPrintMember(['organisasi' => 'pac_ipnu']);
-    bulkPrintMember(['organisasi' => 'pac_ansor', 'payment_status' => 'unpaid']);
+    bulkPrintMember(['organisasi' => 'pac_ansor', 'status' => 'pending_payment']);
 
     $this->actingAs(User::factory()->admin()->create())
         ->get(route('members.cetak-kta-bulk', ['banom' => 'pac_ansor']))

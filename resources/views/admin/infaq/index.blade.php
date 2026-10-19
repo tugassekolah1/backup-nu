@@ -261,11 +261,24 @@
                                                 <form action="{{ route('admin.infaq.mark-lunas', $infaq) }}" method="POST" class="inline"
                                                       onsubmit="return confirm('Setujui {{ $infaq->bukti_path ? 'bukti bayar dan ' : '' }}tandai {{ $infaq->kode_transaksi }} lunas?')">
                                                     @csrf
-                                                    <button type="submit" title="{{ $infaq->bukti_path ? 'Setujui Bukti & Tandai Lunas' : 'Tandai Lunas' }}"
-                                                            class="p-1.5 rounded-lg border border-transparent transition-all {{ $infaq->bukti_path ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs' : 'text-slate-600 hover:bg-white hover:text-emerald-600 hover:border-slate-200' }}">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <button type="submit"
+                                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs transition-all">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                                         </svg>
+                                                        {{ $infaq->bukti_path ? 'Setujui & Lunas' : 'Tandai Lunas' }}
+                                                    </button>
+                                                </form>
+
+                                                <form action="{{ route('admin.infaq.mark-batal', $infaq) }}" method="POST" class="inline"
+                                                      onsubmit="return confirm('Batalkan transaksi {{ $infaq->kode_transaksi }}? Status berubah menjadi dibatalkan.')">
+                                                    @csrf
+                                                    <button type="submit"
+                                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border border-rose-200 text-rose-600 hover:bg-rose-50 transition-all">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                                                        </svg>
+                                                        Batalkan
                                                     </button>
                                                 </form>
                                             @endif

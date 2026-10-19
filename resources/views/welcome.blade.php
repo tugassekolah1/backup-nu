@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="scroll-smooth" lang="id">
 <head>
@@ -116,7 +118,7 @@ section.revealed .grid > *:nth-child(4) { animation-delay: 0.35s; }
                     <img alt="" class="w-full h-[380px] sm:h-[460px] lg:h-[500px] object-cover hover:scale-[1.02] transition-transform duration-700 ease-out" src="{{ asset('images/home.jpg') }}"/>
                     <div class="absolute inset-0 bg-gradient-to-t from-charcoal/70 via-transparent to-transparent"></div>
                     <!-- Bottom Overlay on Image -->
-                   
+
                 </div>
             </div>
         </div>
@@ -264,7 +266,7 @@ section.revealed .grid > *:nth-child(4) { animation-delay: 0.35s; }
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
                 <!-- ONE LARGE FEATURED STORY (Left) -->
-                
+
                 @if($newsList->isNotEmpty())
     @php $featuredNews = $newsList->first(); @endphp
     <article class="lg:col-span-7 bg-warm-card rounded-container-r border border-border-neutral overflow-hidden flex flex-col justify-between shadow-subtle group min-w-0">
@@ -277,7 +279,7 @@ section.revealed .grid > *:nth-child(4) { animation-delay: 0.35s; }
                     </span>
                 </div>
             </div>
-            
+
             <div class="p-6 sm:p-8 min-w-0">
                 {{-- PERBAIKAN 1: Tambahkan flex-wrap dan min-w-0 di baris metadata --}}
                 <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-charcoal font-medium mb-3 min-w-0">

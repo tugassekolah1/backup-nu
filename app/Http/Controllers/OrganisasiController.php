@@ -38,12 +38,19 @@ class OrganisasiController extends Controller
             ->filter(fn ($org) => $org['banom'] !== null && $org['kategori'] === 'banom')
             ->values();
 
+        // Data pengurus untuk modal detail tiap organisasi (dikelompokkan per banom)
+        $semuaPengurus = Pengurus::orderBy('urutan', 'asc')
+            ->orderBy('id', 'asc')
+            ->get()
+            ->groupBy('banom');
+
         return view('organisasi.index', [
             'kategoriAktif' => $kategori,
             'q' => $q,
             'daftar' => $terfilter,
             'navigasi' => $navigasi,
             'totalSemua' => $terverifikasi->count(),
+            'semuaPengurus' => $semuaPengurus,
         ]);
     }
 

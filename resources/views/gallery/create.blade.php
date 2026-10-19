@@ -30,6 +30,26 @@
                     </div>
 
                     <div class="mb-4">
+                        <x-input-label for="organisasi" value="Organisasi / Banom" />
+                        <select name="organisasi" id="organisasi"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">— Tanpa organisasi (kegiatan umum) —</option>
+                            @foreach ($opsiOrganisasi as $grup)
+                                <optgroup label="{{ $grup['label'] }}">
+                                    @foreach ($grup['opsi'] as $opsi)
+                                        <option value="{{ $opsi['slug'] }}" @selected(old('organisasi') === $opsi['slug'])>
+                                            {{ $opsi['singkatan'] }} — {{ $opsi['nama'] }}
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endforeach
+                        </select>
+                        <p class="mt-1 text-xs text-gray-500">
+                            Menentukan organisasi tempat foto ditampilkan pada filter halaman Galeri publik.
+                        </p>
+                    </div>
+
+                    <div class="mb-4">
                         <x-input-label for="deskripsi" value="Deskripsi / Keterangan" />
                         <textarea name="deskripsi" id="deskripsi" rows="3"
                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">{{ old('deskripsi') }}</textarea>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Infaq;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -38,18 +39,30 @@ class InfaqController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        $totalMasuk = Infaq::where('arah', 'masuk')->where('status', 'lunas')->sum('nominal');
-        $totalKeluar = Infaq::where('arah', 'keluar')->where('status', 'lunas')->sum('nominal');
+        // Rekap saldo dalam 1 query conditional aggregate (bukan 6 query terpisah).
+        $rekapRow = Infaq::query()
+            ->selectRaw("
+                SUM(CASE WHEN arah = 'masuk' AND status = 'lunas' THEN nominal ELSE 0 END) as total_masuk,
+                SUM(CASE WHEN arah = 'keluar' AND status = 'lunas' THEN nominal ELSE 0 END) as total_keluar,
+                SUM(CASE WHEN arah = 'masuk' AND status = 'lunas' AND paid_at >= ? AND paid_at <= ? THEN nominal ELSE 0 END) as hari_ini,
+                SUM(CASE WHEN arah = 'masuk' AND status = 'lunas' AND paid_at >= ? AND paid_at <= ? THEN nominal ELSE 0 END) as bulan_ini,
+                SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending
+            ", [
+                today()->startOfDay(), today()->endOfDay(),
+                now()->startOfMonth(), now()->endOfMonth(),
+            ])
+            ->first();
+
+        $totalMasuk = (int) $rekapRow->total_masuk;
+        $totalKeluar = (int) $rekapRow->total_keluar;
 
         $rekap = [
             'total_lunas' => $totalMasuk,
             'total_keluar' => $totalKeluar,
             'saldo' => $totalMasuk - $totalKeluar,
-            'hari_ini' => Infaq::where('arah', 'masuk')->where('status', 'lunas')->whereDate('paid_at', today())->sum('nominal'),
-            'bulan_ini' => Infaq::where('arah', 'masuk')->where('status', 'lunas')
-                ->whereBetween('paid_at', [now()->startOfMonth(), now()->endOfMonth()])
-                ->sum('nominal'),
-            'pending' => Infaq::where('status', 'pending')->count(),
+            'hari_ini' => (int) $rekapRow->hari_ini,
+            'bulan_ini' => (int) $rekapRow->bulan_ini,
+            'pending' => (int) $rekapRow->pending,
         ];
 
         return view('admin.infaq.index', [
@@ -102,7 +115,7 @@ class InfaqController extends Controller
 
         if ($request->hasFile('bukti')) {
             if ($infaq->bukti_path) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($infaq->bukti_path);
+                Storage::disk('public')->delete($infaq->bukti_path);
             }
             $validated['bukti_path'] = $request->file('bukti')->store('infaq-bukti', 'public');
         } else {
@@ -118,7 +131,7 @@ class InfaqController extends Controller
     public function destroy(Infaq $infaq)
     {
         if ($infaq->bukti_path) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($infaq->bukti_path);
+            Storage::disk('public')->delete($infaq->bukti_path);
         }
 
         $infaq->delete();
@@ -148,6 +161,23 @@ class InfaqController extends Controller
     }
 
     /**
+     * Batalkan transaksi yang masih berstatus pending.
+     */
+    public function markBatal(Infaq $infaq)
+    {
+        if ($infaq->status !== 'pending') {
+            return redirect()->back()->with('error', 'Hanya transaksi berstatus pending yang bisa dibatalkan.');
+        }
+
+        $infaq->update([
+            'status' => 'dibatalkan',
+            'paid_at' => null,
+        ]);
+
+        return redirect()->back()->with('success', 'Transaksi dibatalkan');
+    }
+
+    /**
      * Aturan validasi untuk store dan update.
      */
     private function validateTransaksi(Request $request): array
@@ -161,7 +191,7 @@ class InfaqController extends Controller
             'arah' => ['nullable', Rule::in(Infaq::ARAH)],
             'kategori' => ['nullable', Rule::in(Infaq::KATEGORI_KELUAR)],
             'penanggung_jawab' => 'nullable|string|max:100',
-            'bukti' => 'nullable|image|max:2048',
+            'bukti' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'paid_at' => 'nullable|date',
             'catatan' => 'nullable|string',
         ], [

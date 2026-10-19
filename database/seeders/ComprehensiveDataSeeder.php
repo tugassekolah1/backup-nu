@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Agenda;
 use App\Models\Aspirasi;
 use App\Models\Berita;
+use App\Models\BeritaView;
 use App\Models\Gallery;
 use App\Models\Infaq;
 use App\Models\Pengurus;
@@ -29,11 +30,21 @@ class ComprehensiveDataSeeder extends Seeder
         DB::table('infaqs')->truncate();
         DB::table('aspirasis')->truncate();
         DB::table('penguruses')->truncate();
+        // Rekap harian pembaca harus ikut dibersihkan: barisnya menunjuk berita
+        // yang ikut terhapus, dan kalau dibiarkan grafik tren akan membawa sisa
+        // data berita lama.
+        DB::table('berita_views')->truncate();
         $this->command->line('  ✅ Cleaned');
         $this->command->newLine();
 
         // 1. Seed Berita (500)
         $this->seedBerita();
+
+        // Sebar total views berita ke rekap harian, supaya grafik tren 30 hari
+        // langsung terisi pada instalasi baru (tanpa menunggu kunjungan asli).
+        $dibuat = BeritaView::backfillDariTotalViews();
+        $this->command->line("  ✅ {$dibuat} baris rekap harian pembaca dibuat untuk grafik tren");
+        $this->command->newLine();
 
         // 2. Seed Agenda (500)
         $this->seedAgenda();
@@ -89,7 +100,7 @@ class ComprehensiveDataSeeder extends Seeder
         ];
 
         for ($i = 1; $i <= 500; $i++) {
-            Berita::create([
+            Berita::factory()->create([
                 'judul' => $titles[($i - 1) % count($titles)].' - Edisi '.$i,
                 'jenis' => 'Berita',
                 'slug' => 'berita-'.str_pad($i, 3, '0', STR_PAD_LEFT),
@@ -172,12 +183,22 @@ class ComprehensiveDataSeeder extends Seeder
     {
         $this->command->info('🖼️  Seeding 100 Foto Galeri...');
 
+        $organisasi = Gallery::daftarOrganisasi();
+
         for ($i = 1; $i <= 100; $i++) {
             $imageUrl = 'https://picsum.photos/400/300?random='.($i + rand(1000, 9999));
 
+            // Sebagian foto sengaja dibiarkan tanpa organisasi agar tersedia
+            // contoh foto kegiatan umum yang tidak terikat satu banom.
+            $org = $i % 4 === 0 ? null : ($organisasi[array_rand($organisasi)] ?? null);
+
+            $namaOrg = $org['nama'] ?? 'Nahdlatul Ulama Ranting Banjaranyar';
+            $singkat = $org['singkatan'] ?? 'Kegiatan Umum';
+
             Gallery::create([
-                'judul' => 'Galeri Kegiatan NU #'.str_pad($i, 3, '0', STR_PAD_LEFT),
-                'deskripsi' => 'Dokumentasi kegiatan organisasi NU yang menampilkan momen berharga antara anggota dan komunitas.',
+                'judul' => $singkat.' — Dokumentasi Kegiatan #'.str_pad($i, 3, '0', STR_PAD_LEFT),
+                'organisasi' => $org['slug'] ?? null,
+                'deskripsi' => "Dokumentasi kegiatan {$namaOrg} yang menampilkan momen berharga antara anggota dan komunitas.",
                 'foto' => $imageUrl,
                 'urutan' => $i,
                 'created_at' => now()->subDays(rand(0, 90)),

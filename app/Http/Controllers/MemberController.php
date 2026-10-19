@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\NuMember;
-use App\Models\Payment;
 use App\Models\Pengurus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -12,8 +11,6 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class MemberController extends Controller
 {
-    private const REGISTRATION_FEE = 5000;
-
     public function index(Request $request)
     {
         $statusFilter = $request->query('status', 'all');
@@ -44,14 +41,22 @@ class MemberController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        // Hitung jumlah anggota per banom
-        $banomCounts = [];
-        foreach (NuMember::ORGANISASI_GROUPS as $group => $items) {
-            foreach (array_keys($items) as $code) {
-                $banomCounts[$code] = NuMember::where('organisasi', $code)->count();
+        // Hitung jumlah anggota per banom dalam 1 query agregat.
+        $jumlahPerOrganisasi = NuMember::query()
+            ->selectRaw('organisasi, COUNT(*) as total')
+            ->groupBy('organisasi')
+            ->get();
+
+        $banomCounts = array_fill_keys(NuMember::organisasiCodes(), 0);
+        $banomCounts['none'] = 0;
+
+        foreach ($jumlahPerOrganisasi as $row) {
+            if ($row->organisasi === null) {
+                $banomCounts['none'] = (int) $row->total;
+            } else {
+                $banomCounts[$row->organisasi] = (int) $row->total;
             }
         }
-        $banomCounts['none'] = NuMember::whereNull('organisasi')->count();
 
         return view('admin.members.index', compact('members', 'statusFilter', 'banomFilter', 'banomCounts', 'search'));
     }
@@ -70,7 +75,6 @@ class MemberController extends Controller
             'gender' => 'required|in:L,P',
             'organisasi' => ['nullable', 'string', Rule::in(NuMember::organisasiCodes())],
             'address' => 'required',
-            'payment_option' => 'required|in:cash,unpaid',
             'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
@@ -79,9 +83,8 @@ class MemberController extends Controller
             $photoPath = $request->file('photo')->store('members-photo', 'public');
         }
 
-        $isCash = $validated['payment_option'] === 'cash';
-
-        $member = NuMember::create([
+        // Anggota yang ditambahkan langsung oleh admin dianggap sudah terverifikasi.
+        NuMember::create([
             'nik' => $validated['nik'],
             'full_name' => $validated['full_name'],
             'phone' => $validated['phone'],
@@ -90,16 +93,9 @@ class MemberController extends Controller
             'label_organisasi' => isset($validated['organisasi']) ? Pengurus::BANOMS[$validated['organisasi']]['label'] : null,
             'address' => $validated['address'],
             'photo' => $photoPath,
-            'status' => $isCash ? 'active' : 'pending_payment',
-            'payment_status' => $isCash ? 'paid' : 'unpaid',
-            'member_card_no' => $isCash ? $this->generateCardNumber() : null,
-        ]);
-
-        Payment::create([
-            'nu_member_id' => $member->id,
-            'transaction_code' => $this->generateTransactionCode(),
-            'amount' => self::REGISTRATION_FEE,
-            'payment_status' => $isCash ? 'paid' : 'unpaid',
+            'registration_status' => 'accepted',
+            'status' => 'active',
+            'member_card_no' => $this->generateCardNumber(),
         ]);
 
         return redirect()->route('members.index')->with('success', 'Anggota berhasil ditambahkan.');
@@ -146,26 +142,6 @@ class MemberController extends Controller
         $member->delete();
 
         return redirect()->route('members.index')->with('success', 'Anggota berhasil dihapus.');
-    }
-
-    public function confirmPayment(NuMember $member)
-    {
-        if ($member->payment_status === 'paid') {
-            return redirect()->route('members.index')->with('info', 'Anggota ini sudah lunas.');
-        }
-
-        $member->update([
-            'payment_status' => 'paid',
-            'status' => 'active',
-            'member_card_no' => $member->member_card_no ?? $this->generateCardNumber(),
-        ]);
-
-        $payment = $member->payments()->where('payment_status', 'unpaid')->latest()->first();
-        if ($payment) {
-            $payment->update(['payment_status' => 'paid']);
-        }
-
-        return redirect()->route('members.index')->with('success', 'Pembayaran dikonfirmasi, anggota kini aktif.');
     }
 
     /**
@@ -225,6 +201,7 @@ class MemberController extends Controller
             'registration_status' => 'accepted',
             'rejection_reason' => null,
             'status' => 'active',
+            'member_card_no' => $member->member_card_no ?? $this->generateCardNumber(),
         ]);
 
         return $this->registrationResponse(
@@ -286,24 +263,53 @@ class MemberController extends Controller
     public function memberCard(Request $request)
     {
         $member = null;
-        $payment = null;
         $qrCode = null;
+        $notVerified = false;
 
         if ($request->filled('nik')) {
             $member = NuMember::where('nik', $request->nik)->first();
 
-            if ($member) {
-                $payment = $member->payments()->latest()->first();
+            // Verifikasi faktor kedua: nomor HP yang dipakai saat mendaftar.
+            // Tanpa ini, siapa pun yang mengetahui NIK orang lain dapat melihat
+            // nama, nomor HP, dan nomor kartu anggota yang bersangkutan.
+            if ($member && ! $this->nomorHpCocok($member->phone, $request->input('phone'))) {
+                $member = null;
+                $notVerified = true;
+            }
 
-                // QR hanya dibuat bila anggota sudah lunas (syarat cetak kartu)
-                if ($member->payment_status === 'paid') {
-                    $qrData = 'NIK: '.$member->nik.' | CARD: '.$member->member_card_no;
-                    $qrCode = QrCode::size(80)->generate($qrData);
-                }
+            if ($member && $member->status === 'active' && $member->member_card_no) {
+                $qrData = 'NIK: '.$member->nik.' | CARD: '.$member->member_card_no;
+                $qrCode = QrCode::size(80)->generate($qrData);
             }
         }
 
-        return view('members-card', compact('member', 'payment', 'qrCode'));
+        return view('members-card', compact('member', 'qrCode', 'notVerified'));
+    }
+
+    /**
+     * Membandingkan nomor HP dengan format yang dimaklumi: hanya digit,
+     * awalan "62" disamakan dengan "0", sehingga 0812… = 62812… .
+     */
+    private function nomorHpCocok(?string $tersimpan, ?string $diisi): bool
+    {
+        $normalisasi = static function (?string $nomor): string {
+            $digit = preg_replace('/\D+/', '', (string) $nomor) ?? '';
+
+            if (str_starts_with($digit, '62')) {
+                $digit = '0'.substr($digit, 2);
+            }
+
+            return $digit;
+        };
+
+        $nomorTersimpan = $normalisasi($tersimpan);
+        $nomorDiisi = $normalisasi($diisi);
+
+        if ($nomorTersimpan === '' || $nomorDiisi === '') {
+            return false;
+        }
+
+        return $nomorTersimpan === $nomorDiisi;
     }
 
     /**
@@ -331,8 +337,8 @@ class MemberController extends Controller
     {
         $member = NuMember::findOrFail($id);
 
-        if ($member->payment_status !== 'paid') {
-            return back()->with('error', 'Kartu belum dapat dicetak karena status belum lunas.');
+        if ($member->status !== 'active') {
+            return back()->with('error', 'Kartu belum dapat dicetak karena pendaftaran belum disetujui admin.');
         }
 
         // Generate QR Code berisi NIK & Nomor Kartu
@@ -348,14 +354,14 @@ class MemberController extends Controller
      * Menerima salah satu dari:
      * - ids[]  : array ID anggota terpilih (bulk action dari tabel)
      * - banom : kode organisasi (cetak berjamaah satu banom) atau "none"
-     * - tanpa keduanya: seluruh anggota lunas
+     * - tanpa keduanya: seluruh anggota aktif
      */
     public function printKtaBulk(Request $request)
     {
         $ids = array_filter((array) $request->input('ids', []), fn ($id) => is_numeric($id));
         $banom = $request->query('banom');
 
-        $query = NuMember::where('payment_status', 'paid');
+        $query = NuMember::where('status', 'active');
 
         if ($ids !== []) {
             $query->whereIn('id', $ids);
@@ -374,7 +380,7 @@ class MemberController extends Controller
         $members = $query->get();
 
         if ($members->isEmpty()) {
-            return back()->with('error', 'Tidak ada anggota yang sudah lunas untuk dicetak.');
+            return back()->with('error', 'Tidak ada anggota aktif untuk dicetak.');
         }
 
         // Generate QR untuk setiap member
@@ -397,8 +403,8 @@ class MemberController extends Controller
     {
         $member = NuMember::findOrFail($id);
 
-        if ($member->payment_status !== 'paid') {
-            return back()->with('error', 'Kartu belum dapat diunduh karena status belum lunas.');
+        if ($member->status !== 'active') {
+            return back()->with('error', 'Kartu belum dapat diunduh karena pendaftaran belum disetujui admin.');
         }
 
         $qrData = 'NIK: '.$member->nik.' | CARD: '.$member->member_card_no;
@@ -423,20 +429,17 @@ class MemberController extends Controller
         return sprintf('NU-%s-%03d', $year, $nextSequence);
     }
 
-    private function generateTransactionCode(): string
-    {
-        do {
-            $code = 'TRX-'.strtoupper(uniqid());
-        } while (Payment::where('transaction_code', $code)->exists());
-
-        return $code;
-    }
-
     public function registerForm()
     {
         return view('members-register');
     }
 
+    /**
+     * Proses pendaftaran anggota baru.
+     *
+     * Tidak ada pembayaran online: pengajuan langsung berstatus "menunggu"
+     * dan diaktifkan oleh admin melalui halaman Permintaan Pendaftaran.
+     */
     public function register(Request $request)
     {
         $validated = $request->validate([
@@ -454,7 +457,7 @@ class MemberController extends Controller
             $photoPath = $request->file('photo')->store('members-photo', 'public');
         }
 
-        $member = NuMember::create([
+        NuMember::create([
             'nik' => $validated['nik'],
             'full_name' => $validated['full_name'],
             'phone' => $validated['phone'],
@@ -463,39 +466,12 @@ class MemberController extends Controller
             'label_organisasi' => isset($validated['organisasi']) ? Pengurus::BANOMS[$validated['organisasi']]['label'] : null,
             'address' => $validated['address'],
             'photo' => $photoPath,
+            'registration_status' => 'pending',
             'status' => 'pending_payment',
-            'payment_status' => 'unpaid',
         ]);
 
-        Payment::create([
-            'nu_member_id' => $member->id,
-            'transaction_code' => $this->generateTransactionCode(),
-            'amount' => self::REGISTRATION_FEE,
-            'payment_status' => 'unpaid',
-        ]);
-
-        return redirect()->route('members.payment-page', $member)->with('success', 'Pendaftaran berhasil! Silakan lakukan pembayaran di bawah ini.');
-    }
-
-    public function paymentPage(NuMember $member)
-    {
-        $payment = $member->payments()->latest()->first();
-
-        return view('members-payment', compact('member', 'payment'));
-    }
-
-    public function uploadProof(Request $request, NuMember $member)
-    {
-        $request->validate([
-            'proof' => 'required|image|max:2048',
-        ]);
-
-        $payment = $member->payments()->latest()->first();
-        if ($payment) {
-            $path = $request->file('proof')->store('payment-proofs', 'public');
-            $payment->update(['payment_proof' => $path]);
-        }
-
-        return redirect()->route('members.payment-page', $member)->with('success', 'Bukti transfer berhasil diunggah. Admin akan segera memverifikasi.');
+        return redirect()
+            ->route('members.card', ['nik' => $validated['nik'], 'phone' => $validated['phone']])
+            ->with('success', 'Pendaftaran berhasil! Pengajuan Anda sedang menunggu verifikasi admin. Pantau statusnya di halaman Kartu Anggota.');
     }
 }

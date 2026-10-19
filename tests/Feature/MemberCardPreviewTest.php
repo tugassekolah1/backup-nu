@@ -12,7 +12,7 @@ function paidMemberForCardPreview(array $overrides = []): NuMember
         'gender' => 'P',
         'address' => 'Banjaranyar',
         'status' => 'active',
-        'payment_status' => 'paid',
+        'registration_status' => 'accepted',
         'member_card_no' => 'NU-2026-301',
         'photo' => 'members-photo/fulanah.png',
     ], $overrides));
@@ -25,10 +25,10 @@ test('the kartu anggota page keeps its search form for guests', function () {
         ->assertSee('name="nik"', false);
 });
 
-test('a paid member gets the interactive 3d preview with all control buttons', function () {
+test('an approved member gets the interactive 3d preview with all control buttons', function () {
     $member = paidMemberForCardPreview();
 
-    $this->get(route('members.card', ['nik' => $member->nik]))
+    $this->get(route('members.card', ['nik' => $member->nik, 'phone' => $member->phone]))
         ->assertOk()
         ->assertSee('Preview Tampilan Kartu')
         ->assertSee('Lihat Depan')
@@ -45,7 +45,7 @@ test('a paid member gets the interactive 3d preview with all control buttons', f
 test('the three download modes are offered and print only flat cards', function () {
     $member = paidMemberForCardPreview();
 
-    $this->get(route('members.card', ['nik' => $member->nik]))
+    $this->get(route('members.card', ['nik' => $member->nik, 'phone' => $member->phone]))
         ->assertOk()
         ->assertSee("printMemberCard('front')", false)
         ->assertSee("printMemberCard('back')", false)
@@ -55,15 +55,15 @@ test('the three download modes are offered and print only flat cards', function 
         ->assertSee('mc-print-back', false);
 });
 
-test('an unpaid member does not get the card preview', function () {
+test('an approved member whose card number is not issued yet gets no preview', function () {
     $member = paidMemberForCardPreview([
         'nik' => '3300000000000302',
-        'payment_status' => 'unpaid',
+        'member_card_no' => null,
     ]);
 
-    $this->get(route('members.card', ['nik' => $member->nik]))
+    $this->get(route('members.card', ['nik' => $member->nik, 'phone' => $member->phone]))
         ->assertOk()
-        ->assertSee('Pembayaran Belum Dikonfirmasi')
+        ->assertSee('Pengajuan Disetujui')
         ->assertDontSee('id="mcStage"', false);
 });
 

@@ -16,7 +16,7 @@
 
         <style>[x-cloak] { display: none !important; }</style>
     </head>
-    <body class="font-sans antialiased bg-slate-50">
+    <body class="font-figtree antialiased bg-slate-50">
         <div x-data="{ sidebarOpen: false }" class="min-h-screen">
             {{-- Sidebar (desktop) --}}
             <aside class="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-slate-200/80 bg-white lg:flex">

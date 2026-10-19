@@ -27,20 +27,21 @@ class InfaqController extends Controller
     // Proses Simpan Infak (Pending)
     public function store(Request $request)
     {
-        $request->validate([
-            'nominal' => 'required|numeric',
+        $validated = $request->validate([
+            'nominal' => 'required|numeric|min:1',
             'metode_pembayaran' => 'required|in:transfer_bank,qris,tunai',
             'nama_donatur' => 'nullable|string|max:100',
             'no_hp' => 'nullable|string|max:20',
+            'catatan' => 'nullable|string|max:500',
         ]);
 
         $infaq = Infaq::create([
             'kode_transaksi' => 'INF-'.strtoupper(Str::random(8)),
-            'nama_donatur' => $request->nama_donatur ?? 'Hamba Allah',
-            'no_hp' => $request->no_hp,
-            'nominal' => $request->nominal,
-            'metode_pembayaran' => $request->metode_pembayaran,
-            'catatan' => $request->catatan,
+            'nama_donatur' => $validated['nama_donatur'] ?? 'Hamba Allah',
+            'no_hp' => $validated['no_hp'] ?? null,
+            'nominal' => $validated['nominal'],
+            'metode_pembayaran' => $validated['metode_pembayaran'],
+            'catatan' => $validated['catatan'] ?? null,
             'arah' => 'masuk',
             'status' => 'pending',
         ]);
@@ -82,7 +83,7 @@ class InfaqController extends Controller
         }
 
         $validated = $request->validate([
-            'bukti' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            'bukti' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
         ], [
             'bukti.required' => 'Lampirkan foto bukti pembayaran terlebih dahulu.',
             'bukti.image' => 'Bukti harus berupa gambar (JPG/PNG).',
@@ -104,6 +105,10 @@ class InfaqController extends Controller
     // SIMULASI: Ubah Status ke Lunas
     public function simulatePayment($kode)
     {
+        // Pengaman berlapis: rute ini sudah hanya didaftarkan di environment
+        // local/testing, tapi method tetap menolak dijalankan di lingkungan lain.
+        abort_unless(app()->environment(['local', 'testing']), 404);
+
         $infaq = Infaq::where('kode_transaksi', $kode)->firstOrFail();
 
         $infaq->update([

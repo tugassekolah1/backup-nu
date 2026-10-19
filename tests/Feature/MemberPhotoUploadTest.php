@@ -34,7 +34,6 @@ test('admin member edit form shows the current photo and an upload field', funct
         'gender' => 'P',
         'address' => 'Banjaranyar',
         'status' => 'active',
-        'payment_status' => 'paid',
         'member_card_no' => 'NU-2026-101',
         'photo' => 'members-photo/siti.png',
     ]);
@@ -57,7 +56,6 @@ test('admin can create a member with an uploaded photo', function () {
             'phone' => '081234567891',
             'gender' => 'L',
             'address' => 'Banjaranyar',
-            'payment_option' => 'cash',
             'photo' => fakeMemberPhoto(),
         ])
         ->assertSessionHasNoErrors()
@@ -80,7 +78,6 @@ test('admin member edit can replace the photo', function () {
         'gender' => 'L',
         'address' => 'Banjaranyar',
         'status' => 'active',
-        'payment_status' => 'paid',
         'member_card_no' => 'NU-2026-103',
     ]);
 
@@ -155,7 +152,6 @@ test('print card page renders the member photo', function () {
         'gender' => 'L',
         'address' => 'Banjaranyar',
         'status' => 'active',
-        'payment_status' => 'paid',
         'member_card_no' => 'NU-2026-106',
         'photo' => 'members-photo/fulan.png',
     ]);
@@ -175,7 +171,6 @@ test('admin member list shows the photo and a print card action', function () {
         'gender' => 'L',
         'address' => 'Banjaranyar',
         'status' => 'active',
-        'payment_status' => 'paid',
         'member_card_no' => 'NU-2026-108',
         'photo' => 'members-photo/hasan.png',
     ]);
@@ -195,7 +190,6 @@ test('guest cannot print a member card', function () {
         'gender' => 'L',
         'address' => 'Banjaranyar',
         'status' => 'active',
-        'payment_status' => 'paid',
         'member_card_no' => 'NU-2026-107',
     ]);
 

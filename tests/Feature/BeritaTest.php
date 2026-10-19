@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Berita;
+use App\Models\BeritaView;
 use App\Models\User;
 use Illuminate\Support\Str;
 
@@ -367,7 +368,7 @@ function seedBeritasPerUrutan(): User
     ];
 
     foreach ($data as $item) {
-        Berita::create([
+        Berita::factory()->create([
             'judul' => $item['judul'],
             'slug' => Str::slug($item['judul']),
             'jenis' => 'Kegiatan',
@@ -443,7 +444,7 @@ test('sort option is kept in the public pagination links', function () {
     $user = seedBeritasPerUrutan();
 
     foreach (range(1, 6) as $i) {
-        Berita::create([
+        Berita::factory()->create([
             'judul' => "Laporan Tambahan {$i}",
             'slug' => "laporan-tambahan-{$i}",
             'jenis' => 'Kegiatan',
@@ -484,7 +485,7 @@ test('public news card shows the view count', function () {
 test('public berita detail page counts the view and shows it', function () {
     $user = User::factory()->admin()->create();
 
-    $berita = Berita::create([
+    $berita = Berita::factory()->create([
         'judul' => 'Berita Terhitung',
         'slug' => 'berita-terhitung',
         'jenis' => 'Berita',
@@ -504,7 +505,7 @@ test('public berita detail page counts the view and shows it', function () {
 test('draft berita view count is not incremented', function () {
     $user = User::factory()->admin()->create();
 
-    $berita = Berita::create([
+    $berita = Berita::factory()->create([
         'judul' => 'Draft Tidak Dihitung',
         'slug' => 'draft-tidak-dihitung',
         'jenis' => 'Artikel',
@@ -630,7 +631,7 @@ test('admin statistik page needs an admin account', function () {
 test('visiting a berita records the daily reader for the chart', function () {
     $user = User::factory()->admin()->create();
 
-    $berita = Berita::create([
+    $berita = Berita::factory()->create([
         'judul' => 'Berita Bergrafik',
         'slug' => 'berita-bergrafik',
         'jenis' => 'Kegiatan',
@@ -640,11 +641,11 @@ test('visiting a berita records the daily reader for the chart', function () {
         'views' => 0,
     ]);
 
-    expect(\App\Models\BeritaView::count())->toBe(0);
+    expect(BeritaView::count())->toBe(0);
 
     $this->get("/berita/{$berita->slug}")->assertOk();
 
-    $rekap = \App\Models\BeritaView::first();
+    $rekap = BeritaView::first();
 
     expect($rekap->berita_id)->toBe($berita->id)
         ->and($rekap->tanggal->toDateString())->toBe(now()->toDateString())
@@ -654,15 +655,15 @@ test('visiting a berita records the daily reader for the chart', function () {
     // Kunjungan berikutnya menambah rekap hari ini, bukan membuat baris baru.
     $this->get("/berita/{$berita->slug}")->assertOk();
 
-    expect(\App\Models\BeritaView::count())->toBe(1)
+    expect(BeritaView::count())->toBe(1)
         ->and($berita->refresh()->views)->toBe(2)
-        ->and(\App\Models\BeritaView::first()->jumlah)->toBe(2);
+        ->and(BeritaView::first()->jumlah)->toBe(2);
 });
 
 test('daily reader recap appears on the admin statistik page', function () {
     $user = User::factory()->admin()->create();
 
-    $berita = Berita::create([
+    $berita = Berita::factory()->create([
         'judul' => 'Berita Rekap Harian',
         'slug' => 'berita-rekap-harian',
         'jenis' => 'Pengumuman',

@@ -45,18 +45,29 @@
                         </span>
                     </div>
 
-                    <form method="GET" action="{{ route('gallery.index') }}" class="flex items-center gap-2">
-                        <div class="flex-1 relative">
+                    <form method="GET" action="{{ route('gallery.index') }}" class="flex flex-wrap items-center gap-2">
+                        <div class="flex-1 min-w-[14rem] relative">
                             <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                             </svg>
                             <input type="text" name="q" value="{{ $q }}" placeholder="Cari judul atau deskripsi foto..." 
                                    class="w-full pl-10 pr-4 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
                         </div>
+
+                        <select name="organisasi"
+                                class="px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
+                            <option value="">Semua organisasi</option>
+                            @foreach ($daftarOrganisasi as $opsi)
+                                <option value="{{ $opsi['slug'] }}" @selected($organisasiAktif === $opsi['slug'])>
+                                    {{ $opsi['singkatan'] }}
+                                </option>
+                            @endforeach
+                        </select>
+
                         <button type="submit" class="px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 transition-colors">
                             Cari
                         </button>
-                        @if ($q !== '')
+                        @if ($q !== '' || $organisasiAktif !== '')
                             <a href="{{ route('gallery.index') }}" class="px-4 py-2 bg-slate-200 text-slate-700 text-sm font-semibold rounded-lg hover:bg-slate-300 transition-colors">
                                 Reset
                             </a>
@@ -70,6 +81,7 @@
                             <tr class="bg-slate-50 border-b border-slate-200/80 text-xs uppercase font-bold text-slate-500 tracking-wider">
                                 <th class="px-6 py-4">Foto</th>
                                 <th class="px-6 py-4">Judul</th>
+                                <th class="px-6 py-4">Organisasi</th>
                                 <th class="px-6 py-4">Deskripsi</th>
                                 <th class="px-6 py-4">Urutan</th>
                                 <th class="px-6 py-4 text-center">Aksi</th>
@@ -79,9 +91,18 @@
                             @forelse ($galleries as $item)
                                 <tr class="hover:bg-slate-50/80 transition-colors">
                                     <td class="px-6 py-4">
-                                        <img src="{{ asset('storage/' . $item->foto) }}" alt="{{ $item->judul }}" class="w-16 h-12 object-cover rounded-lg shadow-sm border border-slate-200">
+                                        <img src="{{ $item->url }}" alt="{{ $item->judul }}" class="w-16 h-12 object-cover rounded-lg shadow-sm border border-slate-200">
                                     </td>
                                     <td class="px-6 py-4 font-bold text-slate-900 max-w-xs truncate">{{ $item->judul }}</td>
+                                    <td class="px-6 py-4">
+                                        @if ($item->organisasiLabel() !== '')
+                                            <span class="inline-flex items-center rounded-lg bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 border border-emerald-100">
+                                                {{ $item->organisasiLabel() }}
+                                            </span>
+                                        @else
+                                            <span class="text-slate-400 text-xs">—</span>
+                                        @endif
+                                    </td>
                                     <td class="px-6 py-4 text-slate-600 font-medium max-w-xs truncate">{{ $item->deskripsi ?? '-' }}</td>
                                     <td class="px-6 py-4 text-slate-600 font-medium">{{ $item->urutan }}</td>
                                     <td class="px-6 py-4 text-center">
@@ -110,7 +131,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center py-12">
+                                    <td colspan="6" class="text-center py-12">
                                         <div class="flex flex-col items-center justify-center space-y-3">
                                             <div class="p-4 bg-slate-100 text-slate-400 rounded-full">
                                                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">

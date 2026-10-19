@@ -160,7 +160,9 @@ class Pengurus extends Model
      */
     public static function daftarJabatan(?string $banom): array
     {
-        $bidang = self::JABATAN_BIDANG[$banom] ?? self::JABATAN_BIDANG_UMUM;
+        $bidang = $banom !== null && isset(self::JABATAN_BIDANG[$banom])
+            ? self::JABATAN_BIDANG[$banom]
+            : self::JABATAN_BIDANG_UMUM;
 
         return array_values(array_unique([
             ...self::JABATAN_INTI,

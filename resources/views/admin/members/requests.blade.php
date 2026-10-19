@@ -1,4 +1,3 @@
-<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
 <x-app-layout>
     <x-slot name="header">
@@ -238,8 +237,7 @@
                     <p class="text-sm text-slate-500 mt-2 leading-relaxed">
                         Data <span id="accept-member-name" class="font-bold text-slate-700"></span> akan disetujui
                         dan status keanggotaannya berubah menjadi
-                        <strong class="text-emerald-700">anggota aktif</strong>.
-                        Pembayaran tetap dikonfirmasi secara terpisah bila belum lunas.
+                        <strong class="text-emerald-700">anggota aktif</strong> lengkap dengan nomor kartu anggota.
                     </p>
                     <p id="accept-error" class="hidden mt-3 text-sm font-semibold text-rose-600 bg-rose-50 border border-rose-100 rounded-xl px-3 py-2"></p>
                 </div>

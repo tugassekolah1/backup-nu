@@ -31,6 +31,36 @@
                     </div>
 
                     <div class="mb-4">
+                        <x-input-label for="organisasi" value="Organisasi / Banom" />
+                        @php($organisasiTerpilih = old('organisasi', $gallery->organisasi))
+                        <select name="organisasi" id="organisasi"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">— Tanpa organisasi (kegiatan umum) —</option>
+                            @foreach ($opsiOrganisasi as $grup)
+                                <optgroup label="{{ $grup['label'] }}">
+                                    @foreach ($grup['opsi'] as $opsi)
+                                        <option value="{{ $opsi['slug'] }}" @selected($organisasiTerpilih === $opsi['slug'])>
+                                            {{ $opsi['singkatan'] }} — {{ $opsi['nama'] }}
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endforeach
+
+                            {{-- Slug lama yang sudah tidak ada di config tetap dipertahankan agar tidak hilang diam-diam. --}}
+                            @if ($gallery->organisasi && ! collect($opsiOrganisasi)->pluck('opsi')->flatten(1)->contains('slug', $gallery->organisasi))
+                                <optgroup label="Data lama">
+                                    <option value="{{ $gallery->organisasi }}" @selected($organisasiTerpilih === $gallery->organisasi)>
+                                        {{ $gallery->organisasiLabel() }} (tidak ada di direktori)
+                                    </option>
+                                </optgroup>
+                            @endif
+                        </select>
+                        <p class="mt-1 text-xs text-gray-500">
+                            Menentukan organisasi tempat foto ditampilkan pada filter halaman Galeri publik.
+                        </p>
+                    </div>
+
+                    <div class="mb-4">
                         <x-input-label for="deskripsi" value="Deskripsi / Keterangan" />
                         <textarea name="deskripsi" id="deskripsi" rows="3"
                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">{{ old('deskripsi', $gallery->deskripsi) }}</textarea>
@@ -46,7 +76,7 @@
                         <x-input-label for="foto" value="Foto Galeri" />
                         @if ($gallery->foto)
                             <div class="mt-2 mb-3 flex items-center gap-3">
-                                <img src="{{ asset('storage/' . $gallery->foto) }}" alt="{{ $gallery->judul }}" class="h-20 w-32 rounded-lg object-cover border border-slate-200" />
+                                <img src="{{ $gallery->url }}" alt="{{ $gallery->judul }}" class="h-20 w-32 rounded-lg object-cover border border-slate-200" />
                                 <span class="text-xs text-gray-500">Foto terpasang. Upload foto baru jika ingin mengganti.</span>
                             </div>
                         @endif

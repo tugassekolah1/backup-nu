@@ -26,7 +26,11 @@ class Berita extends Model
         'terlama' => 'Terlama',
     ];
 
-    protected $fillable = ['judul', 'slug', 'jenis', 'isi', 'gambar', 'gambar_url', 'user_id', 'status', 'views'];
+    /**
+     * `views` sengaja tidak masuk $fillable: penghitung pembaca hanya boleh
+     * berubah lewat increment() di halaman publik, bukan lewat input massal.
+     */
+    protected $fillable = ['judul', 'slug', 'jenis', 'isi', 'gambar', 'gambar_url', 'user_id', 'status'];
 
     protected $attributes = [
         'jenis' => 'Berita',

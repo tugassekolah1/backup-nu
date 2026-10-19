@@ -38,11 +38,21 @@ class AspirasiController extends Controller
             ->paginate(10)
             ->withQueryString();
 
+        // Rekap status dalam 1 query conditional aggregate.
+        $rekapRow = Aspirasi::query()
+            ->selectRaw("
+                COUNT(*) as total,
+                SUM(CASE WHEN status = 'baru' THEN 1 ELSE 0 END) as baru,
+                SUM(CASE WHEN status = 'diproses' THEN 1 ELSE 0 END) as diproses,
+                SUM(CASE WHEN status = 'selesai' THEN 1 ELSE 0 END) as selesai
+            ")
+            ->first();
+
         $rekap = [
-            'total' => Aspirasi::count(),
-            'baru' => Aspirasi::where('status', 'baru')->count(),
-            'diproses' => Aspirasi::where('status', 'diproses')->count(),
-            'selesai' => Aspirasi::where('status', 'selesai')->count(),
+            'total' => (int) $rekapRow->total,
+            'baru' => (int) $rekapRow->baru,
+            'diproses' => (int) $rekapRow->diproses,
+            'selesai' => (int) $rekapRow->selesai,
         ];
 
         return view('admin.aspirasi.index', [

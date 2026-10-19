@@ -90,6 +90,13 @@
             </div>
 
             {{-- ============ GRAFIK 1: TREN 30 HARI ============ --}}
+            @php
+                $totalPeriode = (int) array_sum($dataHarian);
+                $jumlahHari = count($dataHarian);
+                $rataHarian = $jumlahHari > 0 ? (int) round($totalPeriode / $jumlahHari) : 0;
+                $hariAktif = count(array_filter($dataHarian, fn ($v) => (int) $v > 0));
+            @endphp
+
             <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
                 <div class="p-5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
                     <div class="flex items-center gap-3">
@@ -102,8 +109,7 @@
                             <h3 class="text-base font-bold text-slate-800">Tren Pembaca 30 Hari Terakhir</h3>
                             <p class="text-xs text-slate-500 mt-0.5">
                                 @if ($adaPembaca)
-                                    Puncak harian {{ number_format($puncakHarian) }} pembaca ·
-                                    total {{ number_format(array_sum($dataHarian)) }} pada periode ini.
+                                    Jumlah pembaca yang tercatat tiap hari pada {{ $hariAktif }} hari aktif terakhir.
                                 @else
                                     Data akan terisi otomatis setelah halaman berita dibaca.
                                 @endif
@@ -113,9 +119,45 @@
                     <span class="text-xs font-bold text-teal-700 bg-teal-50 rounded-lg px-3 py-1.5">30 hari</span>
                 </div>
 
+                {{-- Ringkasan angka: dibaca sekilas tanpa harus menghitung dari garis. --}}
+                @if ($adaPembaca)
+                    <div class="grid grid-cols-2 sm:grid-cols-4 divide-slate-100 border-b border-slate-100 sm:divide-x">
+                        <div class="px-5 py-4">
+                            <p class="text-xl font-black text-slate-900 leading-none">{{ number_format($totalPeriode) }}</p>
+                            <p class="text-[11px] font-semibold text-slate-500 mt-1.5 uppercase tracking-wide">Total Periode</p>
+                        </div>
+                        <div class="px-5 py-4">
+                            <p class="text-xl font-black text-slate-900 leading-none">{{ number_format($rataHarian) }}</p>
+                            <p class="text-[11px] font-semibold text-slate-500 mt-1.5 uppercase tracking-wide">Rata-rata / Hari</p>
+                        </div>
+                        <div class="px-5 py-4">
+                            <p class="text-xl font-black text-slate-900 leading-none">{{ number_format($puncakHarian) }}</p>
+                            <p class="text-[11px] font-semibold text-slate-500 mt-1.5 uppercase tracking-wide">Puncak Harian</p>
+                        </div>
+                        <div class="px-5 py-4">
+                            <p class="text-xl font-black text-slate-900 leading-none">{{ $hariAktif }}<span class="text-sm font-bold text-slate-400">/{{ $jumlahHari }}</span></p>
+                            <p class="text-[11px] font-semibold text-slate-500 mt-1.5 uppercase tracking-wide">Hari Terisi</p>
+                        </div>
+                    </div>
+                @endif
+
                 <div class="p-5">
                     @if ($adaPembaca)
                         <x-chart-area :labels="$labelHarian" :values="$dataHarian" color="#0d9488" :labelEvery="5"/>
+                        <p class="mt-3 flex items-center gap-4 text-[11px] font-semibold text-slate-500">
+                            <span class="inline-flex items-center gap-1.5">
+                                <span class="h-0.5 w-4 rounded-full bg-teal-600"></span>
+                                Pembaca harian
+                            </span>
+                            <span class="inline-flex items-center gap-1.5">
+                                <span class="h-0.5 w-4 rounded-full border-t-2 border-dashed border-teal-500"></span>
+                                Rata-rata {{ number_format($rataHarian) }}
+                            </span>
+                            <span class="inline-flex items-center gap-1.5">
+                                <span class="h-2.5 w-2.5 rounded-full bg-teal-600"></span>
+                                Puncak {{ number_format($puncakHarian) }}
+                            </span>
+                        </p>
                     @else
                         <div class="py-12 flex flex-col items-center text-center">
                             <div class="p-4 bg-slate-100 text-slate-400 rounded-full">
@@ -128,6 +170,13 @@
                                 Grafik tren mulai terisi begitu pengunjung membuka halaman detail berita.
                                 Buka salah satu berita terbit untuk mencobanya.
                             </p>
+                            <button type="button" onclick="window.location.reload()"
+                                    class="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-teal-700 hover:text-teal-800 transition-colors">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                </svg>
+                                Muat ulang grafik
+                            </button>
                         </div>
                     @endif
                 </div>

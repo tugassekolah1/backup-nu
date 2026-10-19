@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\NuMember;
-use App\Models\Payment;
 use App\Models\Pengurus;
 use Illuminate\Database\Seeder;
 
@@ -37,9 +36,9 @@ class TestMembersSeeder extends Seeder
 
             $nik = str_pad($i, 16, '0', STR_PAD_LEFT);
             $organisasi = rand(0, 1) ? $banom_codes[array_rand($banom_codes)] : null;
-            $payment_status = rand(1, 100) <= 70 ? 'paid' : 'unpaid';
+            $isApproved = rand(1, 100) <= 70;
 
-            $member = NuMember::create([
+            NuMember::create([
                 'nik' => $nik,
                 'full_name' => $full_name,
                 'phone' => $phones[$i - 1],
@@ -48,16 +47,9 @@ class TestMembersSeeder extends Seeder
                 'label_organisasi' => $organisasi ? (Pengurus::BANOMS[$organisasi]['label'] ?? null) : null,
                 'address' => "Jl. Test No. $i, Kota Test",
                 'photo' => null,
-                'status' => $payment_status === 'paid' ? 'active' : 'pending_payment',
-                'payment_status' => $payment_status,
-                'member_card_no' => $payment_status === 'paid' ? $this->generateCardNumber() : null,
-            ]);
-
-            Payment::create([
-                'nu_member_id' => $member->id,
-                'transaction_code' => 'TRX-'.strtoupper(uniqid()),
-                'amount' => 5000,
-                'payment_status' => $payment_status,
+                'status' => $isApproved ? 'active' : 'pending_payment',
+                'registration_status' => $isApproved ? 'accepted' : 'pending',
+                'member_card_no' => $isApproved ? $this->generateCardNumber() : null,
             ]);
 
             if ($i % 100 === 0) {

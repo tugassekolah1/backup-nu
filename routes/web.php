@@ -23,9 +23,9 @@ Route::get('/', [BeritaController::class, 'landing'])->name('landing');
 
 // Member Registration & Search Card
 Route::get('/daftar', [MemberController::class, 'registerForm'])->name('members.register-form');
-Route::post('/daftar', [MemberController::class, 'register'])->name('members.register');
-Route::get('/daftar/{member}/bayar', [MemberController::class, 'paymentPage'])->name('members.payment-page');
-Route::post('/daftar/{member}/bukti', [MemberController::class, 'uploadProof'])->name('members.upload-proof');
+Route::post('/daftar', [MemberController::class, 'register'])
+    ->middleware('throttle:20,1')
+    ->name('members.register');
 
 // Kartu Anggota — halaman utama gabungan: cek status pengajuan + preview/cetak/download kartu
 Route::get('/kartu-anggota', [MemberController::class, 'memberCard'])->name('members.card');
@@ -51,11 +51,21 @@ Route::get('/agenda', [AgendaController::class, 'publicIndex'])->name('agenda.pu
 
 // Infaq
 Route::get('/infaq', [InfaqController::class, 'index'])->name('infaq.index');
-Route::post('/infaq', [InfaqController::class, 'store'])->name('infaq.store');
+Route::post('/infaq', [InfaqController::class, 'store'])
+    ->middleware('throttle:20,1')
+    ->name('infaq.store');
 Route::get('/infaq/checkout/{kode}', [InfaqController::class, 'checkout'])->name('infaq.checkout');
-Route::post('/infaq/simulate/{kode}', [InfaqController::class, 'simulatePayment'])->name('infaq.simulate');
-Route::post('/infaq/konfirmasi/{kode}', [InfaqController::class, 'confirmProof'])->name('infaq.proof');
+Route::post('/infaq/konfirmasi/{kode}', [InfaqController::class, 'confirmProof'])
+    ->middleware('throttle:10,1')
+    ->name('infaq.proof');
 Route::get('/infaq/success/{kode}', [InfaqController::class, 'success'])->name('infaq.success');
+
+// Jalan pintas "simulasi lunas" HANYA tersedia di environment local/testing
+// (dev, demo, dan test otomatis). Di produksi rute ini tidak pernah didaftarkan,
+// sehingga tidak ada cara menandai donasi lunas tanpa verifikasi admin.
+if (app()->environment(['local', 'testing'])) {
+    Route::post('/infaq/simulate/{kode}', [InfaqController::class, 'simulatePayment'])->name('infaq.simulate');
+}
 
 Route::get('/berita', [BeritaController::class, 'index_publik'])->name('berita.public');
 
@@ -92,6 +102,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::post('/infaq/{infaq}/lunas', [AdminInfaqController::class, 'markLunas'])
             ->name('infaq.mark-lunas');
 
+        Route::post('/infaq/{infaq}/batal', [AdminInfaqController::class, 'markBatal'])
+            ->name('infaq.mark-batal');
+
         // Kotak Aspirasi (admin only)
         Route::resource('aspirasi', AdminAspirasiController::class)
             ->parameters(['aspirasi' => 'aspirasi'])
@@ -105,15 +118,14 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::resource('admin/berita', BeritaController::class)
         ->parameters(['berita' => 'berita'])
         ->except(['show']);
-    Route::resource('gallery', GalleryController::class);
+    Route::resource('gallery', GalleryController::class)
+        ->except(['show']);
 
     // Members Management
     Route::prefix('admin')->group(function () {
         Route::resource('members', MemberController::class)
             ->parameters(['members' => 'member'])
             ->except(['show']);
-        Route::patch('/members/{member}/confirm-payment', [MemberController::class, 'confirmPayment'])
-            ->name('members.confirm-payment');
         Route::get('/members/{member}/print-card', [MemberController::class, 'printCard'])
             ->name('members.print-card');
         Route::match(['get', 'post'], '/members/cetak-kta-bulk', [MemberController::class, 'printKtaBulk'])

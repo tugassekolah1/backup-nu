@@ -12,7 +12,7 @@ function pendingRegistrationRequest(array $overrides = []): NuMember
         'gender' => 'L',
         'address' => 'Banjaranyar',
         'status' => 'pending_payment',
-        'payment_status' => 'unpaid',
+        'registration_status' => 'pending',
     ], $overrides));
 }
 
@@ -48,7 +48,9 @@ test('accepting a request marks it accepted and the member active', function () 
 
     $member->refresh();
     expect($member->registration_status)->toBe('accepted')
-        ->and($member->status)->toBe('active');
+        ->and($member->status)->toBe('active')
+        // Nomor kartu terbit otomatis saat pendaftaran diterima.
+        ->and($member->member_card_no)->not->toBeNull();
 });
 
 test('rejected status persists after reload of the requests page', function () {
@@ -80,7 +82,8 @@ test('rejecting without a reason is rejected by validation', function () {
         ->assertStatus(422)
         ->assertJsonValidationErrors('reason');
 
-    expect($member->refresh()->registration_status)->toBeNull();
+    // Status pendaftaran tidak berubah karena validasi gagal.
+    expect($member->refresh()->registration_status)->toBe('pending');
 });
 
 test('an already processed request cannot be accepted or rejected again', function () {
@@ -97,11 +100,13 @@ test('an already processed request cannot be accepted or rejected again', functi
 });
 
 test('legacy active members are shown as accepted without extra columns', function () {
+    // Anggota lama: belum punya kolom registration_status (NULL), status
+    // keanggotaan menentukan bahwa pendaftarannya dianggap diterima.
     $legacy = pendingRegistrationRequest([
         'nik' => '3300000000000202',
         'full_name' => 'Anggota Lama',
         'status' => 'active',
-        'payment_status' => 'paid',
+        'registration_status' => null,
         'member_card_no' => 'NU-2026-202',
     ]);
 
@@ -166,7 +171,7 @@ test('the public status page shows the rejection and its reason', function () {
         'rejection_reason' => 'Berkas identitas belum lengkap.',
     ]);
 
-    $this->get(route('members.card', ['nik' => $member->nik]))
+    $this->get(route('members.card', ['nik' => $member->nik, 'phone' => $member->phone]))
         ->assertOk()
         ->assertSee('Pengajuan Ditolak')
         ->assertSee('Berkas identitas belum lengkap.')

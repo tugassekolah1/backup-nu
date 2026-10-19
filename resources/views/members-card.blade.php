@@ -150,6 +150,7 @@
         }
 
         .search-form { display: flex; gap: 12px; }
+        .search-form .search-field { flex: 1; }
         .search-form input {
             flex: 1;
             width: 100%;
@@ -518,7 +519,7 @@
         @media (max-width: 640px) {
             .page-header { padding: 40px 0 80px; }
             .search-form { flex-direction: column; }
-            .search-form .btn { width: 100%; }
+            .search-form .search-field { width: 100%; }
             .result-actions { flex-direction: column; }
             .result-actions .btn { width: 100%; }
             .state-card { flex-direction: column; gap: 12px; }
@@ -556,24 +557,54 @@
                 <h2>Cari Data Kartu Anggota</h2>
                 <p class="hint">Masukkan 16 digit NIK yang digunakan saat mendaftar. Status diperbarui secara otomatis oleh sistem setiap kali ada perubahan oleh admin.</p>
                 <form class="search-form" action="{{ route('members.card') }}" method="GET">
-                    <input type="text" name="nik" value="{{ request('nik') }}" placeholder="Masukkan 16 digit NIK"
-                           maxlength="16" inputmode="numeric" autocomplete="off" required
-                           oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                    <div class="search-field">
+                        <label for="nik" class="sr-only">NIK</label>
+                        <input type="text" id="nik" name="nik" value="{{ request('nik') }}" placeholder="Masukkan 16 digit NIK"
+                               maxlength="16" inputmode="numeric" autocomplete="off" required
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                    </div>
+                    <div class="search-field">
+                        <label for="phone" class="sr-only">Nomor HP yang terdaftar</label>
+                        <input type="text" id="phone" name="phone" value="{{ request('phone') }}" placeholder="Nomor HP terdaftar (0812xxxx)"
+                               inputmode="tel" autocomplete="tel"
+                               oninput="this.value = this.value.replace(/[^0-9+\- ]/g, '');">
+                    </div>
                     <button type="submit" class="btn btn-primary">Tampilkan Kartu</button>
                 </form>
             </div>
 
             @if (request()->has('nik'))
                 <div class="result-card">
-                    @if ($member)
+                    @if ($notVerified)
+                        <div class="empty-state">
+                            <div class="icon">
+                                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            </div>
+                            <h3>Data Tidak Ditemukan</h3>
+                            <p>Maaf, data keanggotaan tidak dapat ditampilkan. Pastikan NIK dan nomor HP sesuai dengan yang terdaftar saat pengajuan.</p>
+                        </div>
+
+                        <div class="result-actions">
+                            <a class="btn btn-outline" href="{{ route('members.card') }}">Kembali</a>
+                        </div>
+                    @elseif ($member)
                         @php
                             $state     = $member->registrationState();
-                            $isPaid    = $member->payment_status === 'paid';
                             $isActive  = $member->status === 'active';
-                            $hasProof  = $payment && $payment->payment_proof;
-                            $proofDone = $isPaid || $hasProof;
-                            $cardReady = $state === 'accepted' && $isPaid && (bool) $member->member_card_no;
+                            $cardReady = $state === 'accepted' && (bool) $member->member_card_no;
                         @endphp
+
+                        @if (session('success'))
+                            <div class="state-card state-approved" style="margin-bottom: 18px;">
+                                <span class="state-icon">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                </span>
+                                <div>
+                                    <h3>Berhasil</h3>
+                                    <p>{{ session('success') }}</p>
+                                </div>
+                            </div>
+                        @endif
 
                         <!-- Identitas + pill status -->
                         <div class="result-head">
@@ -619,29 +650,20 @@
                                     </p>
                                 </li>
 
-                                <li class="{{ $isPaid ? 'done' : ($proofDone ? 'active-step' : '') }}">
-                                    <span class="step-dot">{{ $isPaid ? '✓' : '2' }}</span>
-                                    <p class="step-title">2. Pembayaran Pendaftaran</p>
+                                <li class="active-step">
+                                    <span class="step-dot">2</span>
+                                    <p class="step-title">2. Verifikasi Admin</p>
                                     <p class="step-desc">
-                                        @if ($isPaid)
-                                            Pembayaran telah dikonfirmasi oleh admin. Terima kasih atas khidmat Anda.
-                                        @elseif ($proofDone)
-                                            Bukti transfer sudah diterima dan sedang menunggu verifikasi admin.
-                                        @else
-                                            Pembayaran belum dilakukan. Silakan segera lakukan pembayaran agar keanggotaan dapat diaktifkan.
-                                        @endif
+                                        Pengajuan Anda sedang diperiksa oleh admin. Setelah disetujui,
+                                        status keanggotaan berubah menjadi aktif dan nomor kartu diterbitkan.
                                     </p>
                                 </li>
 
-                                <li class="{{ $isPaid && $member->member_card_no ? 'done' : '' }}">
-                                    <span class="step-dot">{{ $isPaid && $member->member_card_no ? '✓' : '3' }}</span>
+                                <li class="">
+                                    <span class="step-dot">3</span>
                                     <p class="step-title">3. Kartu Tanda Anggota</p>
                                     <p class="step-desc">
-                                        @if ($isPaid && $member->member_card_no)
-                                            Kartu Anda aktif dengan nomor registrasi <strong>{{ $member->member_card_no }}</strong>.
-                                        @else
-                                            Nomor kartu akan diterbitkan setelah pengajuan disetujui dan pembayaran dikonfirmasi admin.
-                                        @endif
+                                        Nomor kartu akan diterbitkan setelah pengajuan disetujui admin.
                                     </p>
                                 </li>
                             </ul>
@@ -683,16 +705,6 @@
                                         </p>
                                     </div>
                                 </div>
-                            @elseif (! $isPaid)
-                                <div class="state-card state-warning">
-                                    <span class="state-icon">
-                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                                    </span>
-                                    <div>
-                                        <h3>Pembayaran Belum Dikonfirmasi</h3>
-                                        <p>Pengajuan Anda sudah disetujui, namun kartu baru dapat dicetak setelah pembayaran dikonfirmasi oleh admin.</p>
-                                    </div>
-                                </div>
                             @else
                                 <div class="state-card state-approved">
                                     <span class="state-icon">
@@ -700,7 +712,7 @@
                                     </span>
                                     <div>
                                         <h3>Pengajuan Disetujui</h3>
-                                        <p>Pembayaran sudah lunas. Nomor kartu sedang diterbitkan oleh admin — kartu dapat dicetak setelah nomor registrasi tersedia.</p>
+                                        <p>Pengajuan Anda sudah disetujui. Nomor kartu sedang diterbitkan oleh admin — kartu dapat dicetak setelah nomor registrasi tersedia.</p>
                                     </div>
                                 </div>
                             @endif
@@ -726,21 +738,13 @@
                                     @elseif ($state === 'accepted')
                                         Disetujui
                                     @else
-                                        Belum Aktif (Menunggu Pembayaran)
+                                        Belum Aktif (Menunggu Verifikasi)
                                     @endif
                                 </div>
                             </div>
                             <div class="detail-item">
-                                <div class="label">Status Pembayaran</div>
-                                <div class="value">{{ $isPaid ? 'Lunas' : ($proofDone ? 'Bukti Diterima — Menunggu Verifikasi' : 'Belum Bayar') }}</div>
-                            </div>
-                            <div class="detail-item">
                                 <div class="label">Nomor Registrasi Kartu</div>
                                 <div class="value mono">{{ $member->member_card_no ?? '—' }}</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="label">Kode Transaksi</div>
-                                <div class="value mono">{{ $payment->transaction_code ?? '—' }}</div>
                             </div>
                         </div>
 
@@ -774,18 +778,6 @@
                         @elseif ($state === 'rejected')
                             <div class="result-actions">
                                 <a class="btn btn-primary" href="{{ route('members.register-form') }}">Ajukan Kembali</a>
-                                <a class="btn btn-outline" href="{{ route('landing') }}">Kembali ke Beranda</a>
-                            </div>
-                        @elseif ($state === 'pending' && ! $isPaid)
-                            <div class="result-actions">
-                                <a class="btn btn-primary" href="{{ route('members.payment-page', $member) }}">
-                                    {{ $proofDone ? 'Lihat Detail Pembayaran' : 'Lanjutkan Pembayaran' }}
-                                </a>
-                                <a class="btn btn-outline" href="{{ route('landing') }}">Kembali ke Beranda</a>
-                            </div>
-                        @elseif ($state === 'accepted' && ! $isPaid && $payment)
-                            <div class="result-actions">
-                                <a class="btn btn-primary" href="{{ route('members.payment-page', $member) }}">Lanjutkan Pembayaran</a>
                                 <a class="btn btn-outline" href="{{ route('landing') }}">Kembali ke Beranda</a>
                             </div>
                         @else

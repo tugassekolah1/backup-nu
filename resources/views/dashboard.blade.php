@@ -1,7 +1,7 @@
 <x-app-layout>
 
 <div class="py-8 bg-slate-50 min-h-[calc(100vh-4rem)]">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6 font-sans antialiased">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6 font-figtree antialiased">
     
     {{-- Header Section dengan Sapaan & Tanggal --}}
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80 transition-all duration-300 hover:shadow-md">
@@ -26,138 +26,145 @@
             <span>{{ now()->translatedFormat('l, d F Y') }}</span>
         </div>
     </div>
-
     {{-- Interactive Cards Grid --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+    
         {{-- Card: Total Infak --}}
         <a href="{{ auth()->user()->is_admin ? route('admin.infaq.index') : route('infaq.index') }}"
-           class="group relative p-6 rounded-2xl border border-slate-200/80 bg-white hover:bg-emerald-50/40 hover:border-emerald-300 transition-all duration-300 flex flex-col justify-between space-y-6 shadow-xs hover:shadow-xl hover:-translate-y-1.5 active:scale-[0.99]">
-            
-            <div class="flex items-start justify-between">
-                <div class="space-y-1">
+           aria-label="Lihat Total Infak"
+           class="group relative p-6 rounded-2xl border border-slate-200/80 bg-white hover:bg-emerald-50/40 hover:border-emerald-300 transition-all duration-300 flex flex-col justify-between gap-5 shadow-xs hover:shadow-xl hover:-translate-y-1.5 active:scale-[0.99]">
+    
+            <div class="flex items-start justify-between gap-3">
+                <div class="space-y-1 min-w-0">
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-widest group-hover:text-emerald-700 transition-colors">
                         Keuangan & Sedekah
                     </span>
                     <h2 class="text-lg font-bold text-slate-800 group-hover:text-emerald-950">Total Infak</h2>
+                    <p class="text-xs text-slate-500 leading-relaxed">Lihat jumlah infak terkumpul dan catat transaksi baru.</p>
                 </div>
-                
-                <div class="p-4 rounded-2xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300 shadow-xs group-hover:rotate-6">
+    
+                <div class="p-4 rounded-2xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300 shadow-xs group-hover:rotate-6 shrink-0">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                 </div>
             </div>
-
-            <div class="flex items-end justify-between pt-2">
-                <div>
-                    <h3 class="text-2xl font-black text-slate-900 group-hover:text-emerald-900 transition-colors tracking-tight">
+    
+            <div class="flex flex-wrap items-end justify-between gap-x-3 gap-y-2 pt-2">
+                <div class="min-w-0 flex-1">
+                    <h3 class="text-2xl font-black text-slate-900 group-hover:text-emerald-900 transition-colors tracking-tight tabular-nums truncate">
                         Rp {{ number_format($totalInfaq ?? 0, 0, ',', '.') }}
                     </h3>
                     <p class="text-xs text-slate-400 mt-1">Total infak terkumpul</p>
                 </div>
-                
-                <div class="inline-flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-100/80 group-hover:bg-emerald-600 group-hover:text-white px-3 py-2 rounded-xl transition-all duration-300 shadow-xs">
-                    <span>Kelola</span>
+    
+                <span class="inline-flex shrink-0 items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-100/80 group-hover:bg-emerald-600 group-hover:text-white px-3 py-2 rounded-xl transition-all duration-300 shadow-xs">
+                    <span>{{ auth()->user()->is_admin ? 'Kelola Infaq' : 'Lihat Infaq' }}</span>
                     <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
                     </svg>
-                </div>
+                </span>
             </div>
         </a>
-
+    
         {{-- Card: Kelola Anggota --}}
-        <a href="{{ route('members.index') }}" 
-           class="group relative p-6 rounded-2xl border border-slate-200/80 bg-white hover:bg-emerald-50/40 hover:border-emerald-300 transition-all duration-300 flex flex-col justify-between space-y-6 shadow-xs hover:shadow-xl hover:-translate-y-1.5 active:scale-[0.99]">
-            
-            <div class="flex items-start justify-between">
-                <div class="space-y-1">
+        <a href="{{ route('members.index') }}"
+           aria-label="Kelola Anggota"
+           class="group relative p-6 rounded-2xl border border-slate-200/80 bg-white hover:bg-emerald-50/40 hover:border-emerald-300 transition-all duration-300 flex flex-col justify-between gap-5 shadow-xs hover:shadow-xl hover:-translate-y-1.5 active:scale-[0.99]">
+    
+            <div class="flex items-start justify-between gap-3">
+                <div class="space-y-1 min-w-0">
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-widest group-hover:text-emerald-700 transition-colors">
                         Data Utama
                     </span>
                     <h2 class="text-lg font-bold text-slate-800 group-hover:text-emerald-950">Total Anggota</h2>
+                    <p class="text-xs text-slate-500 leading-relaxed">Data seluruh anggota, termasuk menyetujui pendaftar baru.</p>
                 </div>
-                <div class="p-4 rounded-2xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300 shadow-xs group-hover:rotate-6">
+                <div class="p-4 rounded-2xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300 shadow-xs group-hover:rotate-6 shrink-0">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
                     </svg>
                 </div>
             </div>
-
-            <div class="flex items-end justify-between pt-2">
-                <div>
-                    <h3 class="text-3xl font-black text-slate-900 group-hover:text-emerald-900 transition-colors tracking-tight">
+    
+            <div class="flex flex-wrap items-end justify-between gap-x-3 gap-y-2 pt-2">
+                <div class="min-w-0 flex-1">
+                    <h3 class="text-3xl font-black text-slate-900 group-hover:text-emerald-900 transition-colors tracking-tight tabular-nums">
                         {{ $totalMembers ?? 0 }}
                     </h3>
                     <p class="text-xs text-slate-400 mt-1">Orang terdaftar</p>
                 </div>
-                
-                <div class="inline-flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-100/80 group-hover:bg-emerald-600 group-hover:text-white px-3 py-2 rounded-xl transition-all duration-300 shadow-xs">
-                    <span>Kelola</span>
+    
+                <span class="inline-flex shrink-0 items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-100/80 group-hover:bg-emerald-600 group-hover:text-white px-3 py-2 rounded-xl transition-all duration-300 shadow-xs">
+                    <span>Kelola Anggota</span>
                     <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
                     </svg>
-                </div>
+                </span>
             </div>
         </a>
-
-        {{-- CARD BARU: Kelola Pengurus & Banom --}}
-        <a href="{{ route('pengurus.index') }}" 
-           class="group relative p-6 rounded-2xl border border-slate-200/80 bg-white hover:bg-emerald-50/40 hover:border-emerald-300 transition-all duration-300 flex flex-col justify-between space-y-6 shadow-xs hover:shadow-xl hover:-translate-y-1.5 active:scale-[0.99]">
-            
-            <div class="flex items-start justify-between">
-                <div class="space-y-1">
+    
+        {{-- Card: Kelola Pengurus & Banom --}}
+        <a href="{{ route('pengurus.index') }}"
+           aria-label="Kelola Pengurus dan Banom"
+           class="group relative p-6 rounded-2xl border border-slate-200/80 bg-white hover:bg-emerald-50/40 hover:border-emerald-300 transition-all duration-300 flex flex-col justify-between gap-5 shadow-xs hover:shadow-xl hover:-translate-y-1.5 active:scale-[0.99]">
+    
+            <div class="flex items-start justify-between gap-3">
+                <div class="space-y-1 min-w-0">
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-widest group-hover:text-emerald-700 transition-colors">
                         Struktur Organisasi
                     </span>
                     <h2 class="text-lg font-bold text-slate-800 group-hover:text-emerald-950">Pengurus & Banom</h2>
+                    <p class="text-xs text-slate-500 leading-relaxed">Susunan pengurus tiap organisasi dan badan otonom.</p>
                 </div>
-                
-                <div class="p-4 rounded-2xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300 shadow-xs group-hover:rotate-6">
+    
+                <div class="p-4 rounded-2xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300 shadow-xs group-hover:rotate-6 shrink-0">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h4m-4 0V11m0 0h4m-4 0H9m4 0V5"/>
                     </svg>
                 </div>
             </div>
-
-            <div class="flex items-end justify-between pt-2">
-                <div>
-                    <h3 class="text-3xl font-black text-slate-900 group-hover:text-emerald-900 transition-colors tracking-tight">
+    
+            <div class="flex flex-wrap items-end justify-between gap-x-3 gap-y-2 pt-2">
+                <div class="min-w-0 flex-1">
+                    <h3 class="text-3xl font-black text-slate-900 group-hover:text-emerald-900 transition-colors tracking-tight tabular-nums">
                         {{ $totalPengurus ?? 0 }}
                     </h3>
                     <p class="text-xs text-slate-400 mt-1">Pengurus aktif</p>
                 </div>
-                
-                <div class="inline-flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-100/80 group-hover:bg-emerald-600 group-hover:text-white px-3 py-2 rounded-xl transition-all duration-300 shadow-xs">
-                    <span>Kelola</span>
+    
+                <span class="inline-flex shrink-0 items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-100/80 group-hover:bg-emerald-600 group-hover:text-white px-3 py-2 rounded-xl transition-all duration-300 shadow-xs">
+                    <span>Kelola Pengurus</span>
                     <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
                     </svg>
-                </div>
+                </span>
             </div>
         </a>
-
+    
         {{-- Card: Kelola Publikasi / Berita --}}
-        <a href="{{ route('berita.index') }}" 
-           class="group relative p-6 rounded-2xl border border-slate-200/80 bg-white hover:bg-teal-50/40 hover:border-teal-300 transition-all duration-300 flex flex-col justify-between space-y-6 shadow-xs hover:shadow-xl hover:-translate-y-1.5 active:scale-[0.99]">
-            
-            <div class="flex items-start justify-between">
-                <div class="space-y-1">
+        <a href="{{ route('berita.index') }}"
+           aria-label="Kelola Publikasi Berita"
+           class="group relative p-6 rounded-2xl border border-slate-200/80 bg-white hover:bg-teal-50/40 hover:border-teal-300 transition-all duration-300 flex flex-col justify-between gap-5 shadow-xs hover:shadow-xl hover:-translate-y-1.5 active:scale-[0.99]">
+    
+            <div class="flex items-start justify-between gap-3">
+                <div class="space-y-1 min-w-0">
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-widest group-hover:text-teal-700 transition-colors">
                         Informasi & Artikel
                     </span>
                     <h2 class="text-lg font-bold text-slate-800 group-hover:text-teal-950">Total Publikasi</h2>
+                    <p class="text-xs text-slate-500 leading-relaxed">Buat, ubah, dan terbitkan berita kegiatan.</p>
                 </div>
-                <div class="p-4 rounded-2xl bg-teal-50 text-teal-600 group-hover:bg-teal-600 group-hover:text-white transition-all duration-300 shadow-xs group-hover:-rotate-6">
+                <div class="p-4 rounded-2xl bg-teal-50 text-teal-600 group-hover:bg-teal-600 group-hover:text-white transition-all duration-300 shadow-xs group-hover:rotate-6 shrink-0">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
                     </svg>
                 </div>
             </div>
-
-            <div class="flex items-end justify-between pt-2">
-                <div>
-                    <h3 class="text-3xl font-black text-slate-900 group-hover:text-teal-900 transition-colors tracking-tight">
+    
+            <div class="flex flex-wrap items-end justify-between gap-x-3 gap-y-2 pt-2">
+                <div class="min-w-0 flex-1">
+                    <h3 class="text-3xl font-black text-slate-900 group-hover:text-teal-900 transition-colors tracking-tight tabular-nums">
                         {{ $totalNews ?? 0 }}
                     </h3>
                     <p class="text-xs text-slate-400 mt-1">Berita diterbitkan</p>
@@ -167,89 +174,92 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                         </svg>
                         {{ number_format($totalNewsViews ?? 0) }} kali dibaca
-                        <span class="font-black"></span>
                     </p>
                 </div>
-                
-                <div class="inline-flex items-center gap-2 text-xs font-bold text-teal-700 bg-teal-100/80 group-hover:bg-teal-600 group-hover:text-white px-3 py-2 rounded-xl transition-all duration-300 shadow-xs">
-                    <span>Kelola</span>
+    
+                <span class="inline-flex shrink-0 items-center gap-2 text-xs font-bold text-teal-700 bg-teal-100/80 group-hover:bg-teal-600 group-hover:text-white px-3 py-2 rounded-xl transition-all duration-300 shadow-xs">
+                    <span>Kelola Berita</span>
                     <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
                     </svg>
-                </div>
+                </span>
             </div>
         </a>
-<!-- CARD KELOLA GALERI -->
-<a href="{{ route('gallery.index') }}" 
-   class="group relative p-6 rounded-2xl border border-slate-200/80 bg-white hover:bg-teal-50/40 hover:border-teal-300 transition-all duration-300 flex flex-col justify-between space-y-6 shadow-xs hover:shadow-xl hover:-translate-y-1.5 active:scale-[0.99]">
     
-    <div class="flex items-start justify-between">
-        <div class="space-y-1">
-            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest group-hover:text-teal-700 transition-colors">
-                Dokumentasi & Foto
-            </span>
-            <h2 class="text-lg font-bold text-slate-800 group-hover:text-teal-950">Galeri Kegiatan</h2>
-        </div>
-        <div class="p-4 rounded-2xl bg-teal-50 text-teal-600 group-hover:bg-teal-600 group-hover:text-white transition-all duration-300 shadow-xs group-hover:-rotate-6">
-            <!-- Icon Photo / Gallery -->
-            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
-        </div>
-    </div>
-
-    <div class="flex items-end justify-between pt-2">
-        <div>
-            <h3 class="text-3xl font-black text-slate-900 group-hover:text-teal-900 transition-colors tracking-tight">
-              {{ $totalGaleri ?? 0 }}
-            </h3>
-            <p class="text-xs text-slate-400 mt-1">Foto diunggah</p>
-        </div>
-        
-        <div class="inline-flex items-center gap-2 text-xs font-bold text-teal-700 bg-teal-100/80 group-hover:bg-teal-600 group-hover:text-white px-3 py-2 rounded-xl transition-all duration-300 shadow-xs">
-            <span>Kelola</span>
-            <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-            </svg>
-        </div>
-    </div>
-</a>
-<a href="{{ route('agenda.index') }}" 
-   class="group relative p-6 rounded-2xl border border-slate-200/80 bg-white hover:bg-teal-50/40 hover:border-teal-300 transition-all duration-300 flex flex-col justify-between space-y-6 shadow-xs hover:shadow-xl hover:-translate-y-1.5 active:scale-[0.99]">
+        {{-- Card: Kelola Galeri --}}
+        <a href="{{ route('gallery.index') }}"
+           aria-label="Kelola Galeri Kegiatan"
+           class="group relative p-6 rounded-2xl border border-slate-200/80 bg-white hover:bg-teal-50/40 hover:border-teal-300 transition-all duration-300 flex flex-col justify-between gap-5 shadow-xs hover:shadow-xl hover:-translate-y-1.5 active:scale-[0.99]">
     
-    <div class="flex items-start justify-between">
-        <div class="space-y-1">
-            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest group-hover:text-teal-700 transition-colors">
-               Agenda
-            </span>
-            <h2 class="text-lg font-bold text-slate-800 group-hover:text-teal-950">Agenda Kegiatan</h2>
-        </div>
-        <div class="p-4 rounded-2xl bg-teal-50 text-teal-600 group-hover:bg-teal-600 group-hover:text-white transition-all duration-300 shadow-xs group-hover:-rotate-6">
-            <!-- Icon Photo / Gallery -->
-            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
-        </div>
+            <div class="flex items-start justify-between gap-3">
+                <div class="space-y-1 min-w-0">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest group-hover:text-teal-700 transition-colors">
+                        Dokumentasi & Foto
+                    </span>
+                    <h2 class="text-lg font-bold text-slate-800 group-hover:text-teal-950">Galeri Kegiatan</h2>
+                    <p class="text-xs text-slate-500 leading-relaxed">Simpan foto dokumentasi kegiatan.</p>
+                </div>
+                <div class="p-4 rounded-2xl bg-teal-50 text-teal-600 group-hover:bg-teal-600 group-hover:text-white transition-all duration-300 shadow-xs group-hover:rotate-6 shrink-0">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+            </div>
+    
+            <div class="flex flex-wrap items-end justify-between gap-x-3 gap-y-2 pt-2">
+                <div class="min-w-0 flex-1">
+                    <h3 class="text-3xl font-black text-slate-900 group-hover:text-teal-900 transition-colors tracking-tight tabular-nums">
+                        {{ $totalGaleri ?? 0 }}
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1">Foto diunggah</p>
+                </div>
+    
+                <span class="inline-flex shrink-0 items-center gap-2 text-xs font-bold text-teal-700 bg-teal-100/80 group-hover:bg-teal-600 group-hover:text-white px-3 py-2 rounded-xl transition-all duration-300 shadow-xs">
+                    <span>Kelola Galeri</span>
+                    <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                    </svg>
+                </span>
+            </div>
+        </a>
+    
+        {{-- Card: Kelola Agenda --}}
+        <a href="{{ route('agenda.index') }}"
+           aria-label="Kelola Agenda Kegiatan"
+           class="group relative p-6 rounded-2xl border border-slate-200/80 bg-white hover:bg-teal-50/40 hover:border-teal-300 transition-all duration-300 flex flex-col justify-between gap-5 shadow-xs hover:shadow-xl hover:-translate-y-1.5 active:scale-[0.99]">
+    
+            <div class="flex items-start justify-between gap-3">
+                <div class="space-y-1 min-w-0">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest group-hover:text-teal-700 transition-colors">
+                        Jadwal Kegiatan
+                    </span>
+                    <h2 class="text-lg font-bold text-slate-800 group-hover:text-teal-950">Agenda Kegiatan</h2>
+                    <p class="text-xs text-slate-500 leading-relaxed">Atur jadwal dan agenda kegiatan.</p>
+                </div>
+                <div class="p-4 rounded-2xl bg-teal-50 text-teal-600 group-hover:bg-teal-600 group-hover:text-white transition-all duration-300 shadow-xs group-hover:rotate-6 shrink-0">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+            </div>
+    
+            <div class="flex flex-wrap items-end justify-between gap-x-3 gap-y-2 pt-2">
+                <div class="min-w-0 flex-1">
+                    <h3 class="text-3xl font-black text-slate-900 group-hover:text-teal-900 transition-colors tracking-tight tabular-nums">
+                        {{ $totalAgenda ?? 0 }}
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1">Kegiatan terdaftar</p>
+                </div>
+    
+                <span class="inline-flex shrink-0 items-center gap-2 text-xs font-bold text-teal-700 bg-teal-100/80 group-hover:bg-teal-600 group-hover:text-white px-3 py-2 rounded-xl transition-all duration-300 shadow-xs">
+                    <span>Kelola Agenda</span>
+                    <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                    </svg>
+                </span>
+            </div>
+        </a>
     </div>
-
-    <div class="flex items-end justify-between pt-2">
-        <div>
-            <h3 class="text-3xl font-black text-slate-900 group-hover:text-teal-900 transition-colors tracking-tight">
-              {{ $totalAgenda ?? 0 }}
-            </h3>
-            <p class="text-xs text-slate-400 mt-1">Agenda</p>
-        </div>
-        
-        <div class="inline-flex items-center gap-2 text-xs font-bold text-teal-700 bg-teal-100/80 group-hover:bg-teal-600 group-hover:text-white px-3 py-2 rounded-xl transition-all duration-300 shadow-xs">
-            <span>Kelola</span>
-            <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-            </svg>
-        </div>
-    </div>
-</a>
-    </div>
-
     {{-- Section Panduan & Akses Cepat --}}
     <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
         <div class="flex items-center gap-2 border-b border-slate-100 pb-3">

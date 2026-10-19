@@ -346,3 +346,128 @@ test('every dashboard card shows its real count', function () {
         );
     }
 });
+
+test('admin infaq list shows the confirm button for pending transactions', function () {
+    $pending = buatInfaq(['kode_transaksi' => 'INF-KONFIRM1', 'status' => 'pending']);
+    $lunas = buatInfaq(['kode_transaksi' => 'INF-KONFIRM2', 'status' => 'lunas', 'paid_at' => now()]);
+
+    $this->actingAs(infaqAdmin())
+        ->get('/admin/infaq')
+        ->assertOk()
+        ->assertSee(route('admin.infaq.mark-lunas', $pending), false)
+        ->assertDontSee(route('admin.infaq.mark-lunas', $lunas), false);
+});
+
+test('pending transaction can be cancelled by admin', function () {
+    $infaq = buatInfaq(['status' => 'pending']);
+
+    $this->actingAs(infaqAdmin())
+        ->post("/admin/infaq/{$infaq->id}/batal")
+        ->assertRedirect();
+
+    $infaq->refresh();
+
+    expect($infaq->status)->toBe('dibatalkan')
+        ->and($infaq->paid_at)->toBeNull();
+});
+
+test('only pending transaction can be cancelled', function (string $status) {
+    $infaq = buatInfaq(['status' => $status, 'paid_at' => $status === 'lunas' ? now() : null]);
+
+    $this->actingAs(infaqAdmin())
+        ->post("/admin/infaq/{$infaq->id}/batal")
+        ->assertRedirect()
+        ->assertSessionHas('error');
+
+    expect($infaq->refresh()->status)->toBe($status);
+})->with([
+    'lunas' => 'lunas',
+    'sudah dibatalkan' => 'dibatalkan',
+]);
+
+test('guest cannot cancel a transaction', function () {
+    $infaq = buatInfaq(['status' => 'pending']);
+
+    $this->post("/admin/infaq/{$infaq->id}/batal")
+        ->assertRedirect('/login');
+
+    expect($infaq->refresh()->status)->toBe('pending');
+});
+
+test('non admin cannot cancel a transaction', function () {
+    $infaq = buatInfaq(['status' => 'pending']);
+
+    $this->actingAs(User::factory()->create())
+        ->post("/admin/infaq/{$infaq->id}/batal")
+        ->assertForbidden();
+
+    expect($infaq->refresh()->status)->toBe('pending');
+});
+
+test('pending rows show labelled confirm and cancel buttons', function () {
+    $pendingBukti = buatInfaq([
+        'kode_transaksi' => 'INF-TOMBOL1',
+        'status' => 'pending',
+        'bukti_path' => 'infaq-bukti/contoh.jpg',
+    ]);
+    $lunas = buatInfaq(['kode_transaksi' => 'INF-TOMBOL2', 'status' => 'lunas', 'paid_at' => now()]);
+
+    $this->actingAs(infaqAdmin())
+        ->get('/admin/infaq')
+        ->assertOk()
+        ->assertSee('Setujui & Lunas')
+        ->assertSee('Batalkan')
+        ->assertSee(route('admin.infaq.mark-batal', $pendingBukti), false)
+        ->assertSee(route('admin.infaq.mark-lunas', $pendingBukti), false)
+        ->assertDontSee(route('admin.infaq.mark-batal', $lunas), false);
+});
+
+test('pending rows without bukti use the plain tandai lunas label', function () {
+    buatInfaq(['kode_transaksi' => 'INF-TOMBOL3', 'status' => 'pending']);
+
+    $this->actingAs(infaqAdmin())
+        ->get('/admin/infaq')
+        ->assertOk()
+        ->assertSee('Tandai Lunas')
+        ->assertDontSee('Setujui & Lunas');
+});
+
+test('dashboard cards explain themselves in plain language for new admins', function () {
+    $html = $this->actingAs(infaqAdmin())
+        ->get('/dashboard')
+        ->assertOk()
+        ->getContent();
+
+    $penjelasan = [
+        'Lihat jumlah infak terkumpul dan catat transaksi baru.',
+        'Data seluruh anggota, termasuk menyetujui pendaftar baru.',
+        'Susunan pengurus tiap organisasi dan badan otonom.',
+        'Buat, ubah, dan terbitkan berita kegiatan.',
+        'Simpan foto dokumentasi kegiatan.',
+        'Atur jadwal dan agenda kegiatan.',
+    ];
+
+    foreach ($penjelasan as $teks) {
+        expect($html)->toContain($teks);
+    }
+});
+
+test('dashboard card buttons carry specific labels instead of a bare Kelola', function () {
+    $this->actingAs(infaqAdmin())
+        ->get('/dashboard')
+        ->assertOk()
+        ->assertSee('Kelola Infaq')
+        ->assertSee('Kelola Anggota')
+        ->assertSee('Kelola Pengurus')
+        ->assertSee('Kelola Berita')
+        ->assertSee('Kelola Galeri')
+        ->assertSee('Kelola Agenda');
+});
+
+test('non admin sees a view label instead of a manage label on the infaq card', function () {
+    $this->actingAs(User::factory()->create())
+        ->get('/dashboard')
+        ->assertOk()
+        ->assertSee('Lihat Infaq')
+        ->assertDontSee('Kelola Infaq');
+});

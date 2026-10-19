@@ -7,6 +7,7 @@ use App\Models\Berita;
 use App\Models\BeritaView;
 use App\Models\Pengurus;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -19,7 +20,8 @@ class BeritaController extends Controller
         $jenis = $request->query('jenis');
         $sort = $this->resolveSort($request->query('sort'));
 
-        $beritas = Berita::filter($q, $jenis)
+        $beritas = Berita::with('user')
+            ->filter($q, $jenis)
             ->sorted($sort)
             ->paginate(10)
             ->withQueryString();
@@ -27,11 +29,12 @@ class BeritaController extends Controller
         // Statistik ringkas untuk kartu di atas tabel.
         $totalBerita = Berita::count();
         $totalViews = (int) Berita::sum('views');
+        $totalPublish = Berita::published()->count();
 
         $stats = [
             'total' => $totalBerita,
-            'publish' => Berita::published()->count(),
-            'draft' => $totalBerita - Berita::published()->count(),
+            'publish' => $totalPublish,
+            'draft' => $totalBerita - $totalPublish,
             'views' => $totalViews,
             'rataViews' => $totalBerita > 0 ? (int) round($totalViews / $totalBerita) : 0,
         ];
@@ -59,7 +62,7 @@ class BeritaController extends Controller
             'slug' => $this->slugRules(),
             'jenis' => ['required', Rule::in(Berita::JENIS)],
             'isi' => 'required',
-            'gambar' => 'nullable|image|max:2048',
+            'gambar' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'gambar_url' => 'nullable|url|max:500',
             'status' => 'boolean',
         ], [
@@ -113,7 +116,7 @@ class BeritaController extends Controller
             'slug' => $this->slugRules($berita->id),
             'jenis' => ['required', Rule::in(Berita::JENIS)],
             'isi' => 'required',
-            'gambar' => 'nullable|image|max:2048',
+            'gambar' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'gambar_url' => 'nullable|url|max:500',
             'status' => 'boolean',
         ], [
@@ -125,6 +128,8 @@ class BeritaController extends Controller
 
         $validated['slug'] = $validated['slug'] ?? $this->generateUniqueSlug($validated['judul'], $berita->id);
 
+        $gambarLama = $berita->gambar;
+
         if ($request->hasFile('gambar')) {
             $validated['gambar'] = $request->file('gambar')->store('berita', 'public');
             $validated['gambar_url'] = null; // kosongkan URL jika ada file baru
@@ -134,11 +139,20 @@ class BeritaController extends Controller
 
         $berita->update($validated);
 
+        // Bersihkan file lama setelah baris berhasil diperbarui agar tidak menumpuk.
+        if ($berita->wasChanged('gambar') && $gambarLama) {
+            Storage::disk('public')->delete($gambarLama);
+        }
+
         return redirect()->route('berita.index')->with('success', 'Berita diperbarui');
     }
 
     public function destroy(Berita $berita)
     {
+        if ($berita->gambar) {
+            Storage::disk('public')->delete($berita->gambar);
+        }
+
         $berita->delete();
 
         return redirect()->route('berita.index')->with('success', 'Berita dihapus');
@@ -211,11 +225,12 @@ class BeritaController extends Controller
         // Ringkasan angka utama.
         $totalBerita = Berita::count();
         $totalViews = (int) Berita::sum('views');
+        $totalPublish = Berita::published()->count();
 
         $stats = [
             'total' => $totalBerita,
-            'publish' => Berita::published()->count(),
-            'draft' => $totalBerita - Berita::published()->count(),
+            'publish' => $totalPublish,
+            'draft' => $totalBerita - $totalPublish,
             'views' => $totalViews,
             'rataViews' => $totalBerita > 0 ? (int) round($totalViews / $totalBerita) : 0,
         ];

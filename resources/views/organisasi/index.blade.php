@@ -46,11 +46,6 @@
 <body class="bg-[#F8F9F6] text-slate-900 antialiased selection:bg-emerald-100 selection:text-emerald-900">
     <x-navbar />
 
-    @php
-        // Ambil data pengurus yang sudah ada untuk modal detail pengurus
-        $semuaPengurus = \App\Models\Pengurus::orderBy('urutan', 'asc')->orderBy('id', 'asc')->get()->groupBy('banom');
-    @endphp
-
     <main x-data="{
         activeModal: null,
         openModal(slug) {

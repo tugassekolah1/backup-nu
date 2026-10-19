@@ -80,20 +80,6 @@
                              class="hidden mt-3 w-24 h-32 object-cover rounded-lg border border-slate-200 bg-slate-50">
                     </div>
 
-                    <div class="mb-6">
-                        <x-input-label for="payment_option" value="Status Bayar" />
-                        <select id="payment_option" name="payment_option" required
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                            <option value="">-- Pilih --</option>
-                            <option value="cash" {{ old('payment_option') === 'cash' ? 'selected' : '' }}>
-                                Langsung Lunas (Cash)
-                            </option>
-                            <option value="unpaid" {{ old('payment_option') === 'unpaid' ? 'selected' : '' }}>
-                                Belum Bayar
-                            </option>
-                        </select>
-                    </div>
-
                     <div class="flex gap-2">
                         <button type="submit"
                                 class="bg-blue-600 hover:bg-blue-700  px-5 py-2 rounded-lg">

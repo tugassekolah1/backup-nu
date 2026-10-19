@@ -130,19 +130,21 @@
                         </button>
                     </form>
 
-                    <div class="mt-6 rounded-2xl border border-[#C99A2E]/30 bg-[#FBF4E4] p-5 text-center">
-                        <p class="text-sm leading-relaxed text-[#526158]">
-                            <strong class="font-bold text-[#17392D]">Mode sandbox:</strong>
-                            lewati verifikasi admin untuk simulasi instan.
-                        </p>
+                    @if (app()->environment('local'))
+                        <div class="mt-6 rounded-2xl border border-[#C99A2E]/30 bg-[#FBF4E4] p-5 text-center">
+                            <p class="text-sm leading-relaxed text-[#526158]">
+                                <strong class="font-bold text-[#17392D]">Mode sandbox:</strong>
+                                lewati verifikasi admin untuk simulasi instan.
+                            </p>
 
-                        <form action="{{ route('infaq.simulate', $infaq->kode_transaksi) }}" method="POST" class="mt-4">
-                            @csrf
-                            <button type="submit" class="min-h-[44px] w-full rounded-[14px] border border-[#C99A2E]/50 bg-white px-6 py-3 text-sm font-semibold text-[#7B8780] transition hover:bg-[#FBF4E4] active:scale-[0.98]">
-                                Simulasikan Pembayaran Lunas
-                            </button>
-                        </form>
-                    </div>
+                            <form action="{{ route('infaq.simulate', $infaq->kode_transaksi) }}" method="POST" class="mt-4">
+                                @csrf
+                                <button type="submit" class="min-h-[44px] w-full rounded-[14px] border border-[#C99A2E]/50 bg-white px-6 py-3 text-sm font-semibold text-[#7B8780] transition hover:bg-[#FBF4E4] active:scale-[0.98]">
+                                    Simulasikan Pembayaran Lunas
+                                </button>
+                            </form>
+                        </div>
+                    @endif
                 @elseif ($infaq->status === 'pending' && $infaq->bukti_path)
                     {{-- Menunggu verifikasi admin --}}
                     <div class="mt-6 rounded-2xl border border-amber-300 bg-amber-50 p-6 text-center">

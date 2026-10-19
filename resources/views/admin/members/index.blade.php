@@ -1,4 +1,3 @@
-        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
 <x-app-layout>
     <x-slot name="header">
@@ -13,7 +12,7 @@
                     <h2 class="font-bold text-xl text-slate-800 leading-tight">
                         Manajemen Anggota
                     </h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Kelola data pendaftaran, status pembayaran, dan akun anggota.</p>
+                    <p class="text-xs text-slate-500 mt-0.5">Kelola data pendaftaran dan akun anggota.</p>
                 </div>
             </div>
 
@@ -50,80 +49,126 @@
                 </div>
             @endif
 
-            {{-- Banom Count Cards --}}
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-                @php
-                    $totalMembers = array_sum($banomCounts);
-                @endphp
-                
-                {{-- Card Total --}}
-                <div class="relative">
-                    <a href="{{ route('members.index') }}"
-                       @class([
-                           'p-4 pr-11 rounded-xl border-2 transition-all hover:shadow-md text-center',
-                           'bg-emerald-50 border-emerald-300' => ($banomFilter ?? 'all') === 'all',
-                           'bg-white border-slate-200 hover:border-emerald-200' => ($banomFilter ?? 'all') !== 'all',
-                       ])>
-                        <div class="text-xs font-semibold text-slate-500 uppercase mb-1">Total Anggota</div>
-                        <div class="text-2xl font-bold text-slate-900">{{ $totalMembers }}</div>
-                    </a>
-                    <a href="{{ route('members.cetak-kta-bulk') }}"
-                       target="_blank" rel="noopener"
-                       title="Cetak KTA seluruh anggota lunas"
-                       class="absolute right-2 bottom-2 p-1.5 rounded-lg text-slate-400 hover:bg-emerald-100 hover:text-emerald-700 transition-all">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
-                        </svg>
-                    </a>
+            {{-- Alert Gagal --}}
+            @if (session('error'))
+                <div class="p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-2xl flex items-center gap-3 shadow-xs">
+                    <svg class="w-5 h-5 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                    </svg>
+                    <span class="text-sm font-medium">{{ session('error') }}</span>
                 </div>
+            @endif
 
-                {{-- Card Tanpa Organisasi --}}
-                <div class="relative">
-                    <a href="{{ route('members.index', ['banom' => 'none']) }}"
-                       @class([
-                           'p-4 rounded-xl border-2 transition-all hover:shadow-md text-center',
-                           'bg-orange-50 border-orange-300' => ($banomFilter ?? 'all') === 'none',
-                           'bg-white border-slate-200 hover:border-orange-200' => ($banomFilter ?? 'all') !== 'none',
-                       ])>
-                        <div class="text-xs font-semibold text-slate-500 uppercase mb-1">Tanpa Organisasi</div>
-                        <div class="text-2xl font-bold text-slate-900">{{ $banomCounts['none'] ?? 0 }}</div>
-                    </a>
-                    <a href="{{ route('members.cetak-kta-bulk', ['banom' => 'none']) }}"
-                       target="_blank" rel="noopener"
-                       title="Cetak KTA anggota tanpa organisasi"
-                       class="absolute right-2 bottom-2 p-1.5 rounded-lg text-slate-400 hover:bg-orange-100 hover:text-orange-700 transition-all">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
-                        </svg>
-                    </a>
+            {{-- Error validasi (mis. alasan penolakan kosong) --}}
+            @if ($errors->any())
+                <div class="p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-2xl shadow-xs">
+                    <strong class="text-sm">Periksa kembali isian berikut:</strong>
+                    <ul class="mt-1 list-disc list-inside text-sm">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
                 </div>
+            @endif
 
-                {{-- Cards per Banom --}}
-                @foreach (\App\Models\NuMember::ORGANISASI_GROUPS as $group => $items)
-                    @foreach ($items as $code => $desc)
-                        <div class="relative">
-                            <a href="{{ route('members.index', ['banom' => $code]) }}"
+            {{-- Ringkasan per Organisasi: satu baris chip, bukan banyak kartu kotak --}}
+            @php
+                $filterAktif = $banomFilter ?? 'all';
+                $totalMembers = array_sum($banomCounts);
+
+                $chipOrganisasi = [
+                    [
+                        'kode' => 'all',
+                        'label' => 'Semua',
+                        'jumlah' => $totalMembers,
+                        'href' => route('members.index'),
+                        'cetak' => route('members.cetak-kta-bulk'),
+                        'cetakLabel' => 'Seluruh anggota',
+                        'aksen' => 'emerald',
+                    ],
+                    [
+                        'kode' => 'none',
+                        'label' => 'Tanpa Organisasi',
+                        'jumlah' => $banomCounts['none'] ?? 0,
+                        'href' => route('members.index', ['banom' => 'none']),
+                        'cetak' => route('members.cetak-kta-bulk', ['banom' => 'none']),
+                        'cetakLabel' => 'Tanpa organisasi',
+                        'aksen' => 'amber',
+                    ],
+                ];
+
+                foreach (\App\Models\NuMember::ORGANISASI_GROUPS as $items) {
+                    foreach ($items as $code => $desc) {
+                        $chipOrganisasi[] = [
+                            'kode' => $code,
+                            'label' => \App\Models\Pengurus::BANOMS[$code]['label'] ?? $code,
+                            'jumlah' => $banomCounts[$code] ?? 0,
+                            'href' => route('members.index', ['banom' => $code]),
+                            'cetak' => route('members.cetak-kta-bulk', ['banom' => $code]),
+                            'cetakLabel' => \App\Models\Pengurus::BANOMS[$code]['label'] ?? $code,
+                            'aksen' => 'emerald',
+                        ];
+                    }
+                }
+
+                // Status aktif dihitung di sini supaya tidak perlu @php() inline
+                // di dalam loop (direktif inline begitu tidak ikut ter-compile).
+                foreach ($chipOrganisasi as $index => $chip) {
+                    $chipOrganisasi[$index]['aktif'] = $filterAktif === $chip['kode'];
+                }
+            @endphp
+
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-3">
+                <div class="flex flex-wrap items-center gap-1.5">
+                    @foreach ($chipOrganisasi as $chip)
+                        <div @class([
+                            'group inline-flex items-stretch rounded-full border transition-colors',
+                            'bg-emerald-600 border-emerald-600 shadow-xs' => $chip['aktif'] && $chip['aksen'] === 'emerald',
+                            'bg-amber-500 border-amber-500 shadow-xs' => $chip['aktif'] && $chip['aksen'] === 'amber',
+                            'bg-white border-slate-200 hover:border-emerald-300' => ! $chip['aktif'],
+                        ])>
+                            <a href="{{ $chip['href'] }}"
                                @class([
-                                   'p-4 rounded-xl border-2 transition-all hover:shadow-md text-center',
-                                   'bg-emerald-50 border-emerald-300' => ($banomFilter ?? 'all') === $code,
-                                   'bg-white border-slate-200 hover:border-emerald-200' => ($banomFilter ?? 'all') !== $code,
-                               ])>
-                                <div class="text-xs font-semibold text-slate-500 uppercase mb-1 truncate" title="{{ \App\Models\Pengurus::BANOMS[$code]['label'] ?? $code }}">
-                                    {{ \App\Models\Pengurus::BANOMS[$code]['label'] ?? $code }}
-                                </div>
-                                <div class="text-2xl font-bold text-slate-900">{{ $banomCounts[$code] ?? 0 }}</div>
+                                   'inline-flex items-center gap-2 rounded-l-full py-1.5 pl-3.5 pr-2.5',
+                               ])
+                               {{-- Nilai literal, bukan input pengguna: aman memakai {!! !!} agar kutip tidak ikut di-escape. --}}
+                               {!! $chip['aktif'] ? 'aria-current="true"' : '' !!}
+                               title="{{ $chip['aktif'] ? 'Menampilkan: ' : 'Saring menurut ' }}{{ $chip['label'] }}">
+                                <span @class([
+                                    'text-[11px] font-bold uppercase tracking-wide',
+                                    'text-white' => $chip['aktif'],
+                                    'text-slate-600 group-hover:text-emerald-700' => ! $chip['aktif'],
+                                ])>{{ $chip['label'] }}</span>
+
+                                <span @class([
+                                    'min-w-[1.75rem] rounded-full px-1.5 py-0.5 text-center text-xs font-bold tabular-nums',
+                                    'bg-white/20 text-white' => $chip['aktif'],
+                                    'bg-slate-100 text-slate-500' => ! $chip['aktif'],
+                                ])>{{ $chip['jumlah'] }}</span>
                             </a>
-                            <a href="{{ route('members.cetak-kta-bulk', ['banom' => $code]) }}"
+
+                            <span @class([
+                                'w-px',
+                                'bg-white/25' => $chip['aktif'],
+                                'bg-slate-200' => ! $chip['aktif'],
+                            ]) aria-hidden="true"></span>
+
+                            <a href="{{ $chip['cetak'] }}"
                                target="_blank" rel="noopener"
-                               title="Cetak KTA berjamaah {{ \App\Models\Pengurus::BANOMS[$code]['label'] ?? $code }}"
-                               class="absolute right-2 bottom-2 p-1.5 rounded-lg text-slate-400 hover:bg-emerald-100 hover:text-emerald-700 transition-all">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                               title="Cetak KTA berjamaah {{ $chip['cetakLabel'] }}"
+                               @class([
+                                   'inline-flex items-center rounded-r-full px-2.5',
+                                   'text-white/70 hover:text-white' => $chip['aktif'],
+                                   'text-slate-300 hover:text-emerald-600' => ! $chip['aktif'],
+                               ])>
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
                                 </svg>
+                                <span class="sr-only">Cetak KTA {{ $chip['cetakLabel'] }}</span>
                             </a>
                         </div>
                     @endforeach
-                @endforeach
+                </div>
             </div>
 
             {{-- Search Box --}}
@@ -208,13 +253,23 @@
                 </div>
             </div>
 
-            {{-- Main Table Card --}}
+            {{-- Daftar anggota: baris kartu responsif, tanpa scroll horizontal --}}
             <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
-                <div class="p-5 border-b border-slate-100 flex items-center justify-between">
-                    <h3 class="text-base font-bold text-slate-800">Daftar Seluruh Anggota</h3>
-                    <span class="text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg">
-                        Total: {{ $members->total() ?? count($members) }} Data
-                    </span>
+                <div class="p-5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-800">Daftar Seluruh Anggota</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Data ditampilkan per baris agar mudah dibaca, baik di HP maupun komputer.</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <label for="select-all" class="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 cursor-pointer">
+                            <input type="checkbox" id="select-all" onchange="toggleSelectAll(this)"
+                                   class="w-4 h-4 text-emerald-600 border-slate-300 rounded cursor-pointer">
+                            Pilih semua
+                        </label>
+                        <span class="text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg">
+                            Total: {{ $members->total() ?? count($members) }} Data
+                        </span>
+                    </div>
                 </div>
 
                 <form id="bulk-action-form" method="POST" action="">
@@ -241,194 +296,169 @@
                         </div>
                     </div>
 
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm text-left border-collapse">
-                            <thead>
-                                <tr class="bg-slate-50 border-b border-slate-200/80 text-xs uppercase font-bold text-slate-500 tracking-wider">
-                                    <th class="px-4 py-4 w-12">
-                                        <input type="checkbox" id="select-all" onchange="toggleSelectAll(this)"
-                                               class="w-4 h-4 text-emerald-600 border-slate-300 rounded cursor-pointer">
-                                    </th>
-                                    <th class="px-6 py-4">Informasi Diri</th>
-                                    <th class="px-6 py-4">Kontak</th>
-                                    <th class="px-6 py-4">Organisasi</th>
-                                    <th class="px-6 py-4">No. Kartu</th>
-                                    <th class="px-6 py-4">Status Pembayaran</th>
-                                    <th class="px-6 py-4 text-center">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100">
-                                @forelse ($members as $member)
-                                    <tr class="hover:bg-slate-50/80 transition-colors">
-                                        {{-- Checkbox --}}
-                                        <td class="px-4 py-4">
-                                            @if ($member->payment_status === 'paid')
-                                                <input type="checkbox" name="ids[]" value="{{ $member->id }}"
-                                                       onchange="updateBulkActionBar()"
-                                                       class="member-checkbox w-4 h-4 text-emerald-600 border-slate-300 rounded cursor-pointer">
-                                            @endif
-                                        </td>
+                    <div class="divide-y divide-slate-100">
+                        @forelse ($members as $member)
+                            @php
+                                $state = $member->registrationState();
+                                $statusPill = match ($state) {
+                                    'accepted' => ['label' => 'Aktif', 'class' => 'bg-emerald-100/80 text-emerald-800', 'dot' => 'bg-emerald-500'],
+                                    'rejected' => ['label' => 'Ditolak', 'class' => 'bg-rose-100/80 text-rose-800', 'dot' => 'bg-rose-500'],
+                                    default => ['label' => 'Menunggu Verifikasi', 'class' => 'bg-amber-100/80 text-amber-800', 'dot' => 'bg-amber-500'],
+                                };
+                            @endphp
 
-                                        {{-- NIK & Nama --}}
-                                        <td class="px-6 py-4">
-                                            <div class="flex items-center gap-3">
-                                                @if ($member->photo)
-                                                    <img src="{{ asset('storage/' . $member->photo) }}"
-                                                         alt="Foto {{ $member->full_name }}"
-                                                         class="w-10 h-10 shrink-0 rounded-full object-cover border border-slate-200 bg-slate-50">
-                                                @else
-                                                    <span class="w-10 h-10 shrink-0 rounded-full bg-emerald-50 text-emerald-700 inline-flex items-center justify-center font-bold text-sm">
-                                                        {{ strtoupper(substr($member->full_name, 0, 1)) }}
-                                                    </span>
-                                                @endif
-                                                <div>
-                                                    <div class="font-bold text-slate-900">{{ $member->full_name }}</div>
-                                                    <div class="text-xs text-slate-400 font-mono mt-0.5">NIK: {{ $member->nik }}</div>
-                                                </div>
+                            <div class="p-4 sm:p-5 hover:bg-slate-50/70 transition-colors">
+                                <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+
+                                    {{-- Identitas anggota --}}
+                                    <div class="flex items-start gap-3 min-w-0">
+                                        @if ($member->status === 'active')
+                                            <input type="checkbox" name="ids[]" value="{{ $member->id }}"
+                                                   onchange="updateBulkActionBar()"
+                                                   class="member-checkbox mt-1 w-4 h-4 shrink-0 text-emerald-600 border-slate-300 rounded cursor-pointer">
+                                        @endif
+
+                                        @if ($member->photo)
+                                            <img src="{{ asset('storage/' . $member->photo) }}"
+                                                 alt="Foto {{ $member->full_name }}"
+                                                 class="w-11 h-11 shrink-0 rounded-full object-cover border border-slate-200 bg-slate-50">
+                                        @else
+                                            <span class="w-11 h-11 shrink-0 rounded-full bg-emerald-50 text-emerald-700 inline-flex items-center justify-center font-bold text-sm">
+                                                {{ strtoupper(substr($member->full_name, 0, 1)) }}
+                                            </span>
+                                        @endif
+
+                                        <div class="min-w-0">
+                                            <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                                                <span class="font-bold text-slate-900">{{ $member->full_name }}</span>
+                                                <span class="text-[11px] font-mono text-slate-400">NIK: {{ $member->nik }}</span>
                                             </div>
-                                        </td>
 
-                                        {{-- Telepon --}}
-                                        <td class="px-6 py-4 text-slate-600 font-medium">
-                                            {{ $member->phone }}
-                                        </td>
+                                            <p class="text-xs font-medium text-slate-500 mt-1">
+                                                HP: {{ $member->phone }}
+                                            </p>
 
-                                        {{-- Organisasi / Banom --}}
-                                        <td class="px-6 py-4">
-                                            @if ($member->organisasi_label)
-                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100/80 text-emerald-800 whitespace-nowrap">
-                                                    {{ $member->organisasi_label }}
-                                                </span>
-                                            @else
-                                                <span class="text-slate-400 italic text-xs">—</span>
-                                            @endif
-                                        </td>
-
-                                        {{-- No Kartu --}}
-                                        <td class="px-6 py-4">
-                                            @if($member->member_card_no)
-                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 font-mono text-xs font-semibold">
-                                                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                                                    </svg>
-                                                    {{ $member->member_card_no }}
-                                                </span>
-                                            @else
-                                                <span class="text-slate-400 italic text-xs">Belum ada</span>
-                                            @endif
-                                        </td>
-
-                                        {{-- Status Pembayaran --}}
-                                        <td class="px-6 py-4">
-                                            @if ($member->payment_status === 'paid')
-                                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100/80 text-emerald-800">
-                                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                                    Lunas / Aktif
-                                                </span>
-                                            @else
-                                                <div class="space-y-1">
-                                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-100/80 text-rose-800">
-                                                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-                                                        Belum Bayar
+                                            <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
+                                                @if ($member->organisasi_label)
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100/80 text-emerald-800">
+                                                        {{ $member->organisasi_label }}
                                                     </span>
-
-                                                    @php $latestPayment = $member->payments()->latest()->first(); @endphp
-                                                    @if ($latestPayment && $latestPayment->payment_proof)
-                                                        <a href="{{ Storage::url($latestPayment->payment_proof) }}" target="_blank"
-                                                           class="flex items-center gap-1 text-xs font-semibold text-emerald-600 hover:text-emerald-800 transition-colors">
-                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                                            </svg>
-                                                            Lihat Bukti Transfer
-                                                        </a>
-                                                    @endif
-                                                </div>
-                                            @endif
-                                        </td>
-
-                                        {{-- Kolom Aksi --}}
-                                        <td class="px-6 py-4 text-center">
-                                            <div class="inline-flex items-center gap-1.5 bg-slate-100/80 p-1.5 rounded-xl border border-slate-200/60">
-                                                @if ($member->payment_status === 'unpaid')
-                                                    <form action="{{ route('members.confirm-payment', $member) }}"
-                                                          method="POST" class="inline"
-                                                          onsubmit="return confirm('Konfirmasi bahwa anggota ini sudah melunasi pembayaran?')">
-                                                        @csrf
-                                                        @method('PATCH')
-                                                        <button type="submit" 
-                                                                title="Konfirmasi Lunas"
-                                                                class="p-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700  transition-all shadow-xs">
-                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                                            </svg>
-                                                        </button>
-                                                    </form>
+                                                @else
+                                                    <span class="text-[11px] text-slate-400 italic">Tanpa organisasi</span>
                                                 @endif
 
-                                                @if ($member->payment_status === 'paid')
-                                                    <a href="{{ route('members.print-card', $member) }}"
-                                                       target="_blank" rel="noopener"
-                                                       title="Cetak Kartu Anggota"
-                                                       class="p-1.5 rounded-lg text-slate-600 hover:bg-white hover:text-emerald-600 transition-all">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                                                @if ($member->member_card_no)
+                                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 font-mono text-[11px] font-semibold">
+                                                        <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                                                         </svg>
-                                                    </a>
-
-                                                    <a href="{{ route('members.download-kta', $member) }}"
-                                                       target="_blank" rel="noopener"
-                                                       title="Download KTA"
-                                                       class="p-1.5 rounded-lg text-slate-600 hover:bg-white hover:text-blue-600 transition-all">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                                                        </svg>
-                                                    </a>
+                                                        {{ $member->member_card_no }}
+                                                    </span>
                                                 @endif
 
-                                                <a href="{{ route('members.edit', $member) }}"
-                                                   title="Edit Data"
+                                                @if ($state === 'rejected' && $member->rejection_reason)
+                                                    <span class="text-[11px] text-rose-500" title="{{ $member->rejection_reason }}">
+                                                        Alasan: {{ $member->rejection_reason }}
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Status + aksi --}}
+                                    <div class="flex flex-wrap items-center gap-2 lg:justify-end lg:shrink-0 lg:ps-4">
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold {{ $statusPill['class'] }}">
+                                            <span class="w-1.5 h-1.5 rounded-full {{ $statusPill['dot'] }}"></span>
+                                            {{ $statusPill['label'] }}
+                                        </span>
+
+                                        @if ($state === 'pending')
+                                            <form action="{{ route('admin.members.requests.accept', $member) }}"
+                                                  method="POST" class="inline"
+                                                  onsubmit="return confirm('Terima pendaftaran {{ $member->full_name }} sebagai anggota aktif?')">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit"
+                                                        class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs transition-all active:scale-95">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                    </svg>
+                                                    Terima
+                                                </button>
+                                            </form>
+
+                                            <button type="button"
+                                                    data-reject-url="{{ route('admin.members.requests.reject', $member) }}"
+                                                    data-reject-name="{{ $member->full_name }}"
+                                                    class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border border-rose-200 text-rose-600 hover:bg-rose-50 transition-all active:scale-95">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                                </svg>
+                                                Tolak
+                                            </button>
+                                        @endif
+
+                                        <div class="inline-flex items-center gap-1.5 bg-slate-100/80 p-1.5 rounded-xl border border-slate-200/60">
+                                            @if ($member->status === 'active')
+                                                <a href="{{ route('members.print-card', $member) }}"
+                                                   target="_blank" rel="noopener"
+                                                   title="Cetak Kartu Anggota"
                                                    class="p-1.5 rounded-lg text-slate-600 hover:bg-white hover:text-emerald-600 transition-all">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
                                                     </svg>
                                                 </a>
 
-                                                <form action="{{ route('members.destroy', $member) }}"
-                                                      method="POST" class="inline"
-                                                      onsubmit="return confirm('Apakah Anda yakin ingin menghapus data anggota ini?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" 
-                                                            title="Hapus Data"
-                                                            class="p-1.5 rounded-lg text-slate-600 hover:bg-white hover:text-rose-600 transition-all">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                                        </svg>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="7" class="text-center py-12">
-                                            <div class="flex flex-col items-center justify-center space-y-3">
-                                                <div class="p-4 bg-slate-100 text-slate-400 rounded-full">
-                                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                                                <a href="{{ route('members.download-kta', $member) }}"
+                                                   target="_blank" rel="noopener"
+                                                   title="Download KTA"
+                                                   class="p-1.5 rounded-lg text-slate-600 hover:bg-white hover:text-blue-600 transition-all">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                                                     </svg>
-                                                </div>
-                                                <p class="text-slate-500 font-medium">Belum ada data anggota yang terdaftar.</p>
-                                                <a href="{{ route('members.create') }}" class="text-xs font-bold text-emerald-600 hover:underline">
-                                                    + Klik di sini untuk menambah anggota pertama
                                                 </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                                            @endif
+
+                                            <a href="{{ route('members.edit', $member) }}"
+                                               title="Edit Data"
+                                               class="p-1.5 rounded-lg text-slate-600 hover:bg-white hover:text-emerald-600 transition-all">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                                </svg>
+                                            </a>
+
+                                            <form action="{{ route('members.destroy', $member) }}"
+                                                  method="POST" class="inline"
+                                                  onsubmit="return confirm('Apakah Anda yakin ingin menghapus data anggota ini?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                        title="Hapus Data"
+                                                        class="p-1.5 rounded-lg text-slate-600 hover:bg-white hover:text-rose-600 transition-all">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="py-16 text-center">
+                                <div class="flex flex-col items-center justify-center space-y-3">
+                                    <div class="p-4 bg-slate-100 text-slate-400 rounded-full">
+                                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                                        </svg>
+                                    </div>
+                                    <p class="text-slate-500 font-medium">Belum ada data anggota yang terdaftar.</p>
+                                    <a href="{{ route('members.create') }}" class="text-xs font-bold text-emerald-600 hover:underline">
+                                        + Klik di sini untuk menambah anggota pertama
+                                    </a>
+                                </div>
+                            </div>
+                        @endforelse
                     </div>
 
                     @if($members->hasPages())
@@ -534,4 +564,97 @@
 
         </div>
     </div>
+    {{-- Modal: Tolak pendaftaran (wajib alasan) --}}
+    <div id="reject-modal" class="fixed inset-0 z-[60] hidden items-center justify-center bg-slate-900/50 p-4">
+        <div class="w-full max-w-lg rounded-2xl bg-white shadow-xl">
+            <div class="p-6">
+                <div class="flex items-start gap-4">
+                    <div class="shrink-0 p-3 bg-rose-50 text-rose-600 rounded-2xl">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </div>
+                    <div class="pt-1 w-full">
+                        <h3 class="text-lg font-bold text-slate-800">Tolak Pendaftaran?</h3>
+                        <p class="text-sm text-slate-500 mt-2 leading-relaxed">
+                            Permintaan dari <span id="reject-member-name" class="font-bold text-slate-700"></span>
+                            akan <strong class="text-rose-600">ditolak</strong>. Tuliskan alasannya agar pendaftar memahami.
+                        </p>
+
+                        <form id="reject-form" method="POST" action="">
+                            @csrf
+                            @method('PATCH')
+
+                            <label for="reject-reason" class="block text-sm font-bold text-slate-700 mt-4 mb-1.5">
+                                Alasan Penolakan <span class="text-rose-500">*</span>
+                            </label>
+                            <textarea id="reject-reason" name="reason" rows="3" maxlength="500" required
+                                      placeholder="Contoh: Data NIK tidak sesuai dengan dokumen identitas."
+                                      class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-100 transition-all"></textarea>
+                            <div class="flex items-center justify-end mt-1.5">
+                                <span class="text-xs text-slate-400"><span id="reject-count">0</span>/500</span>
+                            </div>
+
+                            <div class="mt-5 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+                                <button type="button" id="reject-cancel"
+                                        class="px-5 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all active:scale-95">
+                                    Batal
+                                </button>
+                                <button type="submit"
+                                        class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold transition-all shadow-xs active:scale-95">
+                                    Ya, Tolak Pendaftaran
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var modal = document.getElementById('reject-modal');
+            var form = document.getElementById('reject-form');
+            var nameEl = document.getElementById('reject-member-name');
+            var reasonEl = document.getElementById('reject-reason');
+            var countEl = document.getElementById('reject-count');
+
+            if (!modal || !form || !reasonEl) return;
+
+            function closeModal() {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.classList.remove('overflow-hidden');
+            }
+
+            document.querySelectorAll('[data-reject-url]').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    form.action = button.dataset.rejectUrl;
+                    nameEl.textContent = button.dataset.rejectName || 'anggota ini';
+                    reasonEl.value = '';
+                    countEl.textContent = '0';
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                    document.body.classList.add('overflow-hidden');
+                    window.setTimeout(function () { reasonEl.focus(); }, 120);
+                });
+            });
+
+            document.getElementById('reject-cancel').addEventListener('click', closeModal);
+
+            modal.addEventListener('click', function (event) {
+                if (event.target === modal) closeModal();
+            });
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape') closeModal();
+            });
+
+            reasonEl.addEventListener('input', function () {
+                countEl.textContent = String(reasonEl.value.length);
+            });
+        });
+    </script>
+
 </x-app-layout>
