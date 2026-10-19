@@ -186,15 +186,12 @@ class MemberController extends Controller
     }
 
     /**
-     * Terima permintaan pendaftaran -> anggota aktif (AJAX/JSON).
+     * Terima permintaan pendaftaran -> anggota aktif (AJAX/JSON atau form biasa).
      */
     public function acceptRegistration(NuMember $member)
     {
         if ($member->registrationState() !== 'pending') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Hanya permintaan berstatus Menunggu yang dapat diterima.',
-            ], 422);
+            return $this->registrationError('Hanya permintaan berstatus Menunggu yang dapat diterima.');
         }
 
         $member->update([
@@ -211,15 +208,12 @@ class MemberController extends Controller
     }
 
     /**
-     * Tolak permintaan pendaftaran beserta alasan penolakan (AJAX/JSON).
+     * Tolak permintaan pendaftaran beserta alasan penolakan (AJAX/JSON atau form biasa).
      */
     public function rejectRegistration(Request $request, NuMember $member)
     {
         if ($member->registrationState() !== 'pending') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Hanya permintaan berstatus Menunggu yang dapat ditolak.',
-            ], 422);
+            return $this->registrationError('Hanya permintaan berstatus Menunggu yang dapat ditolak.');
         }
 
         $validated = $request->validate([
@@ -238,11 +232,15 @@ class MemberController extends Controller
     }
 
     /**
-     * Respons JSON standar aksi permintaan pendaftaran,
-     * berisi HTML sel status & aksi agar UI bisa diperbarui tanpa refresh.
+     * Respons standar aksi permintaan pendaftaran: JSON + potongan HTML
+     * untuk AJAX, atau redirect dengan flash message untuk submit form biasa.
      */
     private function registrationResponse(NuMember $member, string $message)
     {
+        if (! request()->expectsJson()) {
+            return back()->with('success', $message);
+        }
+
         return response()->json([
             'success' => true,
             'message' => $message,
@@ -251,6 +249,21 @@ class MemberController extends Controller
                 'actions' => view('admin.members.requests.actions-cell', ['member' => $member])->render(),
             ],
         ]);
+    }
+
+    /**
+     * Respons gagal standar: JSON 422 untuk AJAX, redirect + flash error untuk form biasa.
+     */
+    private function registrationError(string $message)
+    {
+        if (! request()->expectsJson()) {
+            return back()->with('error', $message);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => $message,
+        ], 422);
     }
 
     /**

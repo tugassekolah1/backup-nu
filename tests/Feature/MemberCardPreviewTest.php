@@ -22,7 +22,32 @@ test('the kartu anggota page keeps its search form for guests', function () {
     $this->get(route('members.card'))
         ->assertOk()
         ->assertSee('Kartu Anggota — NU Banjaranyar', false)
-        ->assertSee('name="nik"', false);
+        ->assertSee('name="nik"', false)
+        // Belum ada pencarian: form tetap paling atas.
+        ->assertDontSee('search-card search-card-below', false);
+});
+
+test('the member info and card preview appear above the search input', function () {
+    $member = paidMemberForCardPreview();
+
+    $html = $this->get(route('members.card', ['nik' => $member->nik, 'phone' => $member->phone]))
+        ->assertOk()
+        ->assertSee('Cari Data Kartu Lain')
+        ->getContent();
+
+    expect(strpos($html, 'Preview Tampilan Kartu'))->toBeLessThan(strpos($html, 'name="nik"'))
+        ->and(strpos($html, $member->full_name))->toBeLessThan(strpos($html, 'name="nik"'));
+});
+
+test('the not found notice also appears above the search input', function () {
+    $member = paidMemberForCardPreview();
+
+    $html = $this->get(route('members.card', ['nik' => $member->nik, 'phone' => '081200000000']))
+        ->assertOk()
+        ->assertSee('Data Tidak Ditemukan')
+        ->getContent();
+
+    expect(strpos($html, 'Data Tidak Ditemukan'))->toBeLessThan(strpos($html, 'name="nik"'));
 });
 
 test('an approved member gets the interactive 3d preview with all control buttons', function () {

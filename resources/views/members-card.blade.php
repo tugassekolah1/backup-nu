@@ -270,6 +270,17 @@
             letter-spacing: 0.05em;
         }
 
+        /* Saat hasil sudah tampil, hasil tampil di atas form pencarian agar langsung terlihat */
+        .result-card.result-card-first {
+            margin: -48px auto 0;
+            position: relative;
+            z-index: 6;
+        }
+        .search-card.search-card-below {
+            margin: 28px auto 0;
+            padding: 28px 32px;
+        }
+
         /* Hasil status */
         .result-card {
             background: var(--surface);
@@ -552,29 +563,8 @@
 
     <main>
         <div class="container">
-            <!-- Form Pencarian -->
-            <div class="search-card">
-                <h2>Cari Data Kartu Anggota</h2>
-                <p class="hint">Masukkan 16 digit NIK yang digunakan saat mendaftar. Status diperbarui secara otomatis oleh sistem setiap kali ada perubahan oleh admin.</p>
-                <form class="search-form" action="{{ route('members.card') }}" method="GET">
-                    <div class="search-field">
-                        <label for="nik" class="sr-only">NIK</label>
-                        <input type="text" id="nik" name="nik" value="{{ request('nik') }}" placeholder="Masukkan 16 digit NIK"
-                               maxlength="16" inputmode="numeric" autocomplete="off" required
-                               oninput="this.value = this.value.replace(/[^0-9]/g, '');">
-                    </div>
-                    <div class="search-field">
-                        <label for="phone" class="sr-only">Nomor HP yang terdaftar</label>
-                        <input type="text" id="phone" name="phone" value="{{ request('phone') }}" placeholder="Nomor HP terdaftar (0812xxxx)"
-                               inputmode="tel" autocomplete="tel"
-                               oninput="this.value = this.value.replace(/[^0-9+\- ]/g, '');">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Tampilkan Kartu</button>
-                </form>
-            </div>
-
             @if (request()->has('nik'))
-                <div class="result-card">
+                <div class="result-card result-card-first">
                     @if ($notVerified)
                         <div class="empty-state">
                             <div class="icon">
@@ -809,6 +799,27 @@
                     @endif
                 </div>
             @endif
+            <!-- Form Pencarian -->
+            <div class="search-card {{ request()->has('nik') ? 'search-card-below' : '' }}">
+                <h2>{{ request()->has('nik') ? 'Cari Data Kartu Lain' : 'Cari Data Kartu Anggota' }}</h2>
+                <p class="hint">Masukkan 16 digit NIK yang digunakan saat mendaftar. Status diperbarui secara otomatis oleh sistem setiap kali ada perubahan oleh admin.</p>
+                <form class="search-form" action="{{ route('members.card') }}" method="GET">
+                    <div class="search-field">
+                        <label for="nik" class="sr-only">NIK</label>
+                        <input type="text" id="nik" name="nik" value="{{ request('nik') }}" placeholder="Masukkan 16 digit NIK"
+                               maxlength="16" inputmode="numeric" autocomplete="off" required
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                    </div>
+                    <div class="search-field">
+                        <label for="phone" class="sr-only">Nomor HP yang terdaftar</label>
+                        <input type="text" id="phone" name="phone" value="{{ request('phone') }}" placeholder="Nomor HP terdaftar (0812xxxx)"
+                               inputmode="tel" autocomplete="tel"
+                               oninput="this.value = this.value.replace(/[^0-9+\- ]/g, '');">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Tampilkan Kartu</button>
+                </form>
+            </div>
+
 
             <p class="hint-foot">
                 Sudah mendaftar tapi lupa NIK-nya? Hubungi admin melalui WhatsApp untuk pengecekan data.
