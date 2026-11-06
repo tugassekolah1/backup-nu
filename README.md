@@ -252,3 +252,4 @@ routes/web.php          # seluruh rute publik & admin
 database/               # migrasi, seeder, factory
 tests/                  # test Pest (termasuk regression N+1)
 ```
+# backup-nu
