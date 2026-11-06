@@ -13,6 +13,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Di balik proxy Vercel, paksa skema HTTPS agar URL yang di-generate memakai https.
+        $middleware->trustProxies(at: '*', headers: Request::HEADER_X_FORWARDED_FOR
+            | Request::HEADER_X_FORWARDED_HOST
+            | Request::HEADER_X_FORWARDED_PORT
+            | Request::HEADER_X_FORWARDED_PROTO);
+
         // DAFTARKAN ALIAS DI SINI
         $middleware->alias([
             'admin' => AdminMiddleware::class, // Ganti dengan class middleware admin Anda

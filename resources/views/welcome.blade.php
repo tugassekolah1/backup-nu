@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html class="scroll-smooth" lang="id">
 <head>
-    <x-public-head title="Nahdlatul Ulama Banjaranyar, Cilongok - Berkhidmat untuk Umat">
+    <x-public-head title="Nahdlatul Ulama  Cilongok - Berkhidmat untuk Umat">
     <style>
         .dark-editorial-panel {
           background: #16452F;

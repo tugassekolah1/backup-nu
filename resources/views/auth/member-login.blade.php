@@ -41,11 +41,9 @@
         </div>
     </form>
 
-    <div class="mt-6 pt-4 border-t border-gray-200 text-center text-sm text-gray-600">
+    <div class="mt-6 pt-4 border-t border-[#E4E0D2] text-center text-sm text-gray-600">
         Belum punya akun?
         <a class="font-semibold text-[#16452F] hover:underline" href="{{ route('members.register-form') }}">Daftar sebagai anggota</a>
-        <span class="mx-1">·</span>
-        <a class="font-semibold text-[#16452F] hover:underline" href="{{ route('landing') }}">Beranda</a>
     </div>
 
     <div class="mt-3 text-center text-xs text-gray-500">
