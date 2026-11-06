@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Infaq;
+use Illuminate\Support\Facades\Storage;
 
 test('public infaq page renders the donation form and total', function () {
     Infaq::create([
@@ -62,4 +63,30 @@ test('infaq donation flow goes from form to checkout to success', function () {
         ->assertSee('Alhamdulillah')
         ->assertSee($infaq->kode_transaksi)
         ->assertSee('75.000');
+});
+
+test('donatur uploads the payment proof to the supabase disk', function () {
+    fakeSupabaseDisk();
+
+    $this->post('/infaq', [
+        'nominal' => 50000,
+        'metode_pembayaran' => 'transfer_bank',
+    ])->assertSessionHasNoErrors();
+
+    $infaq = Infaq::sole();
+
+    $this->post(route('infaq.proof', $infaq->kode_transaksi), [
+        'bukti' => fakePngUpload('bukti-upload.png'),
+    ])->assertSessionHasNoErrors();
+
+    $infaq->refresh();
+
+    expect($infaq->bukti_path)->not->toBeNull();
+
+    Storage::disk('supabase')->assertExists($infaq->bukti_path);
+
+    // Halaman checkout menampilkan bukti lewat URL Supabase.
+    $this->get(route('infaq.checkout', $infaq->kode_transaksi))
+        ->assertOk()
+        ->assertSee(Storage::disk('supabase')->url($infaq->bukti_path), false);
 });

@@ -15,11 +15,7 @@ function adminGaleri(): User
  */
 function fotoGaleriPalsu(): UploadedFile
 {
-    $png = base64_decode(
-        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
-    );
-
-    return UploadedFile::fake()->createWithContent('foto-galeri.png', $png);
+    return fakePngUpload('foto-galeri.png');
 }
 
 test('the gallery create form offers the verified organisations grouped by category', function () {
@@ -68,7 +64,7 @@ test('organisasi options are grouped by category in directory order', function (
 });
 
 test('admin can store a photo tagged with an organisation', function () {
-    Storage::fake('public');
+    fakeSupabaseDisk();
 
     $this->actingAs(adminGaleri())
         ->post(route('gallery.store'), [
@@ -85,10 +81,13 @@ test('admin can store a photo tagged with an organisation', function () {
     expect($foto)->not->toBeNull();
     expect($foto->organisasi)->toBe('gp-ansor');
     expect($foto->organisasiLabel())->toBe('GP Ansor');
+
+    // File tersimpan di disk Supabase, bukan disk public lokal.
+    Storage::disk('supabase')->assertExists($foto->foto);
 });
 
 test('a photo can be saved without any organisation', function () {
-    Storage::fake('public');
+    fakeSupabaseDisk();
 
     $this->actingAs(adminGaleri())
         ->post(route('gallery.store'), [
@@ -105,7 +104,7 @@ test('a photo can be saved without any organisation', function () {
 });
 
 test('admin cannot store a photo with an unknown organisation', function () {
-    Storage::fake('public');
+    fakeSupabaseDisk();
 
     $this->actingAs(adminGaleri())
         ->from(route('gallery.create'))
@@ -121,7 +120,7 @@ test('admin cannot store a photo with an unknown organisation', function () {
 });
 
 test('admin can change the organisation of an existing photo', function () {
-    Storage::fake('public');
+    fakeSupabaseDisk();
 
     $foto = Gallery::create([
         'judul' => 'Foto Lama',

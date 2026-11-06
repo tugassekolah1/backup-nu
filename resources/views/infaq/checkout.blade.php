@@ -153,9 +153,9 @@
                             Terima kasih! Pengurus akan memeriksa bukti Anda.
                             Status otomatis berubah <strong>lunas</strong> setelah disetujui.
                         </p>
-                        <a href="{{ asset('storage/' . $infaq->bukti_path) }}" target="_blank" rel="noopener"
+                        <a href="{{ $infaq->bukti_url }}" target="_blank" rel="noopener"
                            class="mx-auto mt-4 block w-fit overflow-hidden rounded-2xl border border-amber-200 bg-white shadow-sm">
-                            <img src="{{ asset('storage/' . $infaq->bukti_path) }}" alt="Bukti pembayaran {{ $infaq->kode_transaksi }}" class="max-h-56 w-auto object-contain" />
+                            <img src="{{ $infaq->bukti_url }}" alt="Bukti pembayaran {{ $infaq->kode_transaksi }}" class="max-h-56 w-auto object-contain" />
                         </a>
                         <p class="mt-2 text-xs text-[#7B8780]">Klik gambar untuk memperbesar. Simpan kode transaksi Anda untuk pengecekan.</p>
                     </div>

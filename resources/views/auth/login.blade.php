@@ -44,4 +44,9 @@
             </x-primary-button>
         </div>
     </form>
+
+    <div class="mt-6 pt-4 border-t border-gray-200 text-center text-sm text-gray-600">
+        Ini halaman khusus admin &amp; sekretariat.
+        <a class="font-semibold text-[#16452F] hover:underline" href="{{ route('member.login') }}">Masuk sebagai anggota NU</a>.
+    </div>
 </x-guest-layout>

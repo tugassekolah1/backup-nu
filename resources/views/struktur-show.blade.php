@@ -52,7 +52,7 @@
                     <div class="md:col-span-4 bg-nu-deep p-8 sm:p-10 flex flex-col items-center justify-center text-center relative overflow-hidden">
                         <div class="absolute inset-0 bg-grid-light opacity-50 pointer-events-none"></div>
                         @if ($pengurus->foto)
-                            <img src="{{ asset('storage/' . $pengurus->foto) }}" alt="Foto {{ $pengurus->nama }}"
+                            <img src="{{ $pengurus->foto_url }}" alt="Foto {{ $pengurus->nama }}"
                                  class="relative w-44 h-44 sm:w-52 sm:h-52 rounded-full object-cover border-4 border-muted-gold/60 shadow-elevated">
                         @else
                             <span class="relative w-44 h-44 sm:w-52 sm:h-52 rounded-full bg-white/10 border-4 border-white/15 text-white inline-flex items-center justify-center text-5xl font-extrabold">

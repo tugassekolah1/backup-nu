@@ -17,7 +17,25 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => AdminMiddleware::class, // Ganti dengan class middleware admin Anda
         ]);
+
+        // Tamu yang membuka halaman anggota diarahkan ke login anggota.
+        $middleware->redirectGuestsTo(fn (Request $request) => $request->is('anggota', 'anggota/*')
+            ? route('member.login')
+            : route('login'));
+
+        // Pengguna yang sudah login tidak perlu melihat halaman login lagi.
+        // Hati-hati membedakan area anggota dan halaman login admin /login/admin.
+        $middleware->redirectUsersTo(fn (Request $request) => $request->is('login', 'anggota', 'anggota/*')
+            ? route('member.profile.edit')
+            : '/dashboard');
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->reportable(function (Throwable $e) {
+            logger()->error($e::class.': '.$e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
+            return false;
+        });
     })->create();

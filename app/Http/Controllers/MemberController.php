@@ -80,7 +80,7 @@ class MemberController extends Controller
 
         $photoPath = null;
         if ($request->hasFile('photo')) {
-            $photoPath = $request->file('photo')->store('members-photo', 'public');
+            $photoPath = $request->file('photo')->store('members-photo', 'supabase');
         }
 
         // Anggota yang ditambahkan langsung oleh admin dianggap sudah terverifikasi.
@@ -120,9 +120,9 @@ class MemberController extends Controller
 
         if ($request->hasFile('photo')) {
             if ($member->photo) {
-                Storage::disk('public')->delete($member->photo);
+                Storage::disk('supabase')->delete($member->photo);
             }
-            $validated['photo'] = $request->file('photo')->store('members-photo', 'public');
+            $validated['photo'] = $request->file('photo')->store('members-photo', 'supabase');
         }
 
         $validated['label_organisasi'] = ! empty($validated['organisasi'])
@@ -137,7 +137,7 @@ class MemberController extends Controller
     public function destroy(NuMember $member)
     {
         if ($member->photo) {
-            Storage::disk('public')->delete($member->photo);
+            Storage::disk('supabase')->delete($member->photo);
         }
         $member->delete();
 
@@ -285,7 +285,7 @@ class MemberController extends Controller
             // Verifikasi faktor kedua: nomor HP yang dipakai saat mendaftar.
             // Tanpa ini, siapa pun yang mengetahui NIK orang lain dapat melihat
             // nama, nomor HP, dan nomor kartu anggota yang bersangkutan.
-            if ($member && ! $this->nomorHpCocok($member->phone, $request->input('phone'))) {
+            if ($member && ! $member->nomorHpCocok($request->input('phone'))) {
                 $member = null;
                 $notVerified = true;
             }
@@ -297,32 +297,6 @@ class MemberController extends Controller
         }
 
         return view('members-card', compact('member', 'qrCode', 'notVerified'));
-    }
-
-    /**
-     * Membandingkan nomor HP dengan format yang dimaklumi: hanya digit,
-     * awalan "62" disamakan dengan "0", sehingga 0812… = 62812… .
-     */
-    private function nomorHpCocok(?string $tersimpan, ?string $diisi): bool
-    {
-        $normalisasi = static function (?string $nomor): string {
-            $digit = preg_replace('/\D+/', '', (string) $nomor) ?? '';
-
-            if (str_starts_with($digit, '62')) {
-                $digit = '0'.substr($digit, 2);
-            }
-
-            return $digit;
-        };
-
-        $nomorTersimpan = $normalisasi($tersimpan);
-        $nomorDiisi = $normalisasi($diisi);
-
-        if ($nomorTersimpan === '' || $nomorDiisi === '') {
-            return false;
-        }
-
-        return $nomorTersimpan === $nomorDiisi;
     }
 
     /**
@@ -463,11 +437,12 @@ class MemberController extends Controller
             'organisasi' => ['nullable', 'string', Rule::in(NuMember::organisasiCodes())],
             'address' => 'required',
             'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'password' => 'required|string|min:8|confirmed',
         ]);
 
         $photoPath = null;
         if ($request->hasFile('photo')) {
-            $photoPath = $request->file('photo')->store('members-photo', 'public');
+            $photoPath = $request->file('photo')->store('members-photo', 'supabase');
         }
 
         NuMember::create([
@@ -479,6 +454,7 @@ class MemberController extends Controller
             'label_organisasi' => isset($validated['organisasi']) ? Pengurus::BANOMS[$validated['organisasi']]['label'] : null,
             'address' => $validated['address'],
             'photo' => $photoPath,
+            'password' => $validated['password'],
             'registration_status' => 'pending',
             'status' => 'pending_payment',
         ]);

@@ -91,11 +91,11 @@ class InfaqController extends Controller
         ]);
 
         if ($infaq->bukti_path) {
-            Storage::disk('public')->delete($infaq->bukti_path);
+            Storage::disk('supabase')->delete($infaq->bukti_path);
         }
 
         $infaq->update([
-            'bukti_path' => $request->file('bukti')->store('infaq-bukti', 'public'),
+            'bukti_path' => $request->file('bukti')->store('infaq-bukti', 'supabase'),
         ]);
 
         return redirect()->route('infaq.checkout', $kode)

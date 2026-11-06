@@ -29,7 +29,7 @@ test('admin can open the registration requests page', function () {
 });
 
 test('guest is redirected to login and non admin gets 403', function () {
-    $this->get(route('admin.members.requests'))->assertRedirect('/login');
+    $this->get(route('admin.members.requests'))->assertRedirect('/login/admin');
 
     $this->actingAs(User::factory()->create())
         ->get(route('admin.members.requests'))

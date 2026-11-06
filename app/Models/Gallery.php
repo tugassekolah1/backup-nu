@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Gallery extends Model
 {
@@ -21,17 +22,17 @@ class Gallery extends Model
     /**
      * URL foto yang siap dipakai di view.
      *
-     * Kolom `foto` boleh berisi path relatif di disk publik (mis. `galleries/x.jpg`)
+     * Kolom `foto` boleh berisi path relatif di disk Supabase (mis. `galleries/x.jpg`)
      * maupun URL absolut (dipakai data seeder). Tanpa accessor ini, view harus
-     * mengulang logika `asset('storage/...')` dan menghasilkan URL rusak
-     * untuk data absolut (`storage/https://...`).
+     * mengulang logika ini sendiri dan bisa salah menggabungkan path absolut
+     * dengan base URL.
      */
     protected function url(): Attribute
     {
         return Attribute::get(fn (): string => match (true) {
             blank($this->foto) => '',
             preg_match('#^https?://#i', $this->foto) === 1 => $this->foto,
-            default => asset('storage/'.$this->foto),
+            default => Storage::disk('supabase')->url($this->foto),
         });
     }
 

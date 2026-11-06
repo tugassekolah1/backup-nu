@@ -2,6 +2,7 @@
 
 use App\Models\Pengurus;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 
 test('create form shows the organization dropdown without raw code inputs', function () {
     $this->actingAs(User::factory()->admin()->create())
@@ -52,6 +53,31 @@ test('store derives the display label from the dropdown value', function () {
 
     expect($pengurus->label_banom)->toBe('PAC IPNU')
         ->and($pengurus->urutan)->toBe(1);
+});
+
+test('store keeps the uploaded photo on the supabase disk', function () {
+    fakeSupabaseDisk();
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->post(route('pengurus.store'), [
+            'nama' => 'Ahmad Fotogenik',
+            'jabatan' => 'Ketua',
+            'banom' => 'pac_ipnu',
+            'foto' => fakePngUpload('foto-pengurus.png'),
+        ])
+        ->assertSessionHasNoErrors()
+        ->assertRedirect(route('pengurus.index'));
+
+    $pengurus = Pengurus::sole();
+
+    expect($pengurus->foto)->not->toBeNull();
+
+    Storage::disk('supabase')->assertExists($pengurus->foto);
+
+    // Daftar admin menampilkan foto lewat URL Supabase, bukan asset('storage/...').
+    $this->get(route('pengurus.index'))
+        ->assertOk()
+        ->assertSee(Storage::disk('supabase')->url($pengurus->foto), false);
 });
 
 test('urutan is auto assigned sequentially when the field is left blank', function () {

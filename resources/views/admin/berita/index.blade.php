@@ -201,7 +201,7 @@
                                     {{-- Gambar --}}
                                     <td class="px-6 py-4">
                                         @if ($berita->gambar)
-                                            <img src="{{ Storage::url($berita->gambar) }}"
+                                            <img src="{{ $berita->gambar_utama }}"
                                                  alt="{{ $berita->judul }}"
                                                  class="w-12 h-12 object-cover rounded-lg shadow-sm border border-slate-200">
                                         @else

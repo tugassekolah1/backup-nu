@@ -13,6 +13,7 @@
         "ext-iconv": "*",
         "laravel/framework": "^13.17",
         "laravel/tinker": "^3.0",
+        "league/flysystem-aws-s3-v3": "^3.0",
         "simplesoftwareio/simple-qrcode": "^4.2"
     },
     "require-dev": {

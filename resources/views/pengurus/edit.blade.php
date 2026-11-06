@@ -59,7 +59,7 @@
                         <x-input-label for="foto" value="Foto Pengurus" />
                         @if ($pengurus->foto)
                             <div class="mt-2 mb-3 flex items-center gap-3">
-                                <img src="{{ asset('storage/' . $pengurus->foto) }}" alt="{{ $pengurus->nama }}" class="h-20 w-20 rounded-lg object-cover border border-slate-200" />
+                                <img src="{{ $pengurus->foto_url }}" alt="{{ $pengurus->nama }}" class="h-20 w-20 rounded-lg object-cover border border-slate-200" />
                                 <span class="text-xs text-gray-500">Foto saat ini terpasang. Upload foto baru jika ingin mengganti.</span>
                             </div>
                         @endif

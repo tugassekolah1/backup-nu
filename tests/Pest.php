@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 /*
@@ -47,4 +49,25 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+/**
+ * PNG 1x1 valid agar rule `image` lolos tanpa perlu ekstensi GD.
+ */
+function fakePngUpload(string $name = 'gambar.png'): UploadedFile
+{
+    $png = base64_decode(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
+    );
+
+    return UploadedFile::fake()->createWithContent($name, $png);
+}
+
+/**
+ * Fake disk Supabase dengan base URL produksi sehingga url() tetap
+ * menghasilkan URL publik Supabase selama disk dipalsukan.
+ */
+function fakeSupabaseDisk(): void
+{
+    Storage::fake('supabase', ['url' => config('filesystems.disks.supabase.url')]);
 }

@@ -7,6 +7,7 @@ use App\Models\Infaq;
 use App\Models\NuMember;
 use App\Models\Pengurus;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 
 function infaqAdmin(): User
 {
@@ -28,7 +29,7 @@ function buatInfaq(array $overrides = []): Infaq
 }
 
 test('guest cannot access admin infaq pages', function () {
-    $this->get('/admin/infaq')->assertRedirect('/login');
+    $this->get('/admin/infaq')->assertRedirect('/login/admin');
 });
 
 test('non admin gets 403 on admin infaq pages', function () {
@@ -68,6 +69,26 @@ test('admin can record a new infaq transaction', function () {
         ->and($infaq->nama_donatur)->toBe('Bu Siti')
         ->and($infaq->status)->toBe('pending')
         ->and($infaq->paid_at)->toBeNull();
+});
+
+test('admin can record a transaction with a payment proof on the supabase disk', function () {
+    fakeSupabaseDisk();
+
+    $this->actingAs(infaqAdmin())
+        ->post('/admin/infaq', [
+            'nominal' => 20000,
+            'metode_pembayaran' => 'qris',
+            'status' => 'pending',
+            'bukti' => fakePngUpload('bukti-transfer.png'),
+        ])
+        ->assertSessionHasNoErrors()
+        ->assertRedirect(route('admin.infaq.index'));
+
+    $infaq = Infaq::sole();
+
+    expect($infaq->bukti_path)->not->toBeNull();
+
+    Storage::disk('supabase')->assertExists($infaq->bukti_path);
 });
 
 test('recording a lunas transaction without date sets paid_at automatically', function () {
@@ -389,7 +410,7 @@ test('guest cannot cancel a transaction', function () {
     $infaq = buatInfaq(['status' => 'pending']);
 
     $this->post("/admin/infaq/{$infaq->id}/batal")
-        ->assertRedirect('/login');
+        ->assertRedirect('/login/admin');
 
     expect($infaq->refresh()->status)->toBe('pending');
 });
@@ -419,6 +440,7 @@ test('pending rows show labelled confirm and cancel buttons', function () {
         ->assertSee('Batalkan')
         ->assertSee(route('admin.infaq.mark-batal', $pendingBukti), false)
         ->assertSee(route('admin.infaq.mark-lunas', $pendingBukti), false)
+        ->assertSee(Storage::disk('supabase')->url('infaq-bukti/contoh.jpg'), false)
         ->assertDontSee(route('admin.infaq.mark-batal', $lunas), false);
 });
 

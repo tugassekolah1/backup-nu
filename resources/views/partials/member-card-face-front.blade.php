@@ -9,7 +9,7 @@
 
     <div class="mc-card-content">
         @if ($member->photo)
-            <img src="{{ asset('storage/' . $member->photo) }}" class="mc-photo" alt="Foto {{ $member->full_name }}">
+            <img src="{{ $member->photo_url }}" class="mc-photo" alt="Foto {{ $member->full_name }}">
         @else
             <div class="mc-photo mc-photo-placeholder">No Photo</div>
         @endif

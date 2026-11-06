@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Pengurus extends Model
 {
@@ -109,6 +111,19 @@ class Pengurus extends Model
     protected $casts = [
         'urutan' => 'integer',
     ];
+
+    /**
+     * URL foto pengurus di disk Supabase, siap dipakai di view.
+     *
+     * Nilai kosong dikembalikan sebagai string kosong agar view cukup
+     * memakai `$pengurus->foto_url` tanpa pemeriksaan null terpisah.
+     */
+    protected function fotoUrl(): Attribute
+    {
+        return Attribute::get(fn (): string => blank($this->foto)
+            ? ''
+            : Storage::disk('supabase')->url($this->foto));
+    }
 
     /**
      * Tentukan level piramida dari teks jabatan.

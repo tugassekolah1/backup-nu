@@ -232,8 +232,8 @@
                             <li class="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
                                 <div class="flex min-w-0 items-start gap-3">
                                     @if ($keluar->bukti_path)
-                                        <a href="{{ asset('storage/' . $keluar->bukti_path) }}" target="_blank" rel="noopener" class="shrink-0">
-                                            <img src="{{ asset('storage/' . $keluar->bukti_path) }}" alt="Bukti {{ $keluar->catatan }}" class="h-14 w-14 rounded-xl border border-[#DCE4DE] object-cover" />
+                                        <a href="{{ $keluar->bukti_url }}" target="_blank" rel="noopener" class="shrink-0">
+                                            <img src="{{ $keluar->bukti_url }}" alt="Bukti {{ $keluar->catatan }}" class="h-14 w-14 rounded-xl border border-[#DCE4DE] object-cover" />
                                         </a>
                                     @else
                                         <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-[#DCE4DE] bg-[#F5F7F4] text-lg font-bold text-[#C99A2E]">Rp</span>
@@ -258,7 +258,7 @@
                                         − Rp {{ number_format($keluar->nominal, 0, ',', '.') }}
                                     </span>
                                     @if ($keluar->bukti_path)
-                                        <a href="{{ asset('storage/' . $keluar->bukti_path) }}" target="_blank" rel="noopener" class="rounded-full border border-[#DCE4DE] px-3 py-1.5 text-xs font-bold text-[#1F5A3F] hover:bg-[#E8F2EA]">
+                                        <a href="{{ $keluar->bukti_url }}" target="_blank" rel="noopener" class="rounded-full border border-[#DCE4DE] px-3 py-1.5 text-xs font-bold text-[#1F5A3F] hover:bg-[#E8F2EA]">
                                             Bukti
                                         </a>
                                     @endif

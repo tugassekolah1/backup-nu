@@ -672,6 +672,49 @@
                             </p>
                         @enderror
                     </div>
+
+                    <!-- Akun Login Anggota -->
+                    <div class="form-group full">
+                        <div style="border-top: 1.5px dashed var(--line); padding-top: 20px;">
+                            <p style="margin: 0; font-size: 15px; font-weight: 800; color: var(--ink-primary);">Akun Login Anggota</p>
+                            <p class="photo-hint" style="margin-top: 4px;">
+                                🔑 Buat kata sandi sekarang. Setelah pendaftaran disetujui admin, Anda bisa masuk di halaman <strong>Masuk Anggota</strong> dengan NIK + kata sandi ini untuk mengubah data diri — perubahan langsung tampil di kartu Anda.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="form-group @error('password') has-error @enderror">
+                        <label for="password">
+                            <span>Kata Sandi <span class="req">*</span></span>
+                            <span class="nik-counter">Min. 8 karakter</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <input type="password" id="password" name="password" placeholder="Buat kata sandi"
+                                   minlength="8" required autocomplete="new-password">
+                        </div>
+                        @error('password')
+                            <p class="form-error">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                {{ $message }}
+                            </p>
+                        @enderror
+                    </div>
+
+                    <div class="form-group @error('password_confirmation') has-error @enderror">
+                        <label for="password_confirmation">
+                            <span>Ulangi Kata Sandi <span class="req">*</span></span>
+                        </label>
+                        <div class="input-wrapper">
+                            <input type="password" id="password_confirmation" name="password_confirmation" placeholder="Ketik ulang kata sandi"
+                                   required autocomplete="new-password">
+                        </div>
+                        @error('password_confirmation')
+                            <p class="form-error">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                {{ $message }}
+                            </p>
+                        @enderror
+                    </div>
                 </div>
 
                 <div class="form-actions">
@@ -689,6 +732,11 @@
                 <p class="form-privacy">
                     Sudah pernah mendaftar?
                     <a href="{{ route('members.card') }}" style="color: var(--brand-green); font-weight: 700; text-decoration: underline;">Lihat status pengajuan & kartu Anda di sini</a>.
+                </p>
+
+                <p class="form-privacy">
+                    Sudah disetujui admin dan ingin mengubah data diri Anda?
+                    <a href="{{ route('member.login') }}" style="color: var(--brand-green); font-weight: 700; text-decoration: underline;">Masuk di sini</a>.
                 </p>
             </form>
         </div>
@@ -791,6 +839,8 @@
             { id: 'gender', label: 'Jenis Kelamin' },
             { id: 'phone', label: 'No. HP' },
             { id: 'address', label: 'Alamat Lengkap' },
+            { id: 'password', label: 'Kata Sandi (min. 8 karakter)' },
+            { id: 'password_confirmation', label: 'Ulangi Kata Sandi' },
         ];
 
         function closeConfirmPopup() {
@@ -859,6 +909,15 @@
                     firstMissingField.focus();
                     firstMissingField.scrollIntoView({ block: 'center' });
                 }
+                return;
+            }
+
+            const passwordField = document.getElementById('password');
+            const confirmPasswordField = document.getElementById('password_confirmation');
+            if (passwordField.value !== confirmPasswordField.value) {
+                showFormHint('Kata Sandi dan Ulangi Kata Sandi tidak sama. Periksa kembali isian Anda.');
+                confirmPasswordField.focus();
+                confirmPasswordField.scrollIntoView({ block: 'center' });
                 return;
             }
 

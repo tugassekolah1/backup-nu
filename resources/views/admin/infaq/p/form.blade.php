@@ -111,8 +111,8 @@
            class="mt-1 block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200" />
     @if (!empty($infaq?->bukti_path))
         <div class="mt-2 flex items-center gap-3">
-            <img src="{{ asset('storage/' . $infaq->bukti_path) }}" alt="Bukti kas" class="h-20 w-20 rounded-lg object-cover border border-slate-200" />
-            <a href="{{ asset('storage/' . $infaq->bukti_path) }}" target="_blank" rel="noopener" class="text-xs font-bold text-blue-600 hover:underline">Lihat bukti</a>
+            <img src="{{ $infaq->bukti_url }}" alt="Bukti kas" class="h-20 w-20 rounded-lg object-cover border border-slate-200" />
+            <a href="{{ $infaq->bukti_url }}" target="_blank" rel="noopener" class="text-xs font-bold text-blue-600 hover:underline">Lihat bukti</a>
         </div>
     @endif
 </div>

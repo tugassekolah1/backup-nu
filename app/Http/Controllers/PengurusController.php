@@ -67,7 +67,7 @@ class PengurusController extends Controller
         $validated = $request->validate($this->rules($banom), $this->messages($banom));
 
         if ($request->hasFile('foto')) {
-            $validated['foto'] = $request->file('foto')->store('pengurus', 'public');
+            $validated['foto'] = $request->file('foto')->store('pengurus', 'supabase');
         }
 
         $validated['jabatan'] = trim($validated['jabatan']);
@@ -114,9 +114,9 @@ class PengurusController extends Controller
 
         if ($request->hasFile('foto')) {
             if ($pengurus->foto) {
-                Storage::disk('public')->delete($pengurus->foto);
+                Storage::disk('supabase')->delete($pengurus->foto);
             }
-            $validated['foto'] = $request->file('foto')->store('pengurus', 'public');
+            $validated['foto'] = $request->file('foto')->store('pengurus', 'supabase');
         }
 
         $validated['jabatan'] = trim($validated['jabatan']);
@@ -136,7 +136,7 @@ class PengurusController extends Controller
     public function destroy(Pengurus $pengurus)
     {
         if ($pengurus->foto) {
-            Storage::disk('public')->delete($pengurus->foto);
+            Storage::disk('supabase')->delete($pengurus->foto);
         }
         $pengurus->delete();
 

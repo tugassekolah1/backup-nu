@@ -73,7 +73,7 @@
 
                         @if ($member->photo)
                             <div class="flex items-center gap-3 mb-2">
-                                <img src="{{ asset('storage/' . $member->photo) }}" alt="Foto saat ini"
+                                <img src="{{ $member->photo_url }}" alt="Foto saat ini"
                                      class="w-20 h-32 object-cover rounded-lg border border-slate-200 bg-slate-50">
                                 <span class="text-xs text-slate-500">Foto saat ini. Pilih file baru untuk menggantinya.</span>
                             </div>

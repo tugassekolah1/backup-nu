@@ -2,6 +2,7 @@
 
 use App\Models\Gallery;
 use App\Models\Pengurus;
+use Illuminate\Support\Facades\Storage;
 
 test('landing page renders the shared public footer', function () {
     $this->get('/')
@@ -161,8 +162,8 @@ test('galeri page renders the collage of photos with lightbox triggers', functio
         ->assertSee('data-galeri-modal', false)
         ->assertSee('id="galeri-modal"', false)
         ->assertSee('id="galeri-modal-img"', false)
-        // Path relatif -> disk publik; URL absolut tetap apa adanya.
-        ->assertSee(asset('storage/galleries/rapat.jpg'), false)
+        // Path relatif -> disk Supabase; URL absolut tetap apa adanya.
+        ->assertSee(Storage::disk('supabase')->url('galleries/rapat.jpg'), false)
         ->assertSee('https://example.com/bakti.jpg', false);
 });
 
@@ -178,7 +179,7 @@ test('gallery photo url resolves relative paths and keeps absolute urls', functi
     $absolut = Gallery::create(['judul' => 'B', 'foto' => 'https://example.com/b.jpg', 'urutan' => 2]);
     $kosong = Gallery::create(['judul' => 'C', 'foto' => '', 'urutan' => 3]);
 
-    expect($relatif->url)->toBe(asset('storage/galleries/a.jpg'));
+    expect($relatif->url)->toBe(Storage::disk('supabase')->url('galleries/a.jpg'));
     expect($absolut->url)->toBe('https://example.com/b.jpg');
     expect($kosong->url)->toBe('');
 });

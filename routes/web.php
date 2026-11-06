@@ -9,6 +9,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\InfaqController;
 use App\Http\Controllers\MemberController;
+use App\Http\Controllers\MemberLoginController;
+use App\Http\Controllers\MemberPasswordController;
+use App\Http\Controllers\MemberProfileController;
 use App\Http\Controllers\OrganisasiController;
 use App\Http\Controllers\PengurusController;
 use App\Http\Controllers\ProfileController;
@@ -75,6 +78,29 @@ Route::get('/aspirasi/lacak', [AspirasiController::class, 'lacak'])->name('aspir
 Route::post('/aspirasi', [AspirasiController::class, 'store'])
     ->middleware('throttle:10,1')
     ->name('aspirasi.store');
+// Login mandiri anggota (guard "member", terpisah dari sesi admin).
+// Anggota cukup /login — login admin ada di /login/admin.
+Route::middleware('guest:member')->group(function () {
+    Route::get('/login', [MemberLoginController::class, 'create'])->name('member.login');
+    Route::post('/login', [MemberLoginController::class, 'store'])
+        ->middleware('throttle:10,1');
+});
+
+Route::prefix('anggota')->name('member.')->group(function () {
+    Route::middleware('guest:member')->group(function () {
+        Route::get('/lupa-password', [MemberPasswordController::class, 'create'])->name('password.request');
+        Route::post('/lupa-password', [MemberPasswordController::class, 'store'])
+            ->middleware('throttle:6,1')
+            ->name('password.update');
+    });
+
+    Route::middleware('auth:member')->group(function () {
+        Route::get('/profil', [MemberProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profil', [MemberProfileController::class, 'update'])->name('profile.update');
+        Route::post('/logout', [MemberLoginController::class, 'destroy'])->name('logout');
+    });
+});
+
 /*
 |--------------------------------------------------------------------------
 | Authenticated Routes

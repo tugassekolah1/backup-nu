@@ -90,7 +90,7 @@ class InfaqController extends Controller
         $validated['paid_at'] = $this->resolvePaidAt($validated['status'], $validated['paid_at'] ?? null);
 
         if ($request->hasFile('bukti')) {
-            $validated['bukti_path'] = $request->file('bukti')->store('infaq-bukti', 'public');
+            $validated['bukti_path'] = $request->file('bukti')->store('infaq-bukti', 'supabase');
         }
         unset($validated['bukti']);
 
@@ -115,9 +115,9 @@ class InfaqController extends Controller
 
         if ($request->hasFile('bukti')) {
             if ($infaq->bukti_path) {
-                Storage::disk('public')->delete($infaq->bukti_path);
+                Storage::disk('supabase')->delete($infaq->bukti_path);
             }
-            $validated['bukti_path'] = $request->file('bukti')->store('infaq-bukti', 'public');
+            $validated['bukti_path'] = $request->file('bukti')->store('infaq-bukti', 'supabase');
         } else {
             unset($validated['bukti_path']);
         }
@@ -131,7 +131,7 @@ class InfaqController extends Controller
     public function destroy(Infaq $infaq)
     {
         if ($infaq->bukti_path) {
-            Storage::disk('public')->delete($infaq->bukti_path);
+            Storage::disk('supabase')->delete($infaq->bukti_path);
         }
 
         $infaq->delete();

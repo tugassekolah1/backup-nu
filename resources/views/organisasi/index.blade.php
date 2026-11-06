@@ -318,7 +318,7 @@
                                         <div class="bg-emerald-50/90 border-2 border-emerald-500/30 rounded-2xl p-4 sm:p-5 flex items-center gap-4 shadow-sm mb-3">
                                             <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden bg-emerald-100 border border-emerald-200 shrink-0 flex items-center justify-center">
                                                 @if ($ketua->foto)
-                                                    <img src="{{ asset('storage/' . $ketua->foto) }}" alt="{{ $ketua->nama }}" class="w-full h-full object-cover">
+                                                    <img src="{{ $ketua->foto_url }}" alt="{{ $ketua->nama }}" class="w-full h-full object-cover">
                                                 @else
                                                     <span class="text-2xl font-black text-emerald-800">
                                                         {{ collect(explode(' ', trim($ketua->nama)))->filter()->map(fn($w) => mb_strtoupper(mb_substr($w, 0, 1)))->take(2)->join('') ?: 'NU' }}
@@ -350,7 +350,7 @@
                                             <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 sm:p-4 flex items-center gap-3.5">
                                                 <div class="w-12 h-12 rounded-xl overflow-hidden bg-white border border-slate-200 shrink-0 flex items-center justify-center">
                                                     @if ($inti->foto)
-                                                        <img src="{{ asset('storage/' . $inti->foto) }}" alt="{{ $inti->nama }}" class="w-full h-full object-cover">
+                                                        <img src="{{ $inti->foto_url }}" alt="{{ $inti->nama }}" class="w-full h-full object-cover">
                                                     @else
                                                         <span class="text-sm font-bold text-slate-700">
                                                             {{ collect(explode(' ', trim($inti->nama)))->filter()->map(fn($w) => mb_strtoupper(mb_substr($w, 0, 1)))->take(2)->join('') ?: 'NU' }}

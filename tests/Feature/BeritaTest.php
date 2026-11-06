@@ -3,6 +3,7 @@
 use App\Models\Berita;
 use App\Models\BeritaView;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 test('admin can create berita with jenis and slug', function () {
@@ -24,6 +25,40 @@ test('admin can create berita with jenis and slug', function () {
     expect($berita->slug)->toBe('rapat-kerja-nu')
         ->and($berita->jenis)->toBe('Kegiatan')
         ->and($berita->user_id)->toBe($user->id);
+});
+
+test('admin can create berita with an uploaded image on the supabase disk', function () {
+    fakeSupabaseDisk();
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->post('/admin/berita', [
+            'judul' => 'Berita Dengan Foto',
+            'slug' => 'berita-dengan-foto',
+            'jenis' => 'Kegiatan',
+            'isi' => 'Isi berita berfoto.',
+            'gambar' => fakePngUpload('foto-berita.png'),
+            'status' => 1,
+        ])
+        ->assertSessionHasNoErrors()
+        ->assertRedirect('/admin/berita');
+
+    $berita = Berita::sole();
+
+    expect($berita->gambar)->not->toBeNull();
+
+    Storage::disk('supabase')->assertExists($berita->gambar);
+});
+
+test('gambar utama resolves the supabase url and keeps absolute urls', function () {
+    $user = User::factory()->admin()->create();
+
+    $relatif = Berita::factory()->create(['user_id' => $user->id, 'gambar' => 'berita/rapat.jpg']);
+    $absolut = Berita::factory()->create(['user_id' => $user->id, 'gambar' => 'https://picsum.photos/800/600']);
+    $kosong = Berita::factory()->create(['user_id' => $user->id, 'gambar' => null]);
+
+    expect($relatif->gambar_utama)->toBe(Storage::disk('supabase')->url('berita/rapat.jpg'))
+        ->and($absolut->gambar_utama)->toBe('https://picsum.photos/800/600')
+        ->and($kosong->gambar_utama)->toBeNull();
 });
 
 test('slug is generated from judul when slug is left empty', function () {

@@ -96,7 +96,7 @@ class GalleryController extends Controller
             'urutan' => 'nullable|integer',
         ]);
 
-        $fotoPath = $request->file('foto')->store('galleries', 'public');
+        $fotoPath = $request->file('foto')->store('galleries', 'supabase');
 
         Gallery::create([
             'judul' => $request->judul,
@@ -130,10 +130,10 @@ class GalleryController extends Controller
         $fotoPath = $gallery->foto;
 
         if ($request->hasFile('foto')) {
-            if ($gallery->foto && Storage::disk('public')->exists($gallery->foto)) {
-                Storage::disk('public')->delete($gallery->foto);
+            if ($gallery->foto && Storage::disk('supabase')->exists($gallery->foto)) {
+                Storage::disk('supabase')->delete($gallery->foto);
             }
-            $fotoPath = $request->file('foto')->store('galleries', 'public');
+            $fotoPath = $request->file('foto')->store('galleries', 'supabase');
         }
 
         $gallery->update([
@@ -149,8 +149,8 @@ class GalleryController extends Controller
 
     public function destroy(Gallery $gallery)
     {
-        if ($gallery->foto && Storage::disk('public')->exists($gallery->foto)) {
-            Storage::disk('public')->delete($gallery->foto);
+        if ($gallery->foto && Storage::disk('supabase')->exists($gallery->foto)) {
+            Storage::disk('supabase')->delete($gallery->foto);
         }
 
         $gallery->delete();

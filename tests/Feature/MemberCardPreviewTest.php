@@ -2,6 +2,7 @@
 
 use App\Models\NuMember;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 
 function paidMemberForCardPreview(array $overrides = []): NuMember
 {
@@ -63,7 +64,7 @@ test('an approved member gets the interactive 3d preview with all control button
         ->assertSee('id="mcStage"', false)
         ->assertSee('mc-face-front', false)
         ->assertSee('mc-face-back', false)
-        ->assertSee('storage/members-photo/fulanah.png', false)
+        ->assertSee(Storage::disk('supabase')->url('members-photo/fulanah.png'), false)
         ->assertSee('KARTU TANDA ANGGOTA');
 });
 

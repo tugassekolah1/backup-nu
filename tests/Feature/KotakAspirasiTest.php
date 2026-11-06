@@ -128,7 +128,7 @@ test('aspirations without a response are not published', function () {
 });
 
 test('guest cannot access admin aspiration pages', function () {
-    $this->get('/admin/aspirasi')->assertRedirect('/login');
+    $this->get('/admin/aspirasi')->assertRedirect('/login/admin');
 });
 
 test('non admin gets 403 on admin aspiration pages', function () {

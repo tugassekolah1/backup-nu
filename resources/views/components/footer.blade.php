@@ -33,6 +33,7 @@
                     <li><a class="hover:text-white transition-colors" href="{{ route('members.register-form') }}">Pendaftaran KARTANU</a></li>
                     <li><a class="hover:text-white transition-colors" href="{{ route('aspirasi.index') }}">Kotak Aspirasi Warga</a></li>
                     <li><a class="hover:text-white transition-colors" href="{{ route('members.card') }}">Kartu Anggota</a></li>
+                    <li><a class="hover:text-white transition-colors" href="{{ route('member.login') }}">Masuk Anggota</a></li>
                     <li><a class="hover:text-white transition-colors" href="{{ route('kontak') }}">Kontak & Alamat Sekretariat</a></li>
                 </ul>
             </div>

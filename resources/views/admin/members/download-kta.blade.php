@@ -303,7 +303,7 @@
                     {{-- Foto --}}
                     <div class="kta-photo">
                         @if ($member->photo)
-                            <img src="{{ asset('storage/' . $member->photo) }}" alt="Foto">
+                            <img src="{{ $member->photo_url }}" alt="Foto">
                         @else
                             {{ strtoupper(substr($member->full_name, 0, 1)) }}
                         @endif
@@ -359,7 +359,7 @@
                 <div class="kta-body">
                     <div class="kta-photo">
                         @if ($member->photo)
-                            <img src="{{ asset('storage/' . $member->photo) }}" alt="Foto">
+                            <img src="{{ $member->photo_url }}" alt="Foto">
                         @else
                             {{ strtoupper(substr($member->full_name, 0, 1)) }}
                         @endif

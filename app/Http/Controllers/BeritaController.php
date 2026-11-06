@@ -78,7 +78,7 @@ class BeritaController extends Controller
 
         // Prioritas: jika ada file upload, gunakan itu. Jika ada URL, gunakan URL.
         if ($request->hasFile('gambar')) {
-            $validated['gambar'] = $request->file('gambar')->store('berita', 'public');
+            $validated['gambar'] = $request->file('gambar')->store('berita', 'supabase');
             $validated['gambar_url'] = null; // kosongkan URL jika ada file
         }
 
@@ -131,7 +131,7 @@ class BeritaController extends Controller
         $gambarLama = $berita->gambar;
 
         if ($request->hasFile('gambar')) {
-            $validated['gambar'] = $request->file('gambar')->store('berita', 'public');
+            $validated['gambar'] = $request->file('gambar')->store('berita', 'supabase');
             $validated['gambar_url'] = null; // kosongkan URL jika ada file baru
         } elseif (isset($validated['gambar_url']) && $validated['gambar_url']) {
             $validated['gambar'] = null; // kosongkan file jika ada URL
@@ -141,7 +141,7 @@ class BeritaController extends Controller
 
         // Bersihkan file lama setelah baris berhasil diperbarui agar tidak menumpuk.
         if ($berita->wasChanged('gambar') && $gambarLama) {
-            Storage::disk('public')->delete($gambarLama);
+            Storage::disk('supabase')->delete($gambarLama);
         }
 
         return redirect()->route('berita.index')->with('success', 'Berita diperbarui');
@@ -150,7 +150,7 @@ class BeritaController extends Controller
     public function destroy(Berita $berita)
     {
         if ($berita->gambar) {
-            Storage::disk('public')->delete($berita->gambar);
+            Storage::disk('supabase')->delete($berita->gambar);
         }
 
         $berita->delete();

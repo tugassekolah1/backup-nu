@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Infaq extends Model
 {
@@ -48,10 +50,23 @@ class Infaq extends Model
         'penanggung_jawab',
         'bukti_path',
         'catatan',
-        'paid_at'
+        'paid_at',
     ];
 
     protected $casts = [
         'paid_at' => 'datetime',
     ];
+
+    /**
+     * URL bukti pembayaran di disk Supabase, siap dipakai di view.
+     *
+     * Nilai kosong dikembalikan sebagai string kosong agar view cukup
+     * memakai `$infaq->bukti_url` tanpa pemeriksaan null terpisah.
+     */
+    protected function buktiUrl(): Attribute
+    {
+        return Attribute::get(fn (): string => blank($this->bukti_path)
+            ? ''
+            : Storage::disk('supabase')->url($this->bukti_path));
+    }
 }

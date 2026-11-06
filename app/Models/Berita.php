@@ -50,6 +50,9 @@ class Berita extends Model
     /**
      * Ambil gambar dari URL atau file upload.
      * Prioritas: gambar_url > gambar (file upload)
+     *
+     * File upload diseimpan sebagai path relatif di disk Supabase, sedangkan
+     * data lama bisa berisi URL absolut — keduanya dihasilkan dengan benar.
      */
     public function getGambarUtamaAttribute(): ?string
     {
@@ -58,7 +61,9 @@ class Berita extends Model
         }
 
         if ($this->gambar) {
-            return Storage::url($this->gambar);
+            return preg_match('#^https?://#i', $this->gambar) === 1
+                ? $this->gambar
+                : Storage::disk('supabase')->url($this->gambar);
         }
 
         return null;

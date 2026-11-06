@@ -2,16 +2,32 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\Storage;
 
-class NuMember extends Model
+class NuMember extends Authenticatable
 {
     protected $fillable = [
         'nik', 'full_name', 'phone', 'gender', 'organisasi', 'label_organisasi',
-        'address', 'photo',
+        'address', 'photo', 'password',
         'member_card_no', 'status',
         'registration_status', 'rejection_reason',
     ];
+
+    protected $hidden = [
+        'password',
+    ];
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'password' => 'hashed',
+        ];
+    }
 
     /**
      * Pilihan organisasi / banom untuk pendaftaran anggota,
@@ -50,6 +66,45 @@ class NuMember extends Model
             ->map(fn ($group) => array_keys($group))
             ->flatten()
             ->all();
+    }
+
+    /**
+     * Membandingkan nomor HP anggota dengan format yang dimaklumi: hanya digit,
+     * awalan "62" disamakan dengan "0", sehingga 0812… = 62812… .
+     */
+    public function nomorHpCocok(?string $diisi): bool
+    {
+        $normalisasi = static function (?string $nomor): string {
+            $digit = preg_replace('/\D+/', '', (string) $nomor) ?? '';
+
+            if (str_starts_with($digit, '62')) {
+                $digit = '0'.substr($digit, 2);
+            }
+
+            return $digit;
+        };
+
+        $nomorTersimpan = $normalisasi($this->phone);
+        $nomorDiisi = $normalisasi($diisi);
+
+        if ($nomorTersimpan === '' || $nomorDiisi === '') {
+            return false;
+        }
+
+        return $nomorTersimpan === $nomorDiisi;
+    }
+
+    /**
+     * URL foto anggota di disk Supabase, siap dipakai di view.
+     *
+     * Nilai kosong dikembalikan sebagai string kosong agar view cukup
+     * memakai `$member->photo_url` tanpa pemeriksaan null terpisah.
+     */
+    protected function photoUrl(): Attribute
+    {
+        return Attribute::get(fn (): string => blank($this->photo)
+            ? ''
+            : Storage::disk('supabase')->url($this->photo));
     }
 
     /**

@@ -14,7 +14,7 @@
 <a href="{{ route('struktur.show', $p) }}" aria-label="Lihat profil {{ $p->nama }} — {{ $p->jabatan }}"
    class="{{ $besar ? 'w-full max-w-sm p-8 ring-2 ring-amber-300' : 'p-6' }} group/card bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-emerald-300 transition-all duration-200 flex flex-col items-center text-center">
     @if ($p->foto)
-        <img src="{{ asset('storage/' . $p->foto) }}" alt="Foto {{ $p->nama }}" loading="lazy"
+        <img src="{{ $p->foto_url }}" alt="Foto {{ $p->nama }}" loading="lazy"
              class="{{ $besar ? 'w-28 h-28' : 'w-20 h-20' }} rounded-full object-cover border-2 {{ $besar ? 'border-amber-300' : 'border-emerald-100' }} bg-slate-50">
     @else
         <span class="{{ $besar ? 'w-28 h-28 text-3xl' : 'w-20 h-20 text-2xl' }} rounded-full bg-emerald-50 text-emerald-700 inline-flex items-center justify-center font-extrabold shrink-0">

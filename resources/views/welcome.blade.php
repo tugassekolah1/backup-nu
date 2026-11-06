@@ -272,7 +272,7 @@ section.revealed .grid > *:nth-child(4) { animation-delay: 0.35s; }
     <article class="lg:col-span-7 bg-warm-card rounded-container-r border border-border-neutral overflow-hidden flex flex-col justify-between shadow-subtle group min-w-0">
         <div>
             <div class="relative h-64 sm:h-80 w-full overflow-hidden">
-                <img alt="{{ $featuredNews->judul }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src="{{ $featuredNews->gambar ? Storage::url($featuredNews->gambar) : 'https://lh3.googleusercontent.com/aida-public/AB6AXuALJW36SfuHdqaIUBnAV33yc_p3mURfwwxP-zISe3TI_oxyOpGcbYYs31ulyiDy4QChMr9yTHggIvicAsmVx6hsW4WW0WmI3evkBVt2UljE3wn7qNo-yN8xigpyzZ4E4Qowhq5xm347RUfevQm4nC8Sd3lOFHwRgQeGkkDgckRn-NnLo3_EgLpE_9XJt2XfwJ2_cuz1EqdF7qlRqrTSlnRR_xGHmxw7X9r867rxPKhq0fF5osmjZQ94jw' }}"/>
+                <img alt="{{ $featuredNews->judul }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src="{{ $featuredNews->gambar ? $featuredNews->gambar_utama : 'https://lh3.googleusercontent.com/aida-public/AB6AXuALJW36SfuHdqaIUBnAV33yc_p3mURfwwxP-zISe3TI_oxyOpGcbYYs31ulyiDy4QChMr9yTHggIvicAsmVx6hsW4WW0WmI3evkBVt2UljE3wn7qNo-yN8xigpyzZ4E4Qowhq5xm347RUfevQm4nC8Sd3lOFHwRgQeGkkDgckRn-NnLo3_EgLpE_9XJt2XfwJ2_cuz1EqdF7qlRqrTSlnRR_xGHmxw7X9r867rxPKhq0fF5osmjZQ94jw' }}"/>
                 <div class="absolute top-4 left-4">
                     <span class="px-3.5 py-1 rounded-full bg-charcoal/90 text-white text-xs font-semibold backdrop-blur-md">
                         Laporan Utama
@@ -320,7 +320,7 @@ section.revealed .grid > *:nth-child(4) { animation-delay: 0.35s; }
                         @foreach($newsList->skip(1)->take(2) as $berita)
                             <article class="bg-warm-card rounded-card p-5 border border-border-neutral flex flex-col sm:flex-row gap-4 items-start shadow-subtle group">
                                 <div class="w-full sm:w-36 h-32 rounded-btn overflow-hidden shrink-0">
-                                    <img alt="{{ $berita->judul }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="{{ $berita->gambar ? Storage::url($berita->gambar) : '' }}"/>
+                                    <img alt="{{ $berita->judul }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="{{ $berita->gambar ? $berita->gambar_utama : '' }}"/>
                                 </div>
                                 <div class="flex flex-col justify-between flex-1">
                                     <div>
@@ -583,7 +583,7 @@ section.revealed .grid > *:nth-child(4) { animation-delay: 0.35s; }
                     <div class="bg-warm-bg rounded-container-r border border-border-neutral p-6 flex flex-col items-center text-center shadow-subtle">
                         <div class="w-20 h-20 rounded-full overflow-hidden bg-muted-sage border border-border-subtle mb-4 shrink-0">
                             @if($orang->foto)
-                                <img src="{{ asset('storage/' . $orang->foto) }}" alt="{{ $orang->nama }}" class="w-full h-full object-cover">
+                                <img src="{{ $orang->foto_url }}" alt="{{ $orang->nama }}" class="w-full h-full object-cover">
                             @else
                                 <div class="w-full h-full flex items-center justify-center text-2xl font-extrabold text-charcoal">
                                     {{ strtoupper(substr($orang->nama, 0, 1)) }}

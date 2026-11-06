@@ -10,11 +10,7 @@ use Illuminate\Support\Facades\Storage;
  */
 function fakeMemberPhoto(): UploadedFile
 {
-    $png = base64_decode(
-        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
-    );
-
-    return UploadedFile::fake()->createWithContent('foto-anggota.png', $png);
+    return fakePngUpload('foto-anggota.png');
 }
 
 test('admin member create form has a photo upload field', function () {
@@ -42,12 +38,12 @@ test('admin member edit form shows the current photo and an upload field', funct
         ->get(route('members.edit', $member))
         ->assertOk()
         ->assertSee('name="photo"', false)
-        ->assertSee('storage/members-photo/siti.png', false)
+        ->assertSee(Storage::disk('supabase')->url('members-photo/siti.png'), false)
         ->assertSee('Foto saat ini', false);
 });
 
 test('admin can create a member with an uploaded photo', function () {
-    Storage::fake('public');
+    fakeSupabaseDisk();
 
     $this->actingAs(User::factory()->admin()->create())
         ->post(route('members.store'), [
@@ -65,11 +61,11 @@ test('admin can create a member with an uploaded photo', function () {
 
     expect($member->photo)->not->toBeNull();
 
-    Storage::disk('public')->assertExists($member->photo);
+    Storage::disk('supabase')->assertExists($member->photo);
 });
 
 test('admin member edit can replace the photo', function () {
-    Storage::fake('public');
+    fakeSupabaseDisk();
 
     $member = NuMember::create([
         'nik' => '3300000000000103',
@@ -97,7 +93,7 @@ test('admin member edit can replace the photo', function () {
 
     expect($photo)->not->toBeNull();
 
-    Storage::disk('public')->assertExists($photo);
+    Storage::disk('supabase')->assertExists($photo);
 });
 
 test('public registration form has a photo upload field', function () {
@@ -109,7 +105,7 @@ test('public registration form has a photo upload field', function () {
 });
 
 test('public registration stores the uploaded photo', function () {
-    Storage::fake('public');
+    fakeSupabaseDisk();
 
     $this->post('/daftar', [
         'nik' => '3300000000000104',
@@ -118,17 +114,19 @@ test('public registration stores the uploaded photo', function () {
         'gender' => 'P',
         'address' => 'Banjaranyar',
         'photo' => fakeMemberPhoto(),
+        'password' => 'sandi-rahasia',
+        'password_confirmation' => 'sandi-rahasia',
     ])->assertSessionHasNoErrors();
 
     $member = NuMember::where('nik', '3300000000000104')->sole();
 
     expect($member->photo)->not->toBeNull();
 
-    Storage::disk('public')->assertExists($member->photo);
+    Storage::disk('supabase')->assertExists($member->photo);
 });
 
 test('public registration rejects a file that is not a photo', function () {
-    Storage::fake('public');
+    fakeSupabaseDisk();
 
     $this->from('/daftar')
         ->post('/daftar', [
@@ -138,6 +136,8 @@ test('public registration rejects a file that is not a photo', function () {
             'gender' => 'L',
             'address' => 'Banjaranyar',
             'photo' => UploadedFile::fake()->create('dokumen.txt', 10, 'text/plain'),
+            'password' => 'sandi-rahasia',
+            'password_confirmation' => 'sandi-rahasia',
         ])
         ->assertSessionHasErrors('photo');
 
@@ -159,7 +159,7 @@ test('print card page renders the member photo', function () {
     $this->actingAs(User::factory()->admin()->create())
         ->get(route('members.print-card', $member))
         ->assertOk()
-        ->assertSee('storage/members-photo/fulan.png', false)
+        ->assertSee(Storage::disk('supabase')->url('members-photo/fulan.png'), false)
         ->assertSee('KARTU TANDA ANGGOTA', false);
 });
 
@@ -178,7 +178,7 @@ test('admin member list shows the photo and a print card action', function () {
     $this->actingAs(User::factory()->admin()->create())
         ->get(route('members.index'))
         ->assertOk()
-        ->assertSee('storage/members-photo/hasan.png', false)
+        ->assertSee(Storage::disk('supabase')->url('members-photo/hasan.png'), false)
         ->assertSee(route('members.print-card', $member), false);
 });
 
@@ -194,5 +194,5 @@ test('guest cannot print a member card', function () {
     ]);
 
     $this->get(route('members.print-card', $member))
-        ->assertRedirect('/login');
+        ->assertRedirect('/login/admin');
 });

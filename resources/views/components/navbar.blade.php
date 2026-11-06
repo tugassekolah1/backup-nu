@@ -64,7 +64,7 @@
 
                 <!-- Dropdown Keanggotaan -->
                 <div x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false" @keydown.escape.window="open = false" class="relative">
-                    <button :aria-expanded="open" class="px-4 py-2 rounded-full flex items-center gap-1 transition-colors {{ request()->routeIs('members.*') || request()->routeIs('aspirasi.*') || request()->routeIs('organisasi.*') ? 'text-[#171816] font-semibold bg-[#EDE8DD]' : 'hover:text-[#171816] hover:bg-[#EDE8DD]/50' }}">
+                    <button :aria-expanded="open" class="px-4 py-2 rounded-full flex items-center gap-1 transition-colors {{ request()->routeIs('members.*') || request()->routeIs('aspirasi.*') || request()->routeIs('organisasi.*') || request()->routeIs('member.*') ? 'text-[#171816] font-semibold bg-[#EDE8DD]' : 'hover:text-[#171816] hover:bg-[#EDE8DD]/50' }}">
                         <span>Keanggotaan</span>
                         <span class="material-symbols-outlined text-sm transition-transform" :class="open ? 'rotate-180' : ''">expand_more</span>
                     </button>
@@ -83,6 +83,10 @@
                         <a href="{{ route('members.card') }}" class="px-4 py-2.5 rounded-xl hover:bg-[#EDE8DD]/70 transition-colors text-left flex items-center gap-2">
                             <span class="material-symbols-outlined text-[18px]">id_card</span>
                             <span>Kartu Anggota</span>
+                        </a>
+                        <a href="{{ route('member.login') }}" class="px-4 py-2.5 rounded-xl hover:bg-[#EDE8DD]/70 transition-colors text-left flex items-center gap-2 {{ request()->routeIs('member.*') ? 'bg-[#EDE8DD] font-semibold' : '' }}">
+                            <span class="material-symbols-outlined text-[18px]">login</span>
+                            <span>Masuk Anggota</span>
                         </a>
                         <a href="{{ route('organisasi') }}" class="px-4 py-2.5 rounded-xl hover:bg-[#EDE8DD]/70 transition-colors text-left flex items-center gap-2">
                             <span class="material-symbols-outlined text-[18px]">groups</span>
@@ -106,6 +110,10 @@
                 <a class="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 min-h-[44px] rounded-[14px] bg-[#16452F] text-white font-medium text-sm hover:bg-[#113725] transition-all active:scale-95 shadow-sm {{ request()->routeIs('members.register-form') ? 'ring-2 ring-[#B49352]' : '' }}" href="{{ route('members.register-form') }}">
                     <span class="material-symbols-outlined text-[18px]">how_to_reg</span>
                     <span>Daftar Anggota</span>
+                </a>
+                <a class="hidden sm:inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-[14px] text-[#16452F] font-semibold text-sm border border-[#16452F]/35 hover:bg-[#16452F]/5 transition-all {{ request()->routeIs('member.*') ? 'bg-[#16452F] text-white hover:bg-[#113725]' : '' }}" href="{{ route('member.login') }}">
+                    <span class="material-symbols-outlined text-[18px]">login</span>
+                    <span>Masuk Anggota</span>
                 </a>
                 <a class="hidden md:inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-[14px] bg-[#FDFCF7] hover:bg-[#EDE8DD]/60 text-[#171816] font-semibold text-xs sm:text-sm border border-[#D5D2C8] transition-all" href="https://wa.me/{{ config('kontak.whatsapp') }}" rel="noopener noreferrer" target="_blank">
                     <span class="material-symbols-outlined text-[#4F544E] text-[18px]">chat</span>
@@ -213,6 +221,10 @@
                     <span class="material-symbols-outlined text-[#4F544E]">id_card</span>
                     <span>Cetak Kartu Anggota</span>
                 </a>
+                <a class="px-5 py-3.5 rounded-2xl flex items-center gap-3 transition-all hover:bg-[#EDE8DD]/50 text-base font-medium" href="{{ route('member.login') }}">
+                    <span class="material-symbols-outlined text-[#4F544E]">login</span>
+                    <span>Masuk / Ubah Data Diri</span>
+                </a>
                 <a class="px-5 py-3.5 rounded-2xl flex items-center gap-3 transition-all hover:bg-[#EDE8DD]/50 text-base font-medium" href="{{ route('organisasi') }}">
                     <span class="material-symbols-outlined text-[#4F544E]">account_tree</span>
                     <span>Organisasi &amp; Struktur Pengurus</span>
@@ -228,6 +240,10 @@
                 <a class="flex items-center justify-center gap-2 px-5 py-4 min-h-[52px] rounded-2xl bg-[#16452F] text-white font-semibold text-base shadow-sm active:scale-95 transition-all" href="{{ route('members.register-form') }}">
                     <span class="material-symbols-outlined text-[20px]">how_to_reg</span>
                     <span>Daftar Anggota</span>
+                </a>
+                <a class="flex items-center justify-center gap-2 px-5 py-4 min-h-[52px] rounded-2xl bg-[#FDFCF7] text-[#16452F] font-semibold text-base border border-[#16452F]/40 active:scale-95 transition-all" href="{{ route('member.login') }}">
+                    <span class="material-symbols-outlined text-[20px]">login</span>
+                    <span>Masuk Anggota</span>
                 </a>
                 <a class="flex items-center justify-center gap-2 px-4 py-3.5 min-h-[52px] rounded-2xl bg-[#FDFCF7] text-[#171816] font-semibold text-base border border-[#D5D2C8] active:scale-95 transition-all" href="https://wa.me/{{ config('kontak.whatsapp') }}" rel="noopener noreferrer" target="_blank">
                     <span class="material-symbols-outlined text-[#16452F] text-[20px]">chat</span>
