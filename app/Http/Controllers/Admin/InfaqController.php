@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class InfaqController extends Controller
 {
@@ -74,9 +75,21 @@ class InfaqController extends Controller
         ]);
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        return view('admin.infaq.create');
+        $arah = $request->query('arah', 'masuk');
+
+        if (! in_array($arah, Infaq::ARAH, true)) {
+            $arah = 'masuk';
+        }
+
+        $totalMasuk = (float) Infaq::where('arah', 'masuk')->where('status', 'lunas')->sum('nominal');
+        $totalKeluar = (float) Infaq::where('arah', 'keluar')->where('status', 'lunas')->sum('nominal');
+
+        return view('admin.infaq.create', [
+            'arah' => $arah,
+            'saldoKas' => $totalMasuk - $totalKeluar,
+        ]);
     }
 
     public function store(Request $request)
@@ -84,10 +97,15 @@ class InfaqController extends Controller
         $validated = $this->validateTransaksi($request);
 
         $validated['kode_transaksi'] = $this->generateKode();
-        $validated['nama_donatur'] = ($validated['nama_donatur'] ?? '') ?: 'Hamba Allah';
         $validated['status'] = $validated['status'] ?? 'pending';
-        $validated['arah'] = $validated['arah'] ?? 'masuk';
+        $validated['arah'] = in_array($request->input('arah'), Infaq::ARAH, true) ? $request->input('arah') : ($validated['arah'] ?? 'masuk');
+        $validated['nama_donatur'] = ($validated['nama_donatur'] ?? '') ?: ($validated['arah'] === 'keluar' ? 'Kas Keluar' : 'Hamba Allah');
+        $validated['kategori'] = $validated['arah'] === 'keluar' ? ($validated['kategori'] ?? null) : null;
+        $validated['penanggung_jawab'] = $validated['arah'] === 'keluar' ? ($validated['penanggung_jawab'] ?? null) : null;
+        $validated['no_hp'] = $validated['arah'] === 'masuk' ? ($validated['no_hp'] ?? null) : null;
         $validated['paid_at'] = $this->resolvePaidAt($validated['status'], $validated['paid_at'] ?? null);
+
+        $this->ensureSaldoCukup($validated['arah'], $validated['status'], (float) $validated['nominal']);
 
         if ($request->hasFile('bukti')) {
             $validated['bukti_path'] = $request->file('bukti')->store('infaq-bukti', 'supabase');
@@ -101,17 +119,39 @@ class InfaqController extends Controller
 
     public function edit(Infaq $infaq)
     {
-        return view('admin.infaq.edit', compact('infaq'));
+        $totalMasuk = (float) Infaq::where('arah', 'masuk')->where('status', 'lunas')->sum('nominal');
+        $totalKeluar = (float) Infaq::where('arah', 'keluar')->where('status', 'lunas')->sum('nominal');
+        $saldoKas = $totalMasuk - $totalKeluar;
+
+        // Saat edit, hitung saldo tersedia seolah transaksi ini belum berlaku (agar peringatan lebih akurat).
+        if (($infaq->status ?? null) === 'lunas') {
+            if (($infaq->arah ?? 'masuk') === 'keluar') {
+                $saldoKas += (float) $infaq->nominal;
+            } else {
+                $saldoKas -= (float) $infaq->nominal;
+            }
+        }
+
+        return view('admin.infaq.edit', [
+            'infaq' => $infaq,
+            'arah' => $infaq->arah ?: 'masuk',
+            'saldoKas' => $saldoKas,
+        ]);
     }
 
     public function update(Request $request, Infaq $infaq)
     {
-        $validated = $this->validateTransaksi($request);
+        $validated = $this->validateTransaksi($request, $infaq);
 
-        $validated['nama_donatur'] = ($validated['nama_donatur'] ?? '') ?: 'Hamba Allah';
         $validated['status'] = $validated['status'] ?? 'pending';
-        $validated['arah'] = $validated['arah'] ?? $infaq->arah;
+        $validated['arah'] = in_array($request->input('arah'), Infaq::ARAH, true) ? $request->input('arah') : ($infaq->arah ?: 'masuk');
+        $validated['nama_donatur'] = ($validated['nama_donatur'] ?? '') ?: ($validated['arah'] === 'keluar' ? 'Kas Keluar' : 'Hamba Allah');
+        $validated['kategori'] = $validated['arah'] === 'keluar' ? ($validated['kategori'] ?? null) : null;
+        $validated['penanggung_jawab'] = $validated['arah'] === 'keluar' ? ($validated['penanggung_jawab'] ?? null) : null;
+        $validated['no_hp'] = $validated['arah'] === 'masuk' ? ($validated['no_hp'] ?? null) : null;
         $validated['paid_at'] = $this->resolvePaidAt($validated['status'], $validated['paid_at'] ?? null);
+
+        $this->ensureSaldoCukup($validated['arah'], $validated['status'], (float) $validated['nominal'], $infaq);
 
         if ($request->hasFile('bukti')) {
             if ($infaq->bukti_path) {
@@ -152,6 +192,16 @@ class InfaqController extends Controller
             return redirect()->back()->with('error', 'Hanya transaksi berstatus pending yang bisa ditandai lunas.');
         }
 
+        if (($infaq->arah ?? 'masuk') === 'keluar') {
+            $totalMasuk = (float) Infaq::where('arah', 'masuk')->where('status', 'lunas')->sum('nominal');
+            $totalKeluar = (float) Infaq::where('arah', 'keluar')->where('status', 'lunas')->sum('nominal');
+            $saldo = $totalMasuk - $totalKeluar;
+
+            if ((float) $infaq->nominal > $saldo) {
+                return redirect()->back()->with('error', 'Tidak bisa ditandai lunas: nominal pengeluaran melebihi saldo kas tersedia (Rp '.number_format($saldo, 0, ',', '.').'). Saldo tidak boleh minus.');
+            }
+        }
+
         $infaq->update([
             'status' => 'lunas',
             'paid_at' => now(),
@@ -180,28 +230,55 @@ class InfaqController extends Controller
     /**
      * Aturan validasi untuk store dan update.
      */
-    private function validateTransaksi(Request $request): array
+    private function validateTransaksi(Request $request, ?Infaq $infaq = null): array
     {
+        // Normalisasi format ribuan (mis. "50.000") agar lolos validasi numeric.
+        if ($request->filled('nominal')) {
+            $request->merge([
+                'nominal' => preg_replace('/[^\d]/', '', (string) $request->input('nominal')),
+            ]);
+        }
+
+        $isKeluar = $request->input('arah') === 'keluar';
+
+        // Khusus pengeluaran: semua input wajib diisi. Bukti wajib ada (baru atau sudah tersimpan saat edit).
+        $buktiRule = ['image', 'mimes:jpg,jpeg,png,webp', 'max:2048'];
+        if ($isKeluar) {
+            array_unshift($buktiRule, ($infaq && $infaq->bukti_path) ? 'nullable' : 'required');
+        } else {
+            array_unshift($buktiRule, 'nullable');
+        }
+
         return $request->validate([
             'nominal' => 'required|numeric|min:1',
             'metode_pembayaran' => ['required', Rule::in(Infaq::METODE)],
             'nama_donatur' => 'nullable|string|max:100',
             'no_hp' => 'nullable|string|max:20',
-            'status' => ['nullable', Rule::in(Infaq::STATUSES)],
+            'status' => ['required', Rule::in(Infaq::STATUSES)],
             'arah' => ['nullable', Rule::in(Infaq::ARAH)],
-            'kategori' => ['nullable', Rule::in(Infaq::KATEGORI_KELUAR)],
-            'penanggung_jawab' => 'nullable|string|max:100',
-            'bukti' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'paid_at' => 'nullable|date',
-            'catatan' => 'nullable|string',
+            'kategori' => [Rule::requiredIf($isKeluar), 'nullable', Rule::in(Infaq::KATEGORI_KELUAR)],
+            'penanggung_jawab' => [Rule::requiredIf($isKeluar), 'nullable', 'string', 'max:100'],
+            'bukti' => $buktiRule,
+            'paid_at' => [Rule::requiredIf($isKeluar), 'nullable', 'date', 'before_or_equal:today'],
+            'catatan' => [Rule::requiredIf($isKeluar), 'nullable', 'string'],
         ], [
             'nominal.required' => 'Nominal wajib diisi.',
             'nominal.numeric' => 'Nominal harus berupa angka.',
             'nominal.min' => 'Nominal minimal Rp 1.',
             'metode_pembayaran.required' => 'Metode pembayaran wajib dipilih.',
             'metode_pembayaran.in' => 'Metode pembayaran tidak dikenali.',
+            'status.required' => 'Status wajib dipilih.',
             'status.in' => 'Status transaksi tidak dikenali.',
-            'paid_at.date' => 'Tanggal bayar tidak valid.',
+            'kategori.required' => 'Kategori penggunaan wajib dipilih.',
+            'kategori.in' => 'Kategori penggunaan tidak dikenali.',
+            'penanggung_jawab.required' => 'Penanggung jawab wajib diisi.',
+            'catatan.required' => 'Keperluan/keterangan wajib diisi.',
+            'bukti.required' => 'Bukti/kwitansi wajib diunggah.',
+            'bukti.image' => 'Bukti harus berupa gambar (JPG/PNG/WEBP).',
+            'bukti.max' => 'Ukuran bukti maksimal 2 MB.',
+            'paid_at.required' => 'Tanggal wajib diisi.',
+            'paid_at.date' => 'Tanggal tidak valid.',
+            'paid_at.before_or_equal' => 'Tanggal tidak boleh setelah hari ini.',
         ]);
     }
 
@@ -215,6 +292,34 @@ class InfaqController extends Controller
         }
 
         return $paidAt ?: now();
+    }
+
+    /**
+     * Pengeluaran lunas tidak boleh membuat saldo kas menjadi minus.
+     */
+    private function ensureSaldoCukup(string $arah, string $status, float $nominal, ?Infaq $ignore = null): void
+    {
+        if ($arah !== 'keluar' || $status !== 'lunas') {
+            return;
+        }
+
+        $totalMasuk = (float) Infaq::where('arah', 'masuk')->where('status', 'lunas')->sum('nominal');
+        $totalKeluar = (float) Infaq::where('arah', 'keluar')->where('status', 'lunas')->sum('nominal');
+        $saldo = $totalMasuk - $totalKeluar;
+
+        if ($ignore && $ignore->status === 'lunas') {
+            if ($ignore->arah === 'keluar') {
+                $saldo += (float) $ignore->nominal;
+            } elseif ($ignore->arah === 'masuk') {
+                $saldo -= (float) $ignore->nominal;
+            }
+        }
+
+        if ($nominal > $saldo) {
+            throw ValidationException::withMessages([
+                'nominal' => 'Nominal pengeluaran melebihi saldo kas tersedia (Rp '.number_format($saldo, 0, ',', '.').'). Saldo tidak boleh minus.',
+            ]);
+        }
     }
 
     private function generateKode(): string

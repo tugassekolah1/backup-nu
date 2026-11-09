@@ -305,12 +305,12 @@
             </a>
 
             @if (auth()->user()->is_admin)
-                <a href="{{ route('admin.infaq.create') }}"
-                   class="inline-flex items-center gap-2.5 px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-sm shadow-sm hover:shadow-emerald-300 hover:shadow-lg transition-all duration-200">
+                <a href="{{ route('admin.infaq.create', ['arah' => 'keluar']) }}"
+                   class="inline-flex items-center gap-2.5 px-5 py-3 rounded-xl bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-bold text-sm shadow-sm hover:shadow-rose-200 hover:shadow-lg transition-all duration-200">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2-1.343-2-3-2zm0 8c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zM12 6V4m0 2v2m0 10v2m0-2v2"/>
                     </svg>
-                    <span>Catat Infaq</span>
+                    <span>Catat Pengeluaran</span>
                 </a>
             @endif
         </div>
@@ -433,11 +433,15 @@
                     <h2 class="text-base font-bold text-slate-800">Transaksi Infaq Terbaru</h2>
                 </div>
 
-                <div class="flex items-center gap-3 text-xs font-bold">
-                    <a href="{{ route('admin.infaq.index') }}" class="text-emerald-700 hover:underline">Lihat semua</a>
-                    <a href="{{ route('admin.infaq.create') }}"
-                       class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white transition-colors">
-                        Catat Infaq
+                <div class="flex flex-wrap items-center gap-2 text-xs font-bold">
+                    <a href="{{ route('admin.infaq.index') }}" class="text-slate-600 hover:underline">Lihat semua</a>
+                    <a href="{{ route('admin.infaq.create', ['arah' => 'keluar']) }}"
+                       class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white transition-colors">
+                        Catat Pengeluaran
+                    </a>
+                    <a href="{{ route('admin.infaq.create', ['arah' => 'masuk']) }}"
+                       class="px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-800 text-white transition-colors">
+                        Catat Pemasukan
                     </a>
                 </div>
             </div>

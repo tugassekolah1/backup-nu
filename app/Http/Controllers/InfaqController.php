@@ -27,6 +27,13 @@ class InfaqController extends Controller
     // Proses Simpan Infak (Pending)
     public function store(Request $request)
     {
+        // Normalisasi format ribuan (mis. "50.000") agar lolos validasi numeric.
+        if ($request->filled('nominal')) {
+            $request->merge([
+                'nominal' => preg_replace('/[^\d]/', '', (string) $request->input('nominal')),
+            ]);
+        }
+
         $validated = $request->validate([
             'nominal' => 'required|numeric|min:1',
             'metode_pembayaran' => 'required|in:transfer_bank,qris,tunai',

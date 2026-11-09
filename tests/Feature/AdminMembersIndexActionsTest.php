@@ -13,7 +13,7 @@ function memberRow(array $overrides = []): NuMember
         'full_name' => 'Anggota Uji '.$counter,
         'phone' => '0812345600'.$counter,
         'gender' => 'L',
-        'address' => 'Banjaranyar',
+        'address' => 'Kecamatan Cilongok',
         'status' => 'pending_payment',
         'registration_status' => 'pending',
     ], $overrides));

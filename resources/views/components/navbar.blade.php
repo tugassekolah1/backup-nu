@@ -8,7 +8,7 @@
 
             <!-- Brand & Official Badge -->
             <a class="flex items-center gap-3 group shrink-0" href="{{ route('landing') }}">
-                <img alt="Logo NU Banjaranyar" class="w-10 h-10 object-contain drop-shadow-sm group-hover:scale-105 transition-transform duration-300 rounded" src="{{ asset('images/logo.webp') }}"/>
+                <img alt="Logo NU Kecamatan Cilongok" class="w-10 h-10 object-contain drop-shadow-sm group-hover:scale-105 transition-transform duration-300 rounded" src="{{ asset('images/logo.webp') }}"/>
                 <div class="flex flex-col">
                     <span class="font-bold text-base sm:text-lg tracking-tight text-[#171816] leading-tight">MWC NU</span>
                     <span class="text-xs font-medium text-[#4F544E] tracking-wide">Cilongok, Banyumas</span>

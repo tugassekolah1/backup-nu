@@ -82,12 +82,13 @@
                             <input
                                 id="nominal"
                                 name="nominal"
-                                type="number"
-                                min="1000"
-                                step="1000"
-                                value="{{ old('nominal') }}"
-                                placeholder="Contoh: 50000"
+                                type="text"
+                                inputmode="numeric"
+                                value="{{ old('nominal') !== null && old('nominal') !== '' ? number_format((int) preg_replace('/\D/', '', (string) old('nominal')), 0, ',', '.') : '' }}"
+                                placeholder="Contoh: 50.000"
                                 required
+                                oninput="let v=this.value.replace(/[^0-9]/g,''); this.value=v ? v.replace(/\B(?=(\d{3})+(?!\d))/g,'.') : '';"
+                                autocomplete="off"
                                 class="min-h-[44px] w-full rounded-[14px] border border-[#DCE4DE] bg-white px-4 py-2.5 text-[#17392D] placeholder:text-[#7B8780] focus:border-[#1F5A3F] focus:outline-none focus:ring-2 focus:ring-[#1F5A3F]/20"
                             >
                             <div class="mt-2 flex flex-wrap gap-2">
@@ -177,37 +178,7 @@
                     </div>
                 </div>
 
-                <div class="rounded-[28px] border border-[#DCE4DE] bg-white p-6">
-                    <div class="flex items-end justify-between gap-3 border-b border-[#DCE4DE] pb-3">
-                        <h2 class="text-lg font-bold text-[#17392D]">Donatur Terbaru</h2>
-                        <span class="shrink-0 rounded-full border border-[#DCE4DE] bg-white px-3 py-1 text-xs font-bold text-[#1F5A3F]">
-                            Transparan
-                        </span>
-                    </div>
 
-                    @if ($infaqTerbaru->isNotEmpty())
-                        <ul class="divide-y divide-[#DCE4DE]">
-                            @foreach ($infaqTerbaru as $donasi)
-                                <li class="flex items-center justify-between gap-3 py-3">
-                                    <div class="min-w-0">
-                                        <p class="truncate text-sm font-semibold text-[#17392D]">{{ $donasi->nama_donatur }}</p>
-                                        <p class="text-xs text-[#7B8780]">
-                                            {{ $donasi->paid_at?->isoFormat('D MMM Y') ?? '-' }}
-                                            · {{ ucwords(str_replace('_', ' ', $donasi->metode_pembayaran)) }}
-                                        </p>
-                                    </div>
-                                    <span class="shrink-0 text-sm font-bold text-[#1F5A3F]">
-                                        Rp {{ number_format($donasi->nominal, 0, ',', '.') }}
-                                    </span>
-                                </li>
-                            @endforeach
-                        </ul>
-                    @else
-                        <p class="py-6 text-center text-sm text-[#7B8780]">
-                            Belum ada infak yang tercatat. Jadilah yang pertama.
-                        </p>
-                    @endif
-                </div>
             </aside>
         </section>
 
@@ -278,6 +249,11 @@
     <x-footer />
 
     <script>
+        function formatRibuanInfaq(value) {
+            const digits = String(value || '').replace(/[^0-9]/g, '');
+            return digits ? digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '';
+        }
+
         document.addEventListener('click', function (event) {
             const button = event.target.closest('[data-nominal]');
             if (!button) return;
@@ -285,8 +261,17 @@
             const input = document.getElementById('nominal');
             if (!input) return;
 
-            input.value = button.getAttribute('data-nominal');
+            input.value = formatRibuanInfaq(button.getAttribute('data-nominal'));
             input.focus();
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const input = document.getElementById('nominal');
+            const form = input ? input.closest('form') : null;
+            if (!input || !form) return;
+            form.addEventListener('submit', function () {
+                input.value = (input.value || '').replace(/\./g, '');
+            });
         });
     </script>
 </body>

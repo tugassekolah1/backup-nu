@@ -23,7 +23,14 @@
     <div>
         <x-input-label for="event_date" value="Tanggal" />
         <x-text-input id="event_date" name="event_date" type="date" class="mt-1 block w-full"
+                      min="{{ now()->toDateString() }}"
                       value="{{ old('event_date', isset($agenda) ? $agenda->event_date->format('Y-m-d') : '') }}" required />
+        <p id="past-date-hint" class="mt-1.5 hidden items-start gap-1.5 text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2" role="status">
+            <svg class="w-4 h-4 shrink-0 mt-px" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            </svg>
+            <span>Tanggal tidak boleh sebelum hari ini. Pilih hari ini atau tanggal mendatang.</span>
+        </p>
     </div>
     <div>
     <x-input-label for="event_time" value="Waktu " />
@@ -53,11 +60,11 @@
 <div class="mb-4 rounded-xl border border-gray-200 bg-slate-50/60 p-4">
     <x-input-label for="location" value="Lokasi" />
     <x-text-input id="location" name="location" type="text" class="mt-1 block w-full"
-                  placeholder="Contoh: Masjid Jami' Banjaranyar"
+                  placeholder="Contoh: Masjid Jami' Kecamatan Cilongok"
                   value="{{ old('location', $agenda->location ?? '') }}" />
 
     <div class="mt-3 flex flex-col sm:flex-row gap-2">
-        <input id="maps-search" type="text" placeholder="Cari tempat… mis. Masjid Banjaranyar Cilongok"
+        <input id="maps-search" type="text" placeholder="Cari tempat… mis. Masjid Kecamatan Cilongok"
                class="flex-1 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm px-3 py-2" />
         <button type="button" id="btn-maps-search"
                 class="px-4 py-2 text-sm font-semibold rounded-lg bg-slate-800 text-white hover:bg-slate-900 active:scale-95 transition">
@@ -115,6 +122,55 @@
 </div>
 
 <script>
+    // Validasi tanggal agenda: tidak boleh sebelum hari ini (min = hari ini).
+    (function () {
+        const dateInput = document.getElementById('event_date');
+        const hint = document.getElementById('past-date-hint');
+
+        function formatId(value) {
+            const date = new Date(value + 'T00:00:00');
+            if (isNaN(date)) return value;
+            return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        }
+
+        function isPast(value) {
+            if (!value) return false;
+            const picked = new Date(value + 'T00:00:00');
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            return picked < today;
+        }
+
+        function syncHint() {
+            if (!dateInput || !hint) return;
+            const show = isPast(dateInput.value);
+            hint.classList.toggle('hidden', !show);
+            hint.classList.toggle('flex', show);
+        }
+
+        if (dateInput && hint) {
+            dateInput.addEventListener('change', syncHint);
+            syncHint();
+        }
+
+        const form = dateInput ? dateInput.closest('form') : null;
+        if (form) {
+            form.addEventListener('submit', function (event) {
+                if (!isPast(dateInput.value)) return;
+                event.preventDefault();
+                syncHint();
+                window.alert(
+                    'Tanggal acara ' + formatId(dateInput.value) + ' sudah lewat.\n\n' +
+                    'Agenda hanya boleh dibuat untuk hari ini atau tanggal mendatang.'
+                );
+                dateInput.focus();
+                dateInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+        }
+    })();
+</script>
+
+<script>
 (function () {
     const latInput = document.getElementById('latitude');
     const lngInput = document.getElementById('longitude');
@@ -125,7 +181,7 @@
     const previewLink = document.getElementById('maps-preview-link');
     const googleKey = @json(config('services.google.maps_key'));
 
-    // Default: Banjaranyar, Cilongok, Banyumas
+    // Default: Kecamatan Cilongok, Banyumas
     const DEFAULT_LAT = -7.3812;
     const DEFAULT_LNG = 109.1239;
 

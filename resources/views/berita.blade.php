@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id" class="scroll-smooth">
 <head>
-    <x-public-head title="Berita & Warta NU — Banjaranyar" />
+    <x-public-head title="Berita & Warta NU — Kecamatan Cilongok" />
 
     <style>
         /* Entrance animation (hormati reduced motion) */
@@ -79,7 +79,7 @@
                         </h1>
 
                         <p class="mt-5 text-base sm:text-lg text-white/80 leading-relaxed max-w-xl">
-                            Informasi kegiatan, pengumuman, dan tulisan dari PRNU Banjaranyar dan
+                            Informasi kegiatan, pengumuman, dan tulisan dari PRNU Kecamatan Cilongok dan
                             lembaga di bawah naungannya — disusun rapi dan mudah dibaca.
                         </p>
                     </div>
@@ -98,7 +98,7 @@
                             </div>
                             <div class="mt-6 pt-5 border-t border-white/15 flex items-center gap-2.5 text-xs text-white/75">
                                 <span class="material-symbols-outlined text-[18px] text-muted-gold">verified</span>
-                                <span>Dikelola sekretariat PRNU Banjaranyar.</span>
+                                <span>Dikelola sekretariat PRNU Kecamatan Cilongok.</span>
                             </div>
                         </div>
                     </div>
@@ -300,7 +300,7 @@
             {{-- ========================================== --}}
             @php
                 $judulBagian = [
-                    'terbaru' => ['badge' => 'Terbaru dari Redaksi', 'judul' => 'Berita Terbaru', 'deskripsi' => 'Kabar terkini dari ranting dan lembaga Banjaranyar.', 'ikon' => 'history'],
+                    'terbaru' => ['badge' => 'Terbaru dari Redaksi', 'judul' => 'Berita Terbaru', 'deskripsi' => 'Kabar terkini dari ranting dan lembaga Kecamatan Cilongok.', 'ikon' => 'history'],
                     'terpopuler' => ['badge' => 'Paling Banyak Dibaca', 'judul' => 'Berita Terpopuler', 'deskripsi' => 'Berita yang paling sering dibaca pengunjung.', 'ikon' => 'trending_up'],
                     'terlama' => ['badge' => 'Arsip Awal', 'judul' => 'Berita Terlama', 'deskripsi' => 'Berita awal yang menjadi cikal bakal informasi ini.', 'ikon' => 'history'],
                 ][$sort ?? 'terbaru'];

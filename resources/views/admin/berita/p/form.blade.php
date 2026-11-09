@@ -24,17 +24,26 @@
     </p>
 </div>
 
-<div class="mb-4">
-    <x-input-label for="jenis" value="Jenis Berita" />
-    <select id="jenis" name="jenis" required
-            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-        @foreach (\App\Models\Berita::JENIS as $jenis)
-            <option value="{{ $jenis }}"
-                    {{ old('jenis', $berita->jenis ?? 'Berita') === $jenis ? 'selected' : '' }}>
-                {{ $jenis }}
-            </option>
-        @endforeach
-    </select>
+<div class="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div>
+        <x-input-label for="jenis" value="Jenis Berita" />
+        <select id="jenis" name="jenis" required
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+            @foreach (\App\Models\Berita::JENIS as $jenis)
+                <option value="{{ $jenis }}"
+                        {{ old('jenis', $berita->jenis ?? 'Berita') === $jenis ? 'selected' : '' }}>
+                    {{ $jenis }}
+                </option>
+            @endforeach
+        </select>
+    </div>
+    <div>
+        <x-input-label for="tanggal_terbit" value="Tanggal Terbit (opsional)" />
+        <x-text-input id="tanggal_terbit" name="tanggal_terbit" type="date" class="mt-1 block w-full"
+                      max="{{ now()->toDateString() }}"
+                      value="{{ old('tanggal_terbit', isset($berita) && $berita->tanggal_terbit ? $berita->tanggal_terbit->format('Y-m-d') : '') }}" />
+        <p class="text-xs text-gray-500 mt-1">Kosongkan jika tidak diisi. Tanggal tidak boleh setelah hari ini.</p>
+    </div>
 </div>
 
 <div class="mb-4">

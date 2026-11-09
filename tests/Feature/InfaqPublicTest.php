@@ -3,7 +3,7 @@
 use App\Models\Infaq;
 use Illuminate\Support\Facades\Storage;
 
-test('public infaq page renders the donation form and total', function () {
+test('public infaq page renders the donation form and totals without listing donor names', function () {
     Infaq::create([
         'kode_transaksi' => 'INF-LUNAS01',
         'nama_donatur' => 'Bu Siti',
@@ -18,16 +18,19 @@ test('public infaq page renders the donation form and total', function () {
         ->assertSee('Infak & Sedekah')
         ->assertSee('150.000')
         ->assertSee('1 transaksi')
-        ->assertSee('Bu Siti')
         ->assertSee('name="nominal"', false)
         ->assertSee(route('infaq.store'), false)
-        ->assertSee('Tautan Navigasi');
+        ->assertSee('Tautan Navigasi')
+        // Hanya donatur yang dihapus dari tampilan publik (nama tidak ditampilkan).
+        ->assertDontSee('Bu Siti')
+        ->assertDontSee('Donatur Terbaru');
 });
 
 test('public infaq page keeps an empty state when there is no donation yet', function () {
     $this->get('/infaq')
         ->assertOk()
-        ->assertSee('Belum ada infak yang tercatat.');
+        ->assertSee('Infak & Sedekah')
+        ->assertSee('name="nominal"', false);
 });
 
 test('infaq form rejects a missing nominal', function () {

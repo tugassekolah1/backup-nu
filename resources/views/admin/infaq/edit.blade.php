@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Edit Transaksi Infaq
+            {{ ($arah ?? $infaq->arah ?? 'masuk') === 'keluar' ? 'Edit Pengeluaran' : 'Edit Pemasukan (Internal)' }}
         </h2>
     </x-slot>
 
@@ -18,12 +18,16 @@
                 <form action="{{ route('admin.infaq.update', $infaq) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
-                    @include('admin.infaq.p.form')
+                    @if (($arah ?? $infaq->arah ?? 'masuk') === 'keluar')
+                        @include('admin.infaq.p.form-keluar')
+                    @else
+                        @include('admin.infaq.p.form-masuk')
+                    @endif
 
                     <div class="mt-6 flex gap-2">
                         <button type="submit"
                                 class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg">
-                            Update
+                            Simpan Perubahan
                         </button>
                         <a href="{{ route('admin.infaq.index') }}"
                            class="bg-gray-200 hover:bg-gray-300 px-5 py-2 rounded-lg">

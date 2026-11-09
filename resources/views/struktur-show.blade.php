@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id" class="scroll-smooth">
 <head>
-    <x-public-head title="{{ $pengurus->nama }} — {{ $pengurus->jabatan }} — NU Banjaranyar" />
+    <x-public-head title="{{ $pengurus->nama }} — {{ $pengurus->jabatan }} — NU Kecamatan Cilongok" />
 
     <style>
         .bg-grid-light {
@@ -40,7 +40,7 @@
                     {{ $pengurus->nama }}
                 </h1>
                 <p class="mt-3 max-w-2xl text-base sm:text-lg leading-relaxed text-white/80">
-                    {{ $pengurus->jabatan }} — {{ $pengurus->label_banom ?? 'Pengurus NU Banjaranyar' }}
+                    {{ $pengurus->jabatan }} — {{ $pengurus->label_banom ?? 'Pengurus NU Kecamatan Cilongok' }}
                 </p>
             </div>
         </header>
@@ -80,7 +80,7 @@
 
                         <p class="mt-6 text-sm sm:text-base text-muted-charcoal leading-relaxed">
                             Beliau mengemban amanah sebagai {{ strtolower($pengurus->jabatan) }}
-                            pada {{ $pengurus->label_banom ?? 'kepengurusan NU Banjaranyar' }} masa khidmat berjalan,
+                            pada {{ $pengurus->label_banom ?? 'kepengurusan NU Kecamatan Cilongok' }} masa khidmat berjalan,
                             melayani jamaah dan mengoordinasikan kegiatan organisasi.
                         </p>
 

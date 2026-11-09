@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -30,7 +31,7 @@ class Berita extends Model
      * `views` sengaja tidak masuk $fillable: penghitung pembaca hanya boleh
      * berubah lewat increment() di halaman publik, bukan lewat input massal.
      */
-    protected $fillable = ['judul', 'slug', 'jenis', 'isi', 'gambar', 'gambar_url', 'user_id', 'status'];
+    protected $fillable = ['judul', 'slug', 'jenis', 'tanggal_terbit', 'isi', 'gambar', 'gambar_url', 'user_id', 'status'];
 
     protected $attributes = [
         'jenis' => 'Berita',
@@ -40,11 +41,21 @@ class Berita extends Model
     protected $casts = [
         'status' => 'boolean',
         'views' => 'integer',
+        'tanggal_terbit' => 'date',
     ];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Tanggal tampil untuk berita: tanggal_terbit bila diisi admin,
+     * jatuh ke created_at untuk data lama yang belum punya tanggal_terbit.
+     */
+    public function getTanggalTampilAttribute(): ?CarbonInterface
+    {
+        return $this->tanggal_terbit ?? $this->created_at;
     }
 
     /**
@@ -83,10 +94,12 @@ class Berita extends Model
      */
     public function scopeSorted(Builder $query, ?string $sort = null): Builder
     {
+        // Urutkan berdasarkan tanggal tampil (tanggal_terbit, fallback created_at).
+        // COALESCE menjaga data lama (tanggal_terbit NULL) tetap terurut seperti semula.
         return match ($sort) {
-            'terlama' => $query->orderBy('created_at')->orderBy('id'),
-            'terpopuler' => $query->orderByDesc('views')->orderByDesc('created_at')->orderByDesc('id'),
-            default => $query->orderByDesc('created_at')->orderByDesc('id'),
+            'terlama' => $query->orderByRaw('COALESCE(tanggal_terbit, created_at) ASC')->orderBy('created_at')->orderBy('id'),
+            'terpopuler' => $query->orderByDesc('views')->orderByRaw('COALESCE(tanggal_terbit, created_at) DESC')->orderByDesc('created_at')->orderByDesc('id'),
+            default => $query->orderByRaw('COALESCE(tanggal_terbit, created_at) DESC')->orderByDesc('created_at')->orderByDesc('id'),
         };
     }
 
@@ -109,5 +122,17 @@ class Berita extends Model
                 });
             })
             ->when(in_array($jenis, self::JENIS, true), fn (Builder $query) => $query->where('jenis', $jenis));
+    }
+
+    /**
+     * Estimasi waktu baca berdasarkan jumlah kata (±200 kata/menit).
+     */
+    public function getEstimasiBacaAttribute(): string
+    {
+        $teks = trim(strip_tags((string) $this->isi));
+        $jumlahKata = $teks === '' ? 0 : str_word_count($teks);
+        $menit = max(1, (int) ceil($jumlahKata / 200));
+
+        return $menit.' menit baca';
     }
 }

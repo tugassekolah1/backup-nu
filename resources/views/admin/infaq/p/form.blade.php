@@ -71,7 +71,9 @@
     <div class="mb-4">
         <x-input-label for="paid_at" value="Tanggal Bayar" />
         <x-text-input id="paid_at" name="paid_at" type="date" class="mt-1 block w-full"
-                      value="{{ old('paid_at', isset($infaq) && $infaq->paid_at ? $infaq->paid_at->format('Y-m-d') : '') }}" />
+                      max="{{ now()->toDateString() }}"
+                      value="{{ old('paid_at', isset($infaq) && $infaq->paid_at ? $infaq->paid_at->format('Y-m-d') : '') }}"
+                      onchange="if(this.value && this.value > this.max) this.value = this.max;" />
         <p class="text-xs text-gray-500 mt-1">Diisi otomatis saat status Lunas.</p>
     </div>
 </div>

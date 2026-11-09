@@ -8,6 +8,17 @@ use Illuminate\Http\Request;
 
 class AgendaController extends Controller
 {
+    /**
+     * Halaman publik akan menampilkan agenda ini sebagai agenda yang
+     * sudah lewat, karena tanggalnya sebelum hari ini.
+     */
+    private function pastWarning(Agenda $agenda): ?string
+    {
+        return $agenda->isPast()
+            ? 'Catatan: tanggal acara sebelum hari ini, jadi agenda ini akan tampil sebagai agenda yang sudah lewat di halaman publik.'
+            : null;
+    }
+
     public function publicIndex()
     {
         $upcomingAgenda = Agenda::where('event_date', '>=', today())
@@ -54,16 +65,18 @@ class AgendaController extends Controller
         $validated = $request->validate([
             'title' => 'required|max:255',
             'category' => 'required|max:100',
-            'event_date' => 'required|date',
+            'event_date' => ['required', 'date', 'after_or_equal:'.today()->toDateString()],
             'event_time' => 'nullable|max:50',
             'location' => 'nullable|max:255',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
             'maps_url' => 'nullable|url|max:500',
             'description' => 'nullable',
+        ], [
+            'event_date.after_or_equal' => 'Tanggal agenda tidak boleh sebelum hari ini.',
         ]);
 
-        Agenda::create($validated);
+        $agenda = Agenda::create($validated);
 
         return redirect()
             ->route('agenda.index')
@@ -80,13 +93,15 @@ class AgendaController extends Controller
         $validated = $request->validate([
             'title' => 'required|max:255',
             'category' => 'required|max:100',
-            'event_date' => 'required|date',
+            'event_date' => ['required', 'date', 'after_or_equal:'.today()->toDateString()],
             'event_time' => 'nullable|max:50',
             'location' => 'nullable|max:255',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
             'maps_url' => 'nullable|url|max:500',
             'description' => 'nullable',
+        ], [
+            'event_date.after_or_equal' => 'Tanggal agenda tidak boleh sebelum hari ini.',
         ]);
 
         $agenda->update($validated);

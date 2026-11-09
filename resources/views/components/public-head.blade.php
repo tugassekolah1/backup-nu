@@ -1,4 +1,4 @@
-@props(['title' => 'Nahdlatul Ulama Banjaranyar, Cilongok - Berkhidmat untuk Umat'])
+@props(['title' => 'Nahdlatul Ulama Kecamatan Cilongok - Berkhidmat untuk Umat'])
 
 <meta charset="utf-8">
 <meta content="width=device-width, initial-scale=1.0" name="viewport">

@@ -192,7 +192,7 @@ class ComprehensiveDataSeeder extends Seeder
             // contoh foto kegiatan umum yang tidak terikat satu banom.
             $org = $i % 4 === 0 ? null : ($organisasi[array_rand($organisasi)] ?? null);
 
-            $namaOrg = $org['nama'] ?? 'Nahdlatul Ulama Ranting Banjaranyar';
+            $namaOrg = $org['nama'] ?? 'Nahdlatul Ulama Kecamatan Cilongok';
             $singkat = $org['singkatan'] ?? 'Kegiatan Umum';
 
             Gallery::create([

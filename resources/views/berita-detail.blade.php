@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id" class="scroll-smooth">
 <head>
-    <x-public-head title="{{ $berita->judul }} — Berita NU Banjaranyar" />
+    <x-public-head title="{{ $berita->judul }} — Berita NU Kecamatan Cilongok" />
 
     <style>
         /* Entrance animation (hormati reduced motion) */
@@ -93,6 +93,10 @@
                         <span class="material-symbols-outlined text-[17px]">visibility</span>
                         {{ number_format($berita->views) }} kali dibaca
                     </span>
+                    <span class="inline-flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-[17px]">schedule</span>
+                        {{ $berita->estimasi_baca }}
+                    </span>
                 </div>
             </div>
         </header>
@@ -130,24 +134,26 @@
                     </div>
 
                     {{-- Bagikan --}}
-                    <div class="mt-8 pt-6 border-t border-border-neutral flex flex-wrap items-center gap-3">
-                        <span class="text-xs font-bold uppercase tracking-wider text-muted-charcoal">Bagikan:</span>
-                        <a class="inline-flex items-center gap-2 min-h-[44px] px-5 rounded-full bg-nu-deep text-white text-sm font-semibold hover:bg-[#113725] shadow-subtle transition-all active:scale-95"
-                           href="https://wa.me/?text={{ urlencode($berita->judul . ' — ' . route('berita.show', $berita->slug)) }}"
-                           rel="noopener noreferrer" target="_blank">
-                            <span class="material-symbols-outlined text-[18px]">chat</span>
-                            <span>WhatsApp</span>
-                        </a>
-                        <button type="button" id="salin-tautan"
-                                class="inline-flex items-center gap-2 min-h-[44px] px-5 rounded-full bg-warm-bg border border-border-neutral text-charcoal text-sm font-semibold hover:bg-warm-beige/60 transition-colors">
-                            <span class="material-symbols-outlined text-[18px]">link</span>
-                            <span id="salin-label">Salin Tautan</span>
-                        </button>
-                        <a class="inline-flex items-center gap-2 min-h-[44px] px-5 rounded-full bg-warm-bg border border-border-neutral text-charcoal text-sm font-semibold hover:bg-warm-beige/60 transition-colors"
-                           href="{{ route('berita.public') }}">
-                            <span class="material-symbols-outlined text-[18px]">arrow_back</span>
-                            <span>Kembali ke Berita</span>
-                        </a>
+                    <div class="mt-8 pt-6 border-t border-border-neutral">
+                        <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                            <span class="text-xs font-bold uppercase tracking-wider text-muted-charcoal mr-1">Bagikan:</span>
+                            <a class="inline-flex items-center justify-center h-11 w-11 shrink-0 rounded-full bg-nu-deep text-white hover:bg-[#113725] shadow-subtle transition-all active:scale-95"
+                               href="https://wa.me/?text={{ urlencode($berita->judul . ' — ' . route('berita.show', $berita->slug)) }}"
+                               rel="noopener noreferrer" target="_blank"
+                               aria-label="Bagikan ke WhatsApp" title="Bagikan ke WhatsApp">
+                                <span class="material-symbols-outlined text-[20px]">chat</span>
+                            </a>
+                            <button type="button" id="salin-tautan"
+                                    class="inline-flex items-center justify-center gap-2 h-11 px-4 sm:px-5 rounded-full bg-warm-bg border border-border-neutral text-charcoal text-sm font-semibold hover:bg-warm-beige/60 transition-colors shrink-0">
+                                <span class="material-symbols-outlined text-[18px]">link</span>
+                                <span id="salin-label">Salin Tautan</span>
+                            </button>
+                            <a class="inline-flex items-center justify-center gap-2 h-11 px-4 sm:px-5 rounded-full bg-warm-bg border border-border-neutral text-charcoal text-sm font-semibold hover:bg-warm-beige/60 transition-colors"
+                               href="{{ route('berita.public') }}">
+                                <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+                                <span>Kembali ke Berita</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -162,7 +168,7 @@
                         Warta Terbaru
                     </span>
                     <h2 class="font-heading text-3xl sm:text-4xl font-extrabold text-charcoal tracking-tight">Berita Lainnya</h2>
-                    <p class="text-base text-muted-charcoal mt-2">Kabar terkini dari ranting dan lembaga Banjaranyar.</p>
+                    <p class="text-base text-muted-charcoal mt-2">Kabar terkini dari ranting dan lembaga Kecamatan Cilongok.</p>
                 </div>
                 <a href="{{ route('berita.public') }}"
                    class="w-fit text-sm font-semibold text-nu-deep bg-warm-card border border-border-neutral rounded-full px-4 py-1.5 hover:bg-warm-beige/60 transition-colors">

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id" class="scroll-smooth">
 <head>
-    <x-public-head title="Kotak Aspirasi — NU Banjaranyar" />
+    <x-public-head title="Kotak Aspirasi — NU Kecamatan Cilongok" />
 </head>
 
 <body class="bg-warm-bg text-charcoal antialiased selection:bg-muted-sage selection:text-nu-deep">
@@ -34,7 +34,7 @@
                         </h1>
 
                         <p class="mt-5 text-base sm:text-lg text-white/80 leading-relaxed max-w-xl">
-                            Punya usul, kritik, atau ide untuk kemajuan Nahdlatul Ulama Desa Banjaranyar?
+                            Punya usul, kritik, atau ide untuk kemajuan Nahdlatul Ulama Kecamatan Cilongok?
                             Sampaikan di sini — pengurus akan membaca dan menindaklanjuti setiap aspirasi.
                         </p>
                     </div>
@@ -445,7 +445,7 @@
                         Setiap Suara Warga Berharga
                     </h2>
                     <p class="text-base text-muted-charcoal leading-relaxed">
-                        Aspirasi yang membangun membantu pengurus menyusun program kerja yang lebih sesuai dengan kebutuhan jamaah Banjaranyar.
+                        Aspirasi yang membangun membantu pengurus menyusun program kerja yang lebih sesuai dengan kebutuhan jamaah Kecamatan Cilongok.
                     </p>
                 </div>
                 <div class="relative shrink-0">

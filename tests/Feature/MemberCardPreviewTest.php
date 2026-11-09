@@ -11,7 +11,7 @@ function paidMemberForCardPreview(array $overrides = []): NuMember
         'full_name' => 'Fulanah Kartunah',
         'phone' => '081234567802',
         'gender' => 'P',
-        'address' => 'Banjaranyar',
+        'address' => 'Kecamatan Cilongok',
         'status' => 'active',
         'registration_status' => 'accepted',
         'member_card_no' => 'NU-2026-301',
@@ -22,7 +22,7 @@ function paidMemberForCardPreview(array $overrides = []): NuMember
 test('the kartu anggota page keeps its search form for guests', function () {
     $this->get(route('members.card'))
         ->assertOk()
-        ->assertSee('Kartu Anggota — NU Banjaranyar', false)
+        ->assertSee('Kartu Anggota — NU Kecamatan Cilongok', false)
         ->assertSee('name="nik"', false)
         // Belum ada pencarian: form tetap paling atas.
         ->assertDontSee('search-card search-card-below', false);

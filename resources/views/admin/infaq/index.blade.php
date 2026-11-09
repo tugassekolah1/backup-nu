@@ -1,27 +1,36 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div class="flex items-start sm:items-center gap-3 min-w-0">
+                <div class="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl shrink-0">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2-1.343-2-3-2zm0 8c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm0-8c.343 0 .667.044.98.128M12 16v2m-6 0h12a2 2 0 002-2v-3a6 6 0 10-12 0v3a2 2 0 002 2z"/>
                     </svg>
                 </div>
-                <div>
+                <div class="min-w-0">
                     <h2 class="font-bold text-xl text-slate-800 leading-tight">
-                        Manajemen Infaq
+                        Manajemen Kas
                     </h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Catat dan pantau kas masuk & kas keluar infaq.</p>
+                    <p class="text-xs text-slate-500 mt-0.5">Pemasukan dicatat internal (tidak dipublikasikan). Pengeluaran/penyaluran dicatat terpisah untuk transparansi.</p>
                 </div>
             </div>
 
-            <a href="{{ route('admin.infaq.create') }}"
-               class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-xs hover:shadow-emerald-200 hover:shadow-md">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
-                <span>Catat Infaq</span>
-            </a>
+            <div class="flex flex-wrap items-center gap-2">
+                <a href="{{ route('admin.infaq.create', ['arah' => 'keluar']) }}"
+                   class="inline-flex items-center gap-2 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-xs">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    <span>Catat Pengeluaran</span>
+                </a>
+                <a href="{{ route('admin.infaq.create', ['arah' => 'masuk']) }}"
+                   class="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-900 active:scale-95 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-xs">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    <span>Catat Pemasukan</span>
+                </a>
+            </div>
         </div>
     </x-slot>
 
@@ -54,28 +63,17 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5">
                     <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Saldo Kas</p>
-                    <p class="text-2xl text-blue-600 font-black text-slate-900 mt-2">Rp {{ number_format($rekap['saldo'], 0, ',', '.') }}</p>
-                </div>
-                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5">
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Masuk (Lunas)</p>
-                    <p class="text-2xl font-black text-emerald-700 mt-2">Rp {{ number_format($rekap['total_lunas'], 0, ',', '.') }}</p>
-                </div>
-                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5">
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Keluar (Lunas)</p>
-                    <p class="text-2xl font-black text-rose-600 mt-2">Rp {{ number_format($rekap['total_keluar'], 0, ',', '.') }}</p>
-                </div>
-                
-                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5">
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Masuk Hari Ini</p>
-                    <p class="text-2xl font-black text-slate-900 mt-2">Rp {{ number_format($rekap['hari_ini'], 0, ',', '.') }}</p>
-                </div>
-                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5">
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Masuk Bulan Ini</p>
-                    <p class="text-2xl font-black text-slate-900 mt-2">Rp {{ number_format($rekap['bulan_ini'], 0, ',', '.') }}</p>
-                </div>
-                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5">
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Menunggu Bayar</p>
-                    <p class="text-2xl font-black text-amber-600 mt-2">{{ $rekap['pending'] }} transaksi</p>
+                    @php($saldo = (float) ($rekap['saldo'] ?? 0))
+                    <p class="text-2xl font-black mt-2 {{ $saldo < 0 ? 'text-rose-600' : 'text-slate-900' }}">
+                        @if ($saldo < 0)
+                            -Rp {{ number_format(abs($saldo), 0, ',', '.') }}
+                        @else
+                            Rp {{ number_format($saldo, 0, ',', '.') }}
+                        @endif
+                    </p>
+                    @if ($saldo < 0)
+                        <p class="mt-1 text-xs font-semibold text-rose-600">Defisit (pengeluaran melebihi pemasukan tercatat).</p>
+                    @endif
                 </div>
             </div>
 
@@ -311,7 +309,7 @@
                                                 @if ($filtering)
                                                     Tidak ada transaksi yang cocok dengan pencarian Anda.
                                                 @else
-                                                    Belum ada transaksi infaq.
+                                                    Belum ada transaksi.
                                                 @endif
                                             </p>
                                             @if ($filtering)
@@ -319,9 +317,15 @@
                                                     Reset pencarian
                                                 </a>
                                             @else
-                                                <a href="{{ route('admin.infaq.create') }}" class="text-xs font-bold text-blue-600 hover:underline">
-                                                    + Catat transaksi pertama
-                                                </a>
+                                                <div class="flex flex-wrap items-center justify-center gap-2">
+                                                    <a href="{{ route('admin.infaq.create', ['arah' => 'keluar']) }}" class="text-xs font-bold text-rose-600 hover:underline">
+                                                        + Catat pengeluaran
+                                                    </a>
+                                                    <span class="text-slate-300">·</span>
+                                                    <a href="{{ route('admin.infaq.create', ['arah' => 'masuk']) }}" class="text-xs font-bold text-slate-700 hover:underline">
+                                                        + Catat pemasukan (internal)
+                                                    </a>
+                                                </div>
                                             @endif
                                         </div>
                                     </td>

@@ -61,6 +61,7 @@ class BeritaController extends Controller
             'judul' => 'required|max:255|unique:beritas,judul',
             'slug' => $this->slugRules(),
             'jenis' => ['required', Rule::in(Berita::JENIS)],
+            'tanggal_terbit' => ['nullable', 'date', 'before_or_equal:'.today()->toDateString()],
             'isi' => 'required',
             'gambar' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'gambar_url' => 'nullable|url|max:500',
@@ -71,10 +72,13 @@ class BeritaController extends Controller
             'slug.regex' => 'Slug hanya boleh berisi huruf kecil, angka, dan tanda strip (-).',
             'jenis.in' => 'Jenis berita tidak dikenali.',
             'gambar_url.url' => 'URL gambar harus format URL yang valid.',
+            'tanggal_terbit.date' => 'Format tanggal terbit tidak valid.',
+            'tanggal_terbit.before_or_equal' => 'Tanggal terbit tidak boleh setelah hari ini.',
         ]);
 
         $validated['slug'] = $validated['slug'] ?? $this->generateUniqueSlug($validated['judul']);
         $validated['user_id'] = auth()->id();
+        $validated['tanggal_terbit'] = ! empty($validated['tanggal_terbit'] ?? null) ? $validated['tanggal_terbit'] : null;
 
         // Prioritas: jika ada file upload, gunakan itu. Jika ada URL, gunakan URL.
         if ($request->hasFile('gambar')) {
@@ -115,6 +119,7 @@ class BeritaController extends Controller
             'judul' => 'required|max:255',
             'slug' => $this->slugRules($berita->id),
             'jenis' => ['required', Rule::in(Berita::JENIS)],
+            'tanggal_terbit' => ['nullable', 'date', 'before_or_equal:'.today()->toDateString()],
             'isi' => 'required',
             'gambar' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'gambar_url' => 'nullable|url|max:500',
@@ -124,9 +129,12 @@ class BeritaController extends Controller
             'slug.regex' => 'Slug hanya boleh berisi huruf kecil, angka, dan tanda strip (-).',
             'jenis.in' => 'Jenis berita tidak dikenali.',
             'gambar_url.url' => 'URL gambar harus format URL yang valid.',
+            'tanggal_terbit.date' => 'Format tanggal terbit tidak valid.',
+            'tanggal_terbit.before_or_equal' => 'Tanggal terbit tidak boleh setelah hari ini.',
         ]);
 
         $validated['slug'] = $validated['slug'] ?? $this->generateUniqueSlug($validated['judul'], $berita->id);
+        $validated['tanggal_terbit'] = ! empty($validated['tanggal_terbit'] ?? null) ? $validated['tanggal_terbit'] : null;
 
         $gambarLama = $berita->gambar;
 
@@ -334,9 +342,14 @@ class BeritaController extends Controller
         $mulai = now()->startOfMonth()->subMonths($bulan - 1);
 
         $dikelompokkan = Berita::query()
-            ->where('created_at', '>=', $mulai)
-            ->get(['created_at', 'views'])
-            ->groupBy(fn (Berita $berita) => $berita->created_at->format('Y-m'));
+            ->where(function ($query) use ($mulai) {
+                $query->where('tanggal_terbit', '>=', $mulai->toDateString())
+                    ->orWhere(function ($query) use ($mulai) {
+                        $query->whereNull('tanggal_terbit')->where('created_at', '>=', $mulai);
+                    });
+            })
+            ->get(['created_at', 'tanggal_terbit', 'views'])
+            ->groupBy(fn (Berita $berita) => ($berita->tanggal_tampil ?? $berita->created_at)?->format('Y-m'));
 
         $hasil = [];
 

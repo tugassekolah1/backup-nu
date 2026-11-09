@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id" class="scroll-smooth">
 <head>
-    <x-public-head title="Galeri Kegiatan - NU Ranting Banjaranyar" />
+    <x-public-head title="Galeri Kegiatan - NU Kecamatan Cilongok" />
 
     <style>
         /* Entrance animation (hormati reduced motion) */
@@ -79,7 +79,7 @@
 
                     <p class="mt-5 text-base sm:text-lg text-white/80 leading-relaxed max-w-xl">
                         Dokumentasi rekam jejak kegiatan keagamaan, sosial, dan keorganisasian
-                        Nahdlatul Ulama Ranting Banjaranyar.
+                        Nahdlatul Ulama Kecamatan Cilongok.
                     </p>
                 </div>
 
@@ -187,7 +187,7 @@
                     @if ($organisasiAktif !== '')
                         Belum ada dokumentasi yang diunggah untuk organisasi ini.
                     @else
-                        Dokumentasi kegiatan Nahdlatul Ulama Ranting Banjaranyar akan muncul di sini
+                        Dokumentasi kegiatan Nahdlatul Ulama Kecamatan Cilongok akan muncul di sini
                         setelah diunggah oleh pengurus.
                     @endif
                 </p>

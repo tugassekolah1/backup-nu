@@ -28,7 +28,7 @@ class GalleryController extends Controller
         $galleries = Gallery::query()
             ->when($organisasiAktif !== '', fn (Builder $query) => $query->where('organisasi', $organisasiAktif))
             ->orderBy('urutan', 'asc')
-            ->orderBy('created_at', 'desc')
+            ->orderByRaw('COALESCE(tanggal, created_at) DESC')
             ->get();
 
         // Satu agregat untuk jumlah foto tiap organisasi (tanpa N+1).
@@ -88,22 +88,27 @@ class GalleryController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'judul' => 'required|string|max:255',
             'organisasi' => ['nullable', 'string', Rule::in(array_column(Gallery::daftarOrganisasi(), 'slug'))],
+            'tanggal' => ['nullable', 'date', 'before_or_equal:'.today()->toDateString()],
             'deskripsi' => 'nullable|string',
             'foto' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
             'urutan' => 'nullable|integer',
+        ], [
+            'tanggal.date' => 'Format tanggal foto tidak valid.',
+            'tanggal.before_or_equal' => 'Tanggal foto tidak boleh setelah hari ini.',
         ]);
 
         $fotoPath = $request->file('foto')->store('galleries', 'supabase');
 
         Gallery::create([
-            'judul' => $request->judul,
-            'organisasi' => $request->organisasi ?: null,
-            'deskripsi' => $request->deskripsi,
+            'judul' => $validated['judul'],
+            'organisasi' => ! empty($validated['organisasi'] ?? null) ? $validated['organisasi'] : null,
+            'tanggal' => ! empty($validated['tanggal'] ?? null) ? $validated['tanggal'] : null,
+            'deskripsi' => $validated['deskripsi'] ?? null,
             'foto' => $fotoPath,
-            'urutan' => $request->urutan ?? 0,
+            'urutan' => $validated['urutan'] ?? 0,
         ]);
 
         return redirect()->route('gallery.index')->with('success', 'Foto galeri berhasil ditambahkan.');
@@ -119,12 +124,16 @@ class GalleryController extends Controller
 
     public function update(Request $request, Gallery $gallery)
     {
-        $request->validate([
+        $validated = $request->validate([
             'judul' => 'required|string|max:255',
             'organisasi' => ['nullable', 'string', Rule::in(array_column(Gallery::daftarOrganisasi(), 'slug'))],
+            'tanggal' => ['nullable', 'date', 'before_or_equal:'.today()->toDateString()],
             'deskripsi' => 'nullable|string',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'urutan' => 'nullable|integer',
+        ], [
+            'tanggal.date' => 'Format tanggal foto tidak valid.',
+            'tanggal.before_or_equal' => 'Tanggal foto tidak boleh setelah hari ini.',
         ]);
 
         $fotoPath = $gallery->foto;
@@ -137,11 +146,12 @@ class GalleryController extends Controller
         }
 
         $gallery->update([
-            'judul' => $request->judul,
-            'organisasi' => $request->organisasi ?: null,
-            'deskripsi' => $request->deskripsi,
+            'judul' => $validated['judul'],
+            'organisasi' => ! empty($validated['organisasi'] ?? null) ? $validated['organisasi'] : null,
+            'tanggal' => ! empty($validated['tanggal'] ?? null) ? $validated['tanggal'] : null,
+            'deskripsi' => $validated['deskripsi'] ?? null,
             'foto' => $fotoPath,
-            'urutan' => $request->urutan ?? 0,
+            'urutan' => $validated['urutan'] ?? 0,
         ]);
 
         return redirect()->route('gallery.index')->with('success', 'Data galeri berhasil diperbarui.');

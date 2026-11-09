@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,9 +15,15 @@ class Gallery extends Model
     protected $fillable = [
         'judul',
         'organisasi',
+        'tanggal',
         'deskripsi',
         'foto',
         'urutan',
+    ];
+
+    protected $casts = [
+        'tanggal' => 'date',
+        'urutan' => 'integer',
     ];
 
     /**
@@ -27,6 +34,15 @@ class Gallery extends Model
      * mengulang logika ini sendiri dan bisa salah menggabungkan path absolut
      * dengan base URL.
      */
+    /**
+     * Tanggal tampil untuk foto: tanggal bila diisi admin,
+     * jatuh ke created_at untuk data lama yang belum punya tanggal.
+     */
+    public function getTanggalTampilAttribute(): ?CarbonInterface
+    {
+        return $this->tanggal ?? $this->created_at;
+    }
+
     protected function url(): Attribute
     {
         return Attribute::get(fn (): string => match (true) {

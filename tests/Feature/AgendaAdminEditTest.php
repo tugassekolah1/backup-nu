@@ -76,3 +76,70 @@ test('update does not create a duplicate agenda', function () {
     expect(Agenda::count())->toBe($before)
         ->and($agenda->fresh()->title)->toBe('Judul Baru');
 });
+
+test('storing an agenda dated before today is rejected', function () {
+    $this->actingAs(User::factory()->admin()->create())
+        ->from(route('agenda.create'))
+        ->post(route('agenda.store'), [
+            'title' => 'Agenda Selesai Kemarin',
+            'category' => 'Kegiatan',
+            'event_date' => now()->subDay()->toDateString(),
+        ])->assertSessionHasErrors('event_date');
+
+    expect(Agenda::where('title', 'Agenda Selesai Kemarin')->exists())->toBeFalse();
+});
+
+test('storing an agenda dated today is not past', function () {
+    $this->actingAs(User::factory()->admin()->create())
+        ->post(route('agenda.store'), [
+            'title' => 'Agenda Hari Ini',
+            'category' => 'Kegiatan',
+            'event_date' => now()->toDateString(),
+        ])->assertSessionHasNoErrors()
+        ->assertSessionHas('success')
+        ->assertSessionMissing('warning');
+});
+
+test('storing a future agenda is accepted', function () {
+    $this->actingAs(User::factory()->admin()->create())
+        ->post(route('agenda.store'), [
+            'title' => 'Agenda Mendatang',
+            'category' => 'Kegiatan',
+            'event_date' => now()->addDays(5)->toDateString(),
+        ])->assertSessionHasNoErrors()
+        ->assertSessionHas('success');
+});
+
+test('editing an agenda to a past date is rejected', function () {
+    $agenda = Agenda::create([
+        'title' => 'Agenda Bergeser',
+        'category' => 'Kegiatan',
+        'event_date' => now()->addDays(5)->toDateString(),
+    ]);
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->put(route('agenda.update', $agenda), [
+            'title' => 'Agenda Bergeser',
+            'category' => 'Kegiatan',
+            'event_date' => now()->subDays(3)->toDateString(),
+        ])->assertSessionHasErrors('event_date');
+
+    expect($agenda->fresh()->event_date->toDateString())->toBe(now()->addDays(5)->toDateString());
+});
+
+test('the agenda form enforces a minimum date of today', function () {
+    $today = now()->toDateString();
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->get(route('agenda.create'))
+        ->assertOk()
+        ->assertSee('id="past-date-hint"', false)
+        ->assertSee('min="'.$today.'"', false)
+        ->assertSee('tidak boleh sebelum hari ini', false);
+});
+
+test('agenda isPast is true only before today', function () {
+    expect((new Agenda(['event_date' => now()->subDay()->toDateString()]))->isPast())->toBeTrue()
+        ->and((new Agenda(['event_date' => now()->toDateString()]))->isPast())->toBeFalse()
+        ->and((new Agenda(['event_date' => now()->addDay()->toDateString()]))->isPast())->toBeFalse();
+});

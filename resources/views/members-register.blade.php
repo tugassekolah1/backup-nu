@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulir Pendaftaran Anggota — NU Banjaranyar</title>
+    <title>Formulir Pendaftaran Anggota — NU Kecamatan Cilongok</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
@@ -496,7 +496,7 @@
                 Keanggotaan Resmi
             </span>
             <h1>Formulir Pendaftaran Anggota</h1>
-            <p>Silakan lengkapi data diri Anda di bawah ini untuk bergabung sebagai anggota resmi NU Ranting Banjaranyar.</p>
+            <p>Silakan lengkapi data diri Anda di bawah ini untuk bergabung sebagai anggota resmi NU Kecamatan Cilongok.</p>
         </div>
     </header>
 
@@ -726,7 +726,7 @@
                 </div>
 
                 <p class="form-privacy">
-                    🔒 Data Anda dilindungi. Dengan mendaftar, Anda menyetujui data ini digunakan khusus untuk keperluan administrasi keanggotaan NU Ranting Banjaranyar.
+                    🔒 Data Anda dilindungi. Dengan mendaftar, Anda menyetujui data ini digunakan khusus untuk keperluan administrasi keanggotaan NU Kecamatan Cilongok.
                 </p>
 
                 <p class="form-privacy">
@@ -744,8 +744,8 @@
 
     <footer>
         <div class="container footer-inner">
-            <span>Copyright © {{ now()->year }} NU Ranting Banjaranyar. All rights reserved.</span>
-            <span>Kontak Admin: <strong>nubanjaranyar@gmail.com</strong></span>
+            <span>Copyright © {{ now()->year }} NU Kecamatan Cilongok. All rights reserved.</span>
+            <span>Kontak Admin: <strong>nukecamatancilongok@gmail.com</strong></span>
         </div>
     </footer>
 
@@ -767,7 +767,7 @@
                 <div><dt>Foto</dt><dd id="cfPhoto">—</dd></div>
             </dl>
 
-            <p class="confirm-note">Data Anda hanya dipakai untuk administrasi keanggotaan NU Ranting Banjaranyar.</p>
+            <p class="confirm-note">Data Anda hanya dipakai untuk administrasi keanggotaan NU Kecamatan Cilongok.</p>
 
             <div class="confirm-actions">
                 <button type="button" class="btn btn-secondary" id="confirmBack">Kembali Perbaiki</button>

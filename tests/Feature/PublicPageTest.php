@@ -8,7 +8,7 @@ test('landing page renders the shared public footer', function () {
     $this->get('/')
         ->assertOk()
         ->assertSee('Tautan Navigasi')
-        ->assertSee('NU BANJARANYAR');
+        ->assertSee('NU KECAMATAN CILONGOK');
 });
 
 test('landing page shows the core pengurus inti section', function () {
@@ -134,7 +134,7 @@ test('galeri page renders the shared public head and footer', function () {
         ->assertOk()
         ->assertSee('Dokumentasi rekam jejak')
         ->assertSee('Tautan Navigasi')
-        ->assertSee('NU BANJARANYAR');
+        ->assertSee('NU KECAMATAN CILONGOK');
 });
 
 test('galeri page renders the collage of photos with lightbox triggers', function () {

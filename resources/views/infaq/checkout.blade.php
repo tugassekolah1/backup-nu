@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id" class="scroll-smooth">
 <head>
-    <x-public-head title="Selesaikan Pembayaran — NU Banjaranyar" />
+    <x-public-head title="Selesaikan Pembayaran — NU Kecamatan Cilongok" />
 </head>
 
 <body class="bg-[#F5F7F4] text-[#17392D] antialiased selection:bg-[#E7ECE4] selection:text-[#16452F]">
@@ -102,7 +102,7 @@
                         <div class="mt-6 rounded-2xl border border-[#DCE4DE] bg-[#F5F7F4] p-6 text-center">
                             <p class="text-xs font-bold uppercase tracking-widest text-[#7B8780]">Transfer ke Rekening Berikut</p>
                             <p class="mt-3 font-mono text-2xl font-extrabold tracking-wider text-[#17392D]">8888 0101 2345 6789</p>
-                            <p class="mt-1 text-sm font-semibold text-[#526158]">Bank Contoh — a.n. LAZISNU Banjaranyar (DUMMY)</p>
+                            <p class="mt-1 text-sm font-semibold text-[#526158]">Bank Contoh — a.n. LAZISNU Kecamatan Cilongok (DUMMY)</p>
                             <p class="mt-1 text-xs text-[#7B8780]">Cantumkan kode <span class="font-mono font-bold">{{ $infaq->kode_transaksi }}</span> pada berita transfer.</p>
                         </div>
                     @else

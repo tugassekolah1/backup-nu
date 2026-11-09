@@ -49,16 +49,26 @@
                         </p>
                     </div>
 
+                    <div class="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <x-input-label for="tanggal" value="Tanggal Foto (opsional)" />
+                            <x-text-input id="tanggal" name="tanggal" type="date" class="mt-1 block w-full"
+                                          max="{{ now()->toDateString() }}"
+                                          value="{{ old('tanggal') }}"
+                                          onchange="if(this.value && this.value > this.max) this.value = this.max;" />
+                            <p class="mt-1 text-xs text-gray-500">Kosongkan jika tidak diisi. Maksimal hari ini (tidak bisa memilih tanggal setelah hari ini).</p>
+                        </div>
+                        <div>
+                            <x-input-label for="urutan" value="Urutan Tampilan" />
+                            <x-text-input id="urutan" name="urutan" type="number" class="mt-1 block w-full sm:w-32"
+                                          value="{{ old('urutan', 0) }}" />
+                        </div>
+                    </div>
+
                     <div class="mb-4">
                         <x-input-label for="deskripsi" value="Deskripsi / Keterangan" />
                         <textarea name="deskripsi" id="deskripsi" rows="3"
                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">{{ old('deskripsi') }}</textarea>
-                    </div>
-
-                    <div class="mb-4">
-                        <x-input-label for="urutan" value="Urutan Tampilan" />
-                        <x-text-input id="urutan" name="urutan" type="number" class="mt-1 block w-32"
-                                      value="{{ old('urutan', 0) }}" />
                     </div>
 
                     <div class="mb-4">

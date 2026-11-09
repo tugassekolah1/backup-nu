@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id" class="scroll-smooth">
 <head>
-    <x-public-head title="Infak Berhasil — NU Banjaranyar" />
+    <x-public-head title="Infak Berhasil — NU Kecamatan Cilongok" />
 </head>
 
 <body class="bg-[#F5F7F4] text-[#17392D] antialiased selection:bg-[#E7ECE4] selection:text-[#16452F]">

@@ -75,7 +75,7 @@ section.revealed .grid > *:nth-child(4) { animation-delay: 0.35s; }
                 </h1>
                 <!-- Warm Paragraph -->
                 <p class="text-base sm:text-lg text-muted-charcoal leading-relaxed mb-8 max-w-xl">
-                    Berkhidmah untuk Umat, Menjaga Tradisi Ahlussunnah wal Jama'ah. Wadah persaudaraan Nahdliyin desa Banjaranyar yang mandiri, guyub, dan penuh maslahat.
+                    Berkhidmah untuk Umat, Menjaga Tradisi Ahlussunnah wal Jama'ah. Wadah persaudaraan Nahdliyin Kecamatan Cilongok yang mandiri, guyub, dan penuh maslahat.
                 </p>
                 <!-- Direct High-Contrast Action CTAs -->
                 <div class="flex flex-wrap items-center gap-3 sm:gap-4">
@@ -135,7 +135,7 @@ section.revealed .grid > *:nth-child(4) { animation-delay: 0.35s; }
                         <span>Jadwal Pengajian Ranting</span>
                     </div>
                     <h2 class="text-3xl sm:text-4xl font-extrabold text-charcoal tracking-tight">Agenda Terdekat</h2>
-                    <p class="text-base text-muted-charcoal mt-1">Ikuti kegiatan & pengajian NU yang akan datang di wilayah Banjaranyar.</p>
+                    <p class="text-base text-muted-charcoal mt-1">Ikuti kegiatan & pengajian NU yang akan datang di wilayah Kecamatan Cilongok.</p>
                 </div>
                 <a class="inline-flex items-center gap-2 font-semibold text-sm text-nu-deep hover:text-charcoal transition-colors group" href="{{ route('agenda.public') }}">
                     <span>Lihat Semua Agenda</span>
@@ -228,7 +228,7 @@ section.revealed .grid > *:nth-child(4) { animation-delay: 0.35s; }
                                    class="flex items-center gap-2 text-xs font-medium text-muted-charcoal hover:text-nu-deep transition-colors group/loc"
                                    title="Buka lokasi di Google Maps">
                                     <span class="material-symbols-outlined text-[18px] text-muted-charcoal">apartment</span>
-                                    <span class="group-hover/loc:underline underline-offset-2">{{ $agenda->location ?? $agenda->lokasi ?? 'Aula Gedung Ranting PRNU Banjaranyar' }}</span>
+                                    <span class="group-hover/loc:underline underline-offset-2">{{ $agenda->location ?? $agenda->lokasi ?? 'Aula Gedung Ranting PRNU Kecamatan Cilongok' }}</span>
                                 </a>
                             </div>
                             <div class="mt-4 pt-4 border-t border-border-neutral flex items-center justify-between">
@@ -309,7 +309,7 @@ section.revealed .grid > *:nth-child(4) { animation-delay: 0.35s; }
                 <span>Baca Selengkapnya</span>
                 <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
             </a>
-            <span class="text-xs text-muted-charcoal shrink-0">4 menit baca</span>
+            <span class="text-xs text-muted-charcoal shrink-0">{{ $featuredNews->estimasi_baca }}</span>
         </div>
     </article>
 @endif
@@ -415,7 +415,7 @@ section.revealed .grid > *:nth-child(4) { animation-delay: 0.35s; }
                         </div>
                         <h3 class="text-xl font-bold text-charcoal mb-2 group-hover:text-nu-deep transition-colors">Koin NU & ZISWAF</h3>
                         <p class="text-sm text-muted-charcoal leading-relaxed">
-                            Layanan jemput koin infaq, zakat fitrah & mal via UPZIS LAZISNU Banjaranyar secara amanah.
+                            Layanan jemput koin infaq, zakat fitrah & mal via UPZIS LAZISNU Kecamatan Cilongok secara amanah.
                         </p>
                     </div>
                     <div class="mt-8 pt-4 border-t border-border-neutral flex items-center justify-between text-sm font-semibold text-nu-deep">
@@ -447,7 +447,7 @@ section.revealed .grid > *:nth-child(4) { animation-delay: 0.35s; }
         <div class="max-w-7xl mx-auto px-4 sm:px-8">
             <div class="flex items-center justify-between mb-6">
                 <span class="text-xs font-bold uppercase tracking-wider text-muted-charcoal">Informasi & Layanan Lainnya</span>
-                <span class="text-xs text-muted-charcoal">Sekretariat PRNU Banjaranyar</span>
+                <span class="text-xs text-muted-charcoal">Sekretariat PRNU Kecamatan Cilongok</span>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <!-- Item 1 -->
@@ -613,13 +613,13 @@ section.revealed .grid > *:nth-child(4) { animation-delay: 0.35s; }
                         Salurkan Koin NU & Sedekah untuk Warga Membutuhkan
                     </h3>
                     <p class="text-base text-muted-charcoal leading-relaxed mb-6">
-                        UPZIS LAZISNU Banjaranyar menyalurkan amanah donasi untuk biaya kesehatan warga dhuafa, beasiswa santri madrasah, dan santunan yatim piatu desa secara berkala dan terbuka.
+                        UPZIS LAZISNU Kecamatan Cilongok menyalurkan amanah donasi untuk biaya kesehatan warga dhuafa, beasiswa santri madrasah, dan santunan yatim piatu desa secara berkala dan terbuka.
                     </p>
                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-card bg-warm-bg border border-border-neutral">
                         <div class="flex-1">
                             <span class="text-xs text-muted-charcoal block">Rekening Bank Syariah Indonesia (BSI)</span>
                             <span class="text-xl font-bold font-mono text-charcoal tracking-wider">{{ $infaqInfo['rekening'] ?? '7192-8821-09' }}</span>
-                            <span class="text-xs text-muted-charcoal block">a.n. LAZISNU BANJARANYAR</span>
+                            <span class="text-xs text-muted-charcoal block">a.n. LAZISNU KECAMATAN CILONGOK</span>
                         </div>
                         <button class="px-4 py-2.5 min-h-[44px] rounded-btn bg-warm-card hover:bg-warm-beige text-charcoal text-xs font-bold border border-border-subtle flex items-center gap-1.5 shadow-subtle active:scale-95 transition-all" onclick="navigator.clipboard.writeText('{{ $infaqInfo['rekening'] ?? '7192882109' }}'); alert('Nomor Rekening BSI Tersalin');">
                             <span class="material-symbols-outlined text-[16px] text-muted-charcoal">content_copy</span>
@@ -714,7 +714,7 @@ section.revealed .grid > *:nth-child(4) { animation-delay: 0.35s; }
                     </p>
                 </div>
                 <div class="shrink-0 flex flex-col sm:flex-row items-center gap-3">
-                    <a class="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 min-h-[50px] rounded-btn bg-nu-deep hover:bg-[#113725] text-white font-bold text-base shadow-subtle transition-all active:scale-95" href="https://wa.me/{{ $kontak['whatsapp'] ?? '6281234567890' }}?text=Assalamu%27alaikum%20Pengurus%20NU%20Banjaranyar" rel="noopener noreferrer" target="_blank">
+                    <a class="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 min-h-[50px] rounded-btn bg-nu-deep hover:bg-[#113725] text-white font-bold text-base shadow-subtle transition-all active:scale-95" href="https://wa.me/{{ $kontak['whatsapp'] ?? '6281234567890' }}?text=Assalamu%27alaikum%20Pengurus%20NU%20Kecamatan%20Cilongok" rel="noopener noreferrer" target="_blank">
                         <span class="material-symbols-outlined text-[24px]">chat</span>
                         <div class="text-left">
                             <span class="block text-[11px] font-normal uppercase tracking-wider text-white/80">WhatsApp Sekretariat</span>
@@ -722,7 +722,7 @@ section.revealed .grid > *:nth-child(4) { animation-delay: 0.35s; }
                         </div>
                     </a>
                     <a class="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 min-h-[50px] rounded-btn bg-warm-card hover:bg-warm-beige text-charcoal font-bold text-base border border-border-subtle shadow-subtle transition-all active:scale-95"
-                       href="https://www.google.com/maps/dir/?api=1&destination={{ urlencode('Gedung Sekretariat PRNU, Jl. Raya Cilongok No. 12, Banjaranyar, Banyumas, Jawa Tengah 53162') }}"
+                       href="https://www.google.com/maps/dir/?api=1&destination={{ urlencode('Gedung Sekretariat PRNU, Jl. Raya Cilongok No. 12, Kecamatan Cilongok, Banyumas, Jawa Tengah 53162') }}"
                        rel="noopener noreferrer" target="_blank">
                         <span class="material-symbols-outlined text-[24px]">directions</span>
                         <div class="text-left">

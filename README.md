@@ -1,6 +1,6 @@
-# Website NU Banjaranyar
+# Website NU Kecamatan Cilongok
 
-Website resmi **Nahdlatul Ulama Banjaranyar, Cilongok** — berisi profil organisasi, berita,
+Website resmi **Nahdlatul Ulama Kecamatan Cilongok** — berisi profil organisasi, berita,
 agenda, galeri, kotak aspirasi, infaq, serta pendaftaran & pencetakan Kartu Tanda Anggota (KTA).
 
 Dokumen ini adalah panduan untuk developer/pengelola teknis: cara menjalankan, mengatur
@@ -106,7 +106,7 @@ Variabel yang paling sering disesuaikan:
 | --- | --- |
 | `APP_NAME` | Nama yang tampil di panel admin & judul halaman |
 | `APP_ENV`, `APP_DEBUG` | `production` / `false` di server |
-| `APP_URL` | Alamat lengkap, mis. `https://nu-banjaranyar.sch.id` |
+| `APP_URL` | Alamat lengkap, mis. `https://nu-kecamatan-cilongok.sch.id` |
 | `DB_CONNECTION`, `DB_*` | Database (default `sqlite`; disarankan MySQL/PostgreSQL untuk produksi) |
 | `MAIL_*` | Pengiriman email (default `log` = hanya ditulis ke log) |
 | `SESSION_SECURE_COOKIE=true` | Wajib bila situs sudah HTTPS |

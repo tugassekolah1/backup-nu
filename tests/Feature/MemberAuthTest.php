@@ -13,7 +13,7 @@ function memberForAuthTests(array $overrides = []): NuMember
         'full_name' => 'Anggota Aktif',
         'phone' => '081234567891',
         'gender' => 'L',
-        'address' => 'Banjaranyar',
+        'address' => 'Kecamatan Cilongok',
         'status' => 'active',
         'registration_status' => 'accepted',
         'member_card_no' => 'NU-2026-401',
@@ -119,7 +119,7 @@ test('a member can update their own profile data', function () {
             'phone' => '628123456789',
             'gender' => 'P',
             'organisasi' => 'pac_fatayat',
-            'address' => 'Banjaranyar RT 01 RW 02',
+            'address' => 'Kecamatan Cilongok RT 01 RW 02',
         ])->assertRedirect(route('member.profile.edit'))
         ->assertSessionHasNoErrors();
 
@@ -130,7 +130,7 @@ test('a member can update their own profile data', function () {
         ->and($member->gender)->toBe('P')
         ->and($member->organisasi)->toBe('pac_fatayat')
         ->and($member->label_organisasi)->toBe(Pengurus::BANOMS['pac_fatayat']['label'])
-        ->and($member->address)->toBe('Banjaranyar RT 01 RW 02');
+        ->and($member->address)->toBe('Kecamatan Cilongok RT 01 RW 02');
 });
 
 test('a member cannot change their own nik', function () {
@@ -143,7 +143,7 @@ test('a member cannot change their own nik', function () {
             'phone' => '081234567891',
             'gender' => 'L',
             'organisasi' => 'pac_ansor',
-            'address' => 'Banjaranyar',
+            'address' => 'Kecamatan Cilongok',
         ])->assertSessionHasNoErrors();
 
     expect($member->refresh()->nik)->toBe('3300000000000401');
@@ -183,7 +183,7 @@ test('the updated data is visible on the public card page immediately', function
             'phone' => '081234567891',
             'gender' => 'L',
             'organisasi' => 'pac_fatayat',
-            'address' => 'Banjaranyar',
+            'address' => 'Kecamatan Cilongok',
         ])->assertSessionHasNoErrors();
 
     $this->get(route('members.card', ['nik' => $member->nik, 'phone' => $member->phone]))
@@ -290,7 +290,7 @@ test('public registration requires a password', function () {
         'full_name' => 'Tanpa Sandi',
         'phone' => '081234567899',
         'gender' => 'L',
-        'address' => 'Banjaranyar',
+        'address' => 'Kecamatan Cilongok',
     ])->assertSessionHasErrors('password');
 
     expect(NuMember::where('nik', '3300000000000499')->exists())->toBeFalse();

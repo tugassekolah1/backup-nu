@@ -239,15 +239,17 @@ test('unknown status filter is ignored', function () {
         ->assertSee('INF-ANYST01');
 });
 
-test('infaq recap shows correct totals', function () {
+test('infaq recap shows saldo kas only', function () {
     buatInfaq(['nominal' => 100000, 'status' => 'lunas', 'paid_at' => now()]);
     buatInfaq(['nominal' => 50000, 'status' => 'pending']);
 
     $this->actingAs(infaqAdmin())
         ->get('/admin/infaq')
         ->assertOk()
+        ->assertSee('Saldo Kas')
         ->assertSee('Rp 100.000')
-        ->assertSee('1 transaksi');
+        ->assertDontSee('Total Masuk (Lunas)')
+        ->assertDontSee('Total Keluar (Lunas)');
 });
 
 test('dashboard shows infaq widget and quick action for admin', function () {
@@ -271,12 +273,35 @@ test('dashboard hides infaq admin links from non admin users', function () {
         ->assertDontSee('Transaksi Infaq Terbaru');
 });
 
-test('public infaq total includes admin recorded lunas transactions', function () {
-    buatInfaq(['nominal' => 123000, 'status' => 'lunas', 'paid_at' => now()]);
+test('public infaq page shows form and transparansi but does not list donor names', function () {
+    // Donasi masuk tercatat (agregat boleh tampil), tapi identitas donatur tidak ditampilkan.
+    buatInfaq([
+        'kode_transaksi' => 'INF-MASUKPUB',
+        'nominal' => 123000,
+        'status' => 'lunas',
+        'arah' => 'masuk',
+        'nama_donatur' => 'Donatur Rahasia',
+        'paid_at' => now(),
+    ]);
+
+    // Pengeluaran/penyaluran (keluar) ditampilkan sebagai transparansi.
+    buatInfaq([
+        'kode_transaksi' => 'INF-KELUARPUB',
+        'nominal' => 45000,
+        'status' => 'lunas',
+        'arah' => 'keluar',
+        'nama_donatur' => 'Kas Keluar',
+        'catatan' => 'Santunan kegiatan',
+        'paid_at' => now(),
+    ]);
 
     $this->get('/infaq')
         ->assertOk()
-        ->assertSee('Rp 123.000');
+        ->assertSee('name="nominal"', false)
+        ->assertSee('Penyaluran', false)
+        ->assertSee('Santunan kegiatan')
+        ->assertDontSee('Donatur Rahasia')
+        ->assertDontSee('Donatur Terbaru');
 });
 
 test('admin can open the record and edit forms', function () {

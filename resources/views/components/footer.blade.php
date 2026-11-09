@@ -6,18 +6,18 @@
             <!-- Col 1: Identity & Address -->
             <div class="lg:col-span-5 flex flex-col">
                 <div class="flex items-center gap-3 mb-4">
-                    <img alt="Emblem NU" class="w-10 h-10 object-contain brightness-0 invert opacity-90" src="https://lh3.googleusercontent.com/aida/AEtjO1VVjAZeFl8x9UC1ygLyGJQ7s08PMheg8thGTpLjMGEDNy6dxehyc8qxHnJ3TWq0onXXPh6_HPNWDese-jycKUQ2eb98-bnO7YW_VY0GaCIEySrmJqvz-GHn0s7CMUqoutQaae-CsDK4XqFr1CTpqkfXyJQS3h0oeeJcHzC-gIHlGibUdsPPEn0o-vdxP46pPspwdFoEMDPWgm6H4UW6yedGPXqeoPVeyU2SVeokYJCsQ1wcEIIhfseMkPXD"/>
+                    <img alt="Logo NU" class="w-10 h-10 object-contain" src="{{ asset('images/logo.webp') }}" loading="lazy" width="40" height="40">
                     <div>
-                        <span class="font-extrabold text-lg tracking-tight block leading-none text-white">NU BANJARANYAR</span>
+                        <span class="font-extrabold text-lg tracking-tight block leading-none text-white">NU KECAMATAN CILONGOK</span>
                         <span class="text-xs text-white/60 font-medium">Kecamatan Cilongok, Banyumas</span>
                     </div>
                 </div>
                 <p class="text-sm text-white/70 leading-relaxed max-w-sm mb-6">
-                    Pengurus Ranting Nahdlatul Ulama Desa Banjaranyar, MWC NU Kecamatan Cilongok, PCNU Kabupaten Banyumas. Merawat akidah Ahlussunnah wal Jama'ah an-Nahdliyah.
+                    Pengurus Nahdlatul Ulama Kecamatan Cilongok, MWC NU Kecamatan Cilongok, PCNU Kabupaten Banyumas. Merawat akidah Ahlussunnah wal Jama'ah an-Nahdliyah.
                 </p>
                 <div class="flex items-start gap-2.5 text-xs text-white/60 leading-relaxed">
                     <span class="material-symbols-outlined text-[#B49352] text-[18px] shrink-0">location_on</span>
-                    <span>{{ $kontak['alamat'] ?? 'Gedung Sekretariat PRNU, Jl. Raya Cilongok No. 12, Banjaranyar, Banyumas, Jawa Tengah 53162' }}</span>
+                    <span>{{ $kontak['alamat'] ?? 'Gedung Sekretariat PRNU, Jl. Raya Cilongok No. 12, Kecamatan Cilongok, Banyumas, Jawa Tengah 53162' }}</span>
                 </div>
             </div>
 
@@ -50,7 +50,7 @@
                     <a class="hover:text-white transition-colors" href="{{ route('infaq.index') }}">• LAZISNU UPZIS</a>
                 </div>
                 <div class="mt-6 pt-4 border-t border-white/10 text-xs text-white/60">
-                    <p><strong class="text-white">Email:</strong> {{ $kontak['email'] ?? 'sekretariat@nubanjaranyar.or.id' }}</p>
+                    <p><strong class="text-white">Email:</strong> {{ $kontak['email'] ?? 'sekretariat@nukecamatancilongok.or.id' }}</p>
                     <p class="mt-1"><strong class="text-white">Jam Khidmat:</strong> {{ $kontak['jam_layanan'] ?? 'Setiap Hari Ahad & Rabu (08.00 - 16.00 WIB)' }}</p>
                 </div>
             </div>
@@ -58,7 +58,7 @@
 
         <!-- Copyright & Calligraphy -->
         <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-            <p>© {{ now()->year }} Nahdlatul Ulama Banjaranyar, Cilongok, Banyumas. Khidmat untuk Umat & Bangsa.</p>
+            <p>© {{ now()->year }} Nahdlatul Ulama Kecamatan Cilongok, Banyumas. Khidmat untuk Umat & Bangsa.</p>
             <p class="text-lg text-[#B49352] tracking-wide" style="font-family: 'Amiri', serif;">مَنْ أَحَبَّ قَوْمًا حُشِرَ مَعَهُمْ</p>
         </div>
     </div>

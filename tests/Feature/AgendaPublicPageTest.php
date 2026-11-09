@@ -24,7 +24,7 @@ test('public agenda page lists upcoming agenda', function () {
         'event_date' => now()->addDays(7)->toDateString(),
         'event_time' => '19:30 WIB',
         'location' => 'Masjid Baiturrahman',
-        'description' => 'Pengajian kitab kuning bersama jamaah Banjaranyar.',
+        'description' => 'Pengajian kitab kuning bersama jamaah Kecamatan Cilongok.',
     ]);
 
     $this->get('/agenda')

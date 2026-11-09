@@ -1,13 +1,13 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="p-2.5 bg-blue-50 text-blue-600 rounded-xl">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-start sm:items-center gap-3 min-w-0">
+                <div class="p-2.5 bg-blue-50 text-blue-600 rounded-xl shrink-0">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
                 </div>
-                <div>
+                <div class="min-w-0">
                     <h2 class="font-bold text-xl text-slate-800 leading-tight">
                         Manajemen Agenda Kegiatan
                     </h2>
@@ -15,20 +15,18 @@
                 </div>
             </div>
 
-            <div class="flex items-center gap-3">
-                <a href="{{ route('agenda.create') }}"
-                   class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-xs hover:shadow-emerald-200 hover:shadow-md">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    <span>Tambah Agenda Baru</span>
-                </a>
-            </div>
+            <a href="{{ route('agenda.create') }}"
+               class="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-xs hover:shadow-emerald-200 hover:shadow-md w-full sm:w-auto">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                <span>Tambah Agenda</span>
+            </a>
         </div>
     </x-slot>
 
-    <div class="py-8 bg-slate-50 min-h-[calc(100vh-4rem)]">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-4">
+    <div class="py-6 sm:py-8 bg-slate-50 min-h-[calc(100vh-4rem)]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
 
             {{-- Alert Sukses --}}
             @if (session('success'))
@@ -37,6 +35,16 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                     <span class="text-sm font-medium">{{ session('success') }}</span>
+                </div>
+            @endif
+
+            {{-- Alert Peringatan: tanggal sebelum hari ini --}}
+            @if (session('warning'))
+                <div class="p-4 bg-amber-50 border border-amber-300 text-amber-800 rounded-2xl flex items-start gap-3 shadow-xs" role="alert">
+                    <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                    </svg>
+                    <span class="text-sm font-medium">{{ session('warning') }}</span>
                 </div>
             @endif
 
@@ -50,41 +58,42 @@
                         </span>
                     </div>
 
-                    <form method="GET" action="{{ route('agenda.index') }}" class="flex items-center gap-2">
-                        <div class="flex-1 relative">
+                    <form method="GET" action="{{ route('agenda.index') }}" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                        <div class="flex-1 relative min-w-0">
                             <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                             </svg>
                             <input type="text" name="q" value="{{ $q }}" placeholder="Cari judul, kategori, lokasi, atau deskripsi..." 
-                                   class="w-full pl-10 pr-4 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                                   class="w-full pl-10 pr-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
                         </div>
-                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors">
-                            Cari
-                        </button>
-                        @if ($q !== '')
-                            <a href="{{ route('agenda.index') }}" class="px-4 py-2 bg-slate-200 text-slate-700 text-sm font-semibold rounded-lg hover:bg-slate-300 transition-colors">
-                                Reset
-                            </a>
-                        @endif
+                        <div class="flex gap-2">
+                            <button type="submit" class="flex-1 sm:flex-none px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors">
+                                Cari
+                            </button>
+                            @if ($q !== '')
+                                <a href="{{ route('agenda.index') }}" class="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2.5 bg-slate-200 text-slate-700 text-sm font-semibold rounded-xl hover:bg-slate-300 transition-colors">
+                                    Reset
+                                </a>
+                            @endif
+                        </div>
                     </form>
                 </div>
 
                 <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left border-collapse">
+                    <table class="w-full min-w-[560px] text-sm text-left border-collapse">
                         <thead>
                             <tr class="bg-slate-50 border-b border-slate-200/80 text-xs uppercase font-bold text-slate-500 tracking-wider">
-                                <th class="px-6 py-4">Tanggal</th>
-                                <th class="px-6 py-4">Judul</th>
-                                <th class="px-6 py-4">Kategori</th>
-                                <th class="px-6 py-4">Lokasi</th>
-                                <th class="px-6 py-4 text-center">Aksi</th>
+                                <th class="px-4 sm:px-6 py-4">Tanggal</th>
+                                <th class="px-4 sm:px-6 py-4">Agenda</th>
+                                <th class="px-4 sm:px-6 py-4">Kategori</th>
+                                <th class="px-4 sm:px-6 py-4 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
                             @forelse ($agendaList as $agenda)
                                 <tr class="hover:bg-slate-50/80 transition-colors">
                                     {{-- Tanggal --}}
-                                    <td class="px-6 py-4">
+                                    <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
                                         <div class="font-bold text-slate-900">
                                             {{ $agenda->event_date->translatedFormat('d M Y') }}
                                         </div>
@@ -93,29 +102,19 @@
                                         @endif
                                     </td>
 
-                                    {{-- Judul --}}
-                                    <td class="px-6 py-4">
-                                        <div class="font-bold text-slate-900 max-w-xs truncate">{{ $agenda->title }}</div>
-                                    </td>
-
-                                    {{-- Kategori --}}
-                                    <td class="px-6 py-4">
-                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100/80 text-emerald-800">
-                                            {{ $agenda->category }}
-                                        </span>
-                                    </td>
-
-                                    {{-- Lokasi --}}
-                                    <td class="px-6 py-4 text-slate-600 font-medium">
-                                        <div class="flex items-center gap-1.5">
-                                            <span class="max-w-45 truncate">{{ $agenda->location ?? '-' }}</span>
+                                    {{-- Agenda (judul + lokasi di bawah) --}}
+                                    <td class="px-4 sm:px-6 py-4">
+                                        <div class="font-bold text-slate-900 max-w-[16rem] sm:max-w-xs truncate">{{ $agenda->title }}</div>
+                                        <div class="mt-1 flex items-start gap-1.5 text-xs text-slate-500">
+                                            <svg class="w-3.5 h-3.5 mt-0.5 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            </svg>
+                                            <span class="break-words leading-snug">{{ $agenda->location ?? '-' }}</span>
                                             @if ($agenda->maps_link)
                                                 <a href="{{ $agenda->maps_link }}" target="_blank" rel="noopener noreferrer"
                                                    title="Buka di Google Maps"
-                                                   class="p-1 rounded-md text-slate-400 hover:text-emerald-700 hover:bg-emerald-50 transition shrink-0">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                    </svg>
+                                                   class="shrink-0 font-semibold text-emerald-700 hover:underline">
+                                                    Maps
                                                 </a>
                                             @endif
                                         </div>
@@ -124,8 +123,15 @@
                                         @endif
                                     </td>
 
+                                    {{-- Kategori --}}
+                                    <td class="px-4 sm:px-6 py-4">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100/80 text-emerald-800">
+                                            {{ $agenda->category }}
+                                        </span>
+                                    </td>
+
                                     {{-- Kolom Aksi --}}
-                                    <td class="px-6 py-4 text-center">
+                                    <td class="px-4 sm:px-6 py-4 text-center">
                                         <div class="inline-flex items-center gap-1.5 bg-slate-100/80 p-1.5 rounded-xl border border-slate-200/60">
                                             <a href="{{ route('agenda.edit', $agenda) }}"
                                                title="Edit Data"
@@ -153,7 +159,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center py-12">
+                                    <td colspan="4" class="text-center py-12">
                                         <div class="flex flex-col items-center justify-center space-y-3">
                                             <div class="p-4 bg-slate-100 text-slate-400 rounded-full">
                                                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">

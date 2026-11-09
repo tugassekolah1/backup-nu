@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id" class="scroll-smooth">
 <head>
-    <x-public-head title="Agenda Kegiatan — NU Banjaranyar" />
+    <x-public-head title="Agenda Kegiatan — NU Kecamatan Cilongok" />
 
     <style>
         /* Entrance animation (hormati reduced motion) */
@@ -79,7 +79,7 @@
                         </h1>
 
                         <p class="mt-5 text-base sm:text-lg text-white/80 leading-relaxed max-w-xl">
-                            Ikuti kegiatan rutin, pengajian kitab, dan agenda sosial Nahdlatul Ulama Desa Banjaranyar.
+                            Ikuti kegiatan rutin, pengajian kitab, dan agenda sosial Nahdlatul Ulama Kecamatan Cilongok.
                             Semua terbuka untuk warga dan jamaah.
                         </p>
                     </div>
@@ -116,7 +116,7 @@
             <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
                 <div>
                     <h2 class="font-heading text-3xl sm:text-4xl font-extrabold text-charcoal tracking-tight">Kegiatan yang Akan Datang</h2>
-                    <p class="text-base text-muted-charcoal mt-2">Susunan acara terbaru dari sekretariat PRNU Banjaranyar.</p>
+                    <p class="text-base text-muted-charcoal mt-2">Susunan acara terbaru dari sekretariat PRNU Kecamatan Cilongok.</p>
                 </div>
                 <span class="text-sm font-semibold text-muted-charcoal bg-warm-card border border-border-neutral rounded-full px-4 py-1.5">
                     {{ $upcomingAgenda->total() }} agenda terjadwal
@@ -257,7 +257,7 @@
                                    class="flex items-center gap-2 hover:text-nu-deep transition-colors group/loc"
                                    title="Buka lokasi di Google Maps">
                                     <span class="material-symbols-outlined text-[16px]">location_on</span>
-                                    <span class="truncate group-hover/loc:underline underline-offset-2">{{ $agenda->location ?? 'Sekretariat PRNU Banjaranyar' }}</span>
+                                    <span class="truncate group-hover/loc:underline underline-offset-2">{{ $agenda->location ?? 'Sekretariat PRNU Kecamatan Cilongok' }}</span>
                                     <span class="material-symbols-outlined text-[13px] shrink-0">open_in_new</span>
                                 </a>
                             </div>
@@ -302,7 +302,7 @@
                         Jadwal kegiatan berikutnya akan segera diumumkan. Silakan hubungi sekretariat untuk informasi kegiatan rutin mingguan.
                     </p>
                     <a class="mt-6 inline-flex items-center gap-2 px-6 py-3 min-h-[44px] rounded-full bg-nu-deep text-white text-sm font-semibold hover:bg-[#113725] transition-all active:scale-95"
-                       href="https://wa.me/{{ config('kontak.whatsapp') }}?text={{ urlencode('Assalamualaikum, mohon info jadwal kegiatan NU Banjaranyar') }}"
+                       href="https://wa.me/{{ config('kontak.whatsapp') }}?text={{ urlencode('Assalamualaikum, mohon info jadwal kegiatan NU Kecamatan Cilongok') }}"
                        rel="noopener noreferrer" target="_blank">
                         <span class="material-symbols-outlined text-[18px]">chat</span>
                         <span>Tanya Jadwal via WhatsApp</span>
@@ -322,7 +322,7 @@
                 <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
                     <div>
                         <h2 class="font-heading text-3xl sm:text-4xl font-extrabold text-charcoal tracking-tight">Agenda Telah Berlangsung</h2>
-                        <p class="text-base text-muted-charcoal mt-2">Rangkaian kegiatan terakhir bersama jamaah Banjaranyar.</p>
+                        <p class="text-base text-muted-charcoal mt-2">Rangkaian kegiatan terakhir bersama jamaah Kecamatan Cilongok.</p>
                     </div>
                 </div>
 
@@ -356,7 +356,7 @@
                                            class="inline-flex items-center gap-1.5 hover:text-nu-deep transition-colors group/loc"
                                            title="Buka lokasi di Google Maps">
                                             <span class="material-symbols-outlined text-[16px]">location_on</span>
-                                            <span class="truncate max-w-55 group-hover/loc:underline underline-offset-2">{{ $agenda->location ?? 'Sekretariat PRNU Banjaranyar' }}</span>
+                                            <span class="truncate max-w-55 group-hover/loc:underline underline-offset-2">{{ $agenda->location ?? 'Sekretariat PRNU Kecamatan Cilongok' }}</span>
                                             <span class="material-symbols-outlined text-[13px]">open_in_new</span>
                                         </a>
                                     </div>
@@ -391,7 +391,7 @@
                 </div>
                 <div class="relative shrink-0">
                     <a class="inline-flex items-center justify-center gap-3 px-8 py-4 min-h-[52px] rounded-full bg-nu-deep hover:bg-[#113725] text-white font-bold text-base shadow-subtle transition-all active:scale-95"
-                       href="https://wa.me/{{ config('kontak.whatsapp') }}?text={{ urlencode('Assalamualaikum, saya ingin ikut / mengusulkan agenda kegiatan NU Banjaranyar') }}"
+                       href="https://wa.me/{{ config('kontak.whatsapp') }}?text={{ urlencode('Assalamualaikum, saya ingin ikut / mengusulkan agenda kegiatan NU Kecamatan Cilongok') }}"
                        rel="noopener noreferrer" target="_blank">
                         <span class="material-symbols-outlined text-[22px]">chat</span>
                         <span>Hubungi Sekretariat</span>

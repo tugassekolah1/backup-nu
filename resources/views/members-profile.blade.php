@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id" class="scroll-smooth">
 <head>
-    <x-public-head title="Data Diri Saya — NU Banjaranyar" />
+    <x-public-head title="Data Diri Saya — NU Kecamatan Cilongok" />
 </head>
 
 <body class="bg-[#F5F7F4] text-[#17392D] antialiased selection:bg-[#E7ECE4] selection:text-[#16452F]">

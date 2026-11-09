@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'NU Banjaranyar') }}</title>
+    <title>{{ config('app.name', 'NU Kecamatan Cilongok') }}</title>
 
     <!-- Fonts: Inter (teks), Baloo 2 (judul), Amiri (kaligrafi), Inter (via body inline style) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -35,13 +35,13 @@
             </div>
 
             <div class="relative flex flex-col items-start">
-                <img src="{{ asset('images/logo.webp') }}" alt="Logo NU Banjaranyar"
+                <img src="{{ asset('images/logo.webp') }}" alt="Logo NU Kecamatan Cilongok"
                      class="w-36 xl:w-44 h-auto object-contain drop-shadow-2xl">
                 <h1 class="mt-7 text-4xl xl:text-5xl font-extrabold leading-[1.05] tracking-tight" style="font-family: 'Baloo 2', system-ui, sans-serif;">
-                    NU Ranting<br>Banjaranyar
+                    NU<br>Kecamatan Cilongok
                 </h1>
                 <p class="mt-3 max-w-xs text-sm leading-relaxed text-white/70">
-                    Nahdlatul Ulama Banjaranyar — Kecamatan Cilongok, Kabupaten Banyumas.
+                    Nahdlatul Ulama Kecamatan Cilongok — Kabupaten Banyumas.
                 </p>
                 <div class="mt-8 h-px w-24 bg-gradient-to-r from-[#B49352] to-transparent"></div>
                 <p class="mt-6 text-2xl xl:text-3xl text-[#EDE8DD]/90" style="font-family: 'Amiri', serif;">مَنْ أَحَبَّ قَوْمًا حُشِرَ مَعَهُمْ</p>
@@ -49,9 +49,9 @@
             </div>
 
             <div class="relative flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] text-white/45">
-                <span>© {{ now()->year }} NU Ranting Banjaranyar</span>
+                <span>© {{ now()->year }} NU Kecamatan Cilongok</span>
                 <span aria-hidden="true">·</span>
-                <span>nubanjaranyar@gmail.com</span>
+                <span>nukecamatancilongok@gmail.com</span>
             </div>
         </aside>
 
@@ -62,9 +62,9 @@
 
             {{-- Brand ringkas (mobile & tablet) --}}
             <a href="{{ route('landing') }}" class="relative lg:hidden mb-6 flex flex-col items-center text-center group">
-                <img src="{{ asset('images/logo.webp') }}" alt="Logo NU Banjaranyar"
+                <img src="{{ asset('images/logo.webp') }}" alt="Logo NU Kecamatan Cilongok"
                      class="w-20 h-auto object-contain transition-transform duration-300 group-hover:scale-105">
-                <span class="mt-2 text-sm font-extrabold text-[#16452F] tracking-tight">NU Ranting Banjaranyar</span>
+                <span class="mt-2 text-sm font-extrabold text-[#16452F] tracking-tight">NU Kecamatan Cilongok</span>
                 <span class="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#8A8F88]">Cilongok · Banyumas</span>
             </a>
 

@@ -204,7 +204,7 @@
                                 ->map(fn ($b) => [
                                     'label' => $b->judul,
                                     'value' => (int) $b->views,
-                                    'meta' => $b->jenis . ' · terbit ' . $b->created_at->format('d M Y'),
+                                    'meta' => $b->jenis . ' · terbit ' . ($b->tanggal_tampil ?? $b->created_at)->format('d M Y'),
                                 ])
                                 ->all()"/>
                         @endif

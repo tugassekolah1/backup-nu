@@ -10,7 +10,7 @@ function pendingRegistrationRequest(array $overrides = []): NuMember
         'full_name' => 'Pendaftar Baru',
         'phone' => '081234567801',
         'gender' => 'L',
-        'address' => 'Banjaranyar',
+        'address' => 'Kecamatan Cilongok',
         'status' => 'pending_payment',
         'registration_status' => 'pending',
     ], $overrides));

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id" class="scroll-smooth">
 <head>
-    <x-public-head title="Kontak & Alamat Sekretariat — NU Banjaranyar" />
+    <x-public-head title="Kontak & Alamat Sekretariat — NU Kecamatan Cilongok" />
 
     <style>
         .reveal {
@@ -76,7 +76,7 @@
                         </h1>
 
                         <p class="mt-5 text-base sm:text-lg text-white/80 leading-relaxed max-w-xl">
-                            Silakan hubungi sekretariat PRNU Banjaranyar untuk informasi kegiatan,
+                            Silakan hubungi sekretariat PRNU Kecamatan Cilongok untuk informasi kegiatan,
                             keanggotaan, dan layanan administrasi lainnya.
                         </p>
                     </div>
@@ -93,7 +93,7 @@
                                 </div>
                             </div>
                             <a class="mt-5 inline-flex w-full items-center justify-center gap-2 px-6 py-3.5 min-h-[48px] rounded-full bg-white text-nu-deep text-sm font-bold hover:bg-muted-sage transition-all active:scale-95"
-                               href="https://wa.me/{{ config('kontak.whatsapp') }}?text={{ urlencode('Assalamualaikum, saya ingin bertanya tentang NU Banjaranyar') }}"
+                               href="https://wa.me/{{ config('kontak.whatsapp') }}?text={{ urlencode('Assalamualaikum, saya ingin bertanya tentang NU Kecamatan Cilongok') }}"
                                rel="noopener noreferrer" target="_blank">
                                 <span class="material-symbols-outlined text-[18px]">chat</span>
                                 <span>Chat WhatsApp Sekarang</span>
@@ -118,10 +118,10 @@
                     </div>
                     <h2 class="text-base font-bold text-charcoal">Alamat Sekretariat</h2>
                     <p class="text-sm text-muted-charcoal leading-relaxed mt-2">
-                        Gedung Sekretariat PRNU, Jl. Raya Cilongok No. 12, Banjaranyar, Banyumas, Jawa Tengah 53162
+                        Gedung Sekretariat PRNU, Jl. Raya Cilongok No. 12, Kecamatan Cilongok, Banyumas, Jawa Tengah 53162
                     </p>
                     <a class="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-nu-deep hover:underline underline-offset-2"
-                       href="https://www.google.com/maps/search/?api=1&query={{ urlencode('Sekretariat PRNU Banjaranyar Cilongok Banyumas') }}"
+                       href="https://www.google.com/maps/search/?api=1&query={{ urlencode('Sekretariat PRNU Kecamatan Cilongok Cilongok Banyumas') }}"
                        rel="noopener noreferrer" target="_blank">
                         <span>Buka di Google Maps</span>
                         <span class="material-symbols-outlined text-[14px]">open_in_new</span>
@@ -150,10 +150,10 @@
                     </div>
                     <h2 class="text-base font-bold text-charcoal">Email</h2>
                     <p class="text-sm text-muted-charcoal leading-relaxed mt-2">
-                        sekretariat@nubanjaranyar.or.id<br>Untuk surat resmi dan kerja sama kelembagaan.
+                        sekretariat@nukecamatancilongok.or.id<br>Untuk surat resmi dan kerja sama kelembagaan.
                     </p>
                     <a class="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-nu-deep hover:underline underline-offset-2"
-                       href="mailto:sekretariat@nubanjaranyar.or.id">
+                       href="mailto:sekretariat@nukecamatancilongok.or.id">
                         <span>Kirim Email</span>
                         <span class="material-symbols-outlined text-[14px]">open_in_new</span>
                     </a>
@@ -185,8 +185,8 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-8">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
                     <div class="lg:col-span-7 overflow-hidden rounded-container-r border border-border-neutral shadow-subtle">
-                        <iframe title="Peta lokasi Sekretariat PRNU Banjaranyar"
-                                src="https://maps.google.com/maps?q={{ urlencode('Banjaranyar, Cilongok, Banyumas') }}&z=14&output=embed"
+                        <iframe title="Peta lokasi Sekretariat PRNU Kecamatan Cilongok"
+                                src="https://maps.google.com/maps?q={{ urlencode('Kecamatan Cilongok, Banyumas') }}&z=14&output=embed"
                                 class="w-full h-80 sm:h-96" style="border:0" loading="lazy"
                                 referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
                     </div>
@@ -199,7 +199,7 @@
                         </p>
                         <div class="mt-6 flex flex-wrap gap-3">
                             <a class="inline-flex items-center gap-2 px-6 py-3 min-h-[48px] rounded-full bg-nu-deep text-white text-sm font-semibold hover:bg-[#113725] transition-all active:scale-95"
-                               href="https://www.google.com/maps/search/?api=1&query={{ urlencode('Sekretariat PRNU Banjaranyar Cilongok Banyumas') }}"
+                               href="https://www.google.com/maps/search/?api=1&query={{ urlencode('Sekretariat PRNU Kecamatan Cilongok Cilongok Banyumas') }}"
                                rel="noopener noreferrer" target="_blank">
                                 <span class="material-symbols-outlined text-[18px]">directions</span>
                                 <span>Petunjuk Arah</span>

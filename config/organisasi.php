@@ -46,7 +46,7 @@ return [
                 ],
                 [
                     'judul' => 'Berdirinya MWCNU Cilongok',
-                    'isi' => 'Setelah Pengurus Cabang Nahdlatul Ulama (PCNU) Kabupaten Banyumas berkembang, dibentuklah Majelis Wakil Cabang Nahdlatul Ulama (MWCNU) Kecamatan Cilongok. Tugasnya menaungi puluhan Pengurus Ranting NU (PRNU) di desa-desa, termasuk Ranting NU Banjaranyar. Sejak berdiri, MWCNU Cilongok konsisten menjadi penggerak organisasi yang aktif.',
+                    'isi' => 'Setelah Pengurus Cabang Nahdlatul Ulama (PCNU) Kabupaten Banyumas berkembang, dibentuklah Majelis Wakil Cabang Nahdlatul Ulama (MWCNU) Kecamatan Cilongok. Tugasnya menaungi puluhan Pengurus Ranting NU (PRNU) di desa-desa, termasuk Ranting NU Kecamatan Cilongok. Sejak berdiri, MWCNU Cilongok konsisten menjadi penggerak organisasi yang aktif.',
                 ],
             ],
             'catatan' => 'Hingga saat ini, MWCNU Cilongok terus berbenah, termasuk dari sisi digital, demi melayani jamaah dan memperkuat organisasi menuju abad kedua Nahdlatul Ulama. Catatan: nama tokoh pendiri dan tahun terbitnya SK pertama MWC Cilongok masih menunggu data resmi dari sekretariat, dan akan ditambahkan bila data sudah tersedia.',
